@@ -1,3 +1,8 @@
+-- Serviços
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+
+-- Criando ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
@@ -5,6 +10,7 @@ local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
+local ImageLabel = Instance.new("ImageLabel")
 local dragging, dragInput, dragStart, startPos
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -12,14 +18,14 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 500, 0, 500)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+MainFrame.Size = UDim2.new(0, 500, 0, 600)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BackgroundTransparency = 0.3
 
 UICorner.CornerRadius = UDim.new(0, 20)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(0, 255, 255) -- Cor neon
+UIStroke.Color = Color3.fromRGB(0, 255, 255)
 UIStroke.Thickness = 2
 UIStroke.Parent = MainFrame
 
@@ -29,22 +35,29 @@ TitleLabel.Position = UDim2.new(0, 0, 0, -50)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "SCRIPTS-OP v1.0"
-TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Cor neon
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 30
 
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = TitleLabel
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = TitleLabel
+
+ImageLabel.Parent = MainFrame
+ImageLabel.Size = UDim2.new(1, -40, 0.2, -10)
+ImageLabel.Position = UDim2.new(0, 20, 0, 10)
+ImageLabel.Image = "rbxassetid://18394732434" -- ID da sua imagem
+ImageLabel.BackgroundTransparency = 1
 
 ScrollingFrame.Parent = MainFrame
-ScrollingFrame.Size = UDim2.new(1, -40, 1, -80)
-ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
+ScrollingFrame.Size = UDim2.new(1, -40, 0.7, -90)
+ScrollingFrame.Position = UDim2.new(0, 20, 0, 200)
 local maxButtons = 130
 local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ScrollingFrame.BackgroundTransparency = 0.2
 
 UIGridLayout.Parent = ScrollingFrame
@@ -54,140 +67,16 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 local scripts = {
     {"Rochips Universal", "https://glot.io/snippets/gzrux646yj/raw/main.ts"},
-    {"GhostHub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub"},
-    {"Zygarde", "https://raw.githubusercontent.com/louismich4el/Zygarde/main/Protected%20zygarde.lua"},
-    {"MainMenu", "https://raw.githubusercontent.com/SkibidiCen/MainMenu/main/Code"},
-    {"LatvixDoc", "https://raw.githubusercontent.com/Jonthedruger/LatvixDoc/script/idkgamenameforgot.lua"},
-    {"Infinite Yield (Universal)", "https://raw.githubusercontent.com/DarkNetworks/Infinite-Yield/main/latest.lua"},
-    {"Orca (Universal)", "https://raw.githubusercontent.com/richie0866/orca/master/public/latest.lua"},
-    {"ProjectPastel (Universal)", "https://raw.githubusercontent.com/NUTellaVING/ProjectPastel/main/Loader.lua"},
-    {"Wrestling Legends", "https://raw.githubusercontent.com/ToraScript/Script/main/WrestlingLegends"},
-    {"MurderersVsSheriffs", "https://raw.githubusercontent.com/RenceeeX/MVSD/refs/heads/main/MurderersVsSheriffs", true},
-    {"Pendulum Hub (Universal)", "https://scriptblox.com/raw/Universal-Script-Op-PENDULUM-HUB-Gui-R6-6490"},
-    {"SCRIPTHUBV3 (Universal)", "https://raw.githubusercontent.com/scripthubekitten/SCRIPTHUBV3/main/SCRIPTHUBV3"},
-    {"UTG V3 (Universal)", "https://raw.githubusercontent.com/Blukez/Scripts/main/UTG%20V3%20RAW"},
-    {"Speed-Hub (Blade Ball)", "https://raw.githubusercontentudepr0l8lkgGlzJds2hwQhn/Speed-Hub-Main-Releases-B-Y-R-E-N/refs/heads/main/Speed-Hub-Bladeball-Update-Lite-V2.txt"},
-    {"R6 Animations for R15", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"},
-    {"Fe Bypass", "https://raw.githubusercontent.com/g00lXploiter/g00lXploiter/main/Fe%20bypass"},
-    {"Azure V3 (Blox Fruit)", "https://raw.githubusercontent.com/BasementHub/BH-Blox-fruit/main/W-Azure-V3"},
-    {"XAZM Script List (Universal)", "https://raw.githubusercontent.com/YogaProjectRblx/XAZM-Script-List/refs/heads/main/Protected_8192991545688583.txt"},
-    {"Baldy To Sorcerer", "https://raw.githubusercontent.com/skibiditoiletfan2007/BaldyToSorcerer/refs/heads/main/LatestV2.lua"},
-    {"Skibidi Toilet War", "https://raw.githubusercontent.com/ExploiterGuy/Scriptblox-ExploitFin/refs/heads/main/Skibidi%20Toilet%20War"},
-    {"K1aPFVCp", "https://pastebin.com/raw/k1aPFVCp", true},
-    {"Zenith Hub Obfuscado", "https://raw.githubusercontent.com/LookP/Roblox/refs/heads/main/ZenithHubObsfucado.lua"},
-    {"Zenith Hub Knight Demons", "https://raw.githubusercontent.com/LookP/Roblox/refs/heads/main/ZenithHub%20Knight%20Demons.lua"},
-    {"Classic Nations OBF", "https://raw.githubusercontent.com/Gamer-3/ClassicNationsOBF/refs/heads/main/latest_version.lua", true},
-    {"QQt4pVtu", "https://pastebin"},
-    {"Burgeria Tycoon", "https://raw.githubusercontent.com/ExploiterGuy/Scriptblox-ExploitFin/refs/heads/main/Burgeria%20Tycoon.txt"},
-    {"DungeonRNG", "https://raw.githubusercontent.com/ProjectpopCat/ywxoscripts/main/DungeonRNG231.lua"},
-    {"XeraUltron (Blade Ball)", "https://raw.githubusercontent.com/luascriptsROBLOX/BladeBallXera/main/XeraUltron"},
-    {"Anime", "https://raw.githubusercontent.com/LHking123456/nsX94GqZju2km/refs/heads/main/Anime"},
-    {"Noname Hub (Universal)", "https://noname-hub.fun/loader.lua"},
-    {"Fish Release", "https://raw.githubusercontent.com/yolobradda/fischjvrre/refs/heads/main/fishrelease"},
-    {"InfiniteWare (Universal)", "https://raw.githubusercontent.com/Kitler69/InfiniteWare/refs/heads/main/Launcher", true},
-    {"Block Tales Auto Guard (Block Tales)", "https://raw.githubusercontent.com/TexRBLX/Roblox-stuff/refs/heads/main/block%20tales/Block-Tales-Auto-Guard.lua"},
-    {"Damonvip", "https://raw.githubusercontent.com/daucobonhi/seagame/main/Damonvip.lua"},
-    {"Pastebin Script", "https://pastebin.com/raw/z7TFbGEL"},
-    {"Skinwalker Hub", "https://raw.githubusercontent.com/lucas021ajds/theskinwalkerhub/main/script"},
-    {"X Script", "https://raw.githubusercontent.com/NICKISBAD/RM/main/xscript.lua"},
-    {"PizzeriaTycoon", "https://raw.githubusercontent.com/ToraScript/Script/main/PizzeriaTycoon"},
-    {"NovBoatR1", "https://raw.githubusercontent.com/novakoolhub/Scripts/main/Scripts/NovBoatR1"},
-    {"Vapa v2 Arsenal (Roblox Arsenal)", "https://raw.githubusercontent.com/Nickyangtpe/Vapa-v2/refs/heads/main/Vapav2-Arsenal.lua"},
-    {"PetsGo (Pet Simulator)", "https://raw.githubusercontent.com/RenceeeX/PetsGo/refs/heads/main/RenceeXHub"},
-    {"rybowescripts", "https://raw.githubusercontent.com/rybowe/rybowescripts/main/release.lua"},
-    {"XenonHub", "https://www.xenonhub.xyz/loader.lua"},
-    {"Pastebin Script 2", "https://pastebin.com/raw/n4pvk1Nk"},
-    {"Linux Hub", "https://raw.githubusercontent.com/wannagrindlikepablo/Linux-Hub/refs/heads/main/Linux%20Hub"},
-    {"OhhMyGehlee Script", "https://raw.githubusercontent.com/OhhMyGehlee/rel/refs/heads/main/el"},
-    {"YT", "https://raw.githubusercontent.com/OhhMyGehlee/at/refs/heads/main/yt"},
-    {"Zen Hub (Universal)", "https://raw.githubusercontent.com/Zenhubtop/zen_hub_pr/main/zennewwwwui.lua", true},
-    {"Chips/Pillow", "https://bit.ly/3IXeMlq"},
-    {"Noob Baseball Bat", "https://bit.ly/35ZY7il"},
-    {"Ban Sword", "https://bit.ly/35UwqYq"},
-    {"Rainbow Banisher", "https://bit.ly/3sRGZEM"},
-    {"Flamethrower", "https://bit.ly/3tIk2TL"},
-    {"Drone", "https://bit.ly/3IUPsN0"},
-    {"Pharoh", "https://bit.ly/3hRiaCx"},
-    {"Technoblade", "https://bit.ly/34mb6KS"},
-    {"Demonic Sword", "https://bit.ly/3HRBjih"},
-    {"SCP-106", "https://bit.ly/3HWTD9v"},
-    {"Chara", "https://bit.ly/3ClNT8p"},
-    {"Video Powers", "https://bit.ly/3vSa70n"},
-    {"Bumper Cars", "https://bit.ly/3MIWQgT"},
-    {"God Eater", "https://bit.ly/3Mv1iPX"},
-    {"Golden Claws", "https://bit.ly/3tBemdX"},
-    {"Big Daddy", "https://bit.ly/3KpMyjv"},
-    {"Noob Switcher", "https://bit.ly/3vSfqwO"},
-    {"The Angle", "https://bit.ly/3pLACAU"},
-    {"The Warden", "https://bit.ly/3hM3zrM"},
-    {"Gaster", "https://bit.ly/3CloY4M"},
-    {"Killer", "https://bit.ly/36ZZqyn"},
-    {"Spectrum Glitcher", "https://bit.ly/3sSi0RN"},
-    {"Ultimate Switcher", "https://bit.ly/3sQSbRW"},
-    {"Mask", "https://bit.ly/3sPoEYF"},
-    {"Switcher Wing Master", "https://bit.ly/3tHAFyy"},
-    {"Sutart", "https://bit.ly/3KtWzft"},
-    {"Xester V2 - In Pre-Alpha", "https://bit.ly/3KkYYcq"},
-    {"Dual Ultima", "https://bit.ly/3tCidre"},
-    {"Billie Elish", "https://bit.ly/3HRJ2wK"},
-    {"Sans V2", "https://bit.ly/3hNYMGt"},
-    {"Wing Gun Destroyer", "https://bit.ly/37co9jf"},
-    {"Hacker X", "https://bit.ly/3CqExIA"},
-    {"Carnage", "https://bit.ly/3vOp6s9"},
-    {"Minigun & Drone", "https://bit.ly/34qersp"},
-    {"Internal War", "https://bit.ly/3MKGqo3"},
-    {"Dear Sister Pistol", "https://bit.ly/3IDglnH"},
-    {"Amythest Ninja Blade", "https://bit.ly/3wAvlQN"},
-    {"PUBG Pan", "https://bit.ly/371egFu"},
-    {"Grab Knife V3 - Recommended", "https://bit.ly/3MBauma"},
-    {"Grab Knife V4", "https://bit.ly/35zXBIm"},
-    {"Hidden blades - From AC", "https://bit.ly/3vOxqbA"},
-    {"Despira", "https://bit.ly/3MyUAZe"},
-    {"Golden Fireball God", "https://bit.ly/3KI6j6j"},
-    {"Energy Blade Slapper", "https://bit.ly/364fyi8"},
-    {"Sniper", "https://bit.ly/3sRLBdU"},
-    {"Echo Banisher", "https://bit.ly/3pN5il3"},
-    {"What do I even name this?", "https://bit.ly/3Ktz4Ua"},
-    {"Incension Reborn", "https://bit.ly/3tB3w80"},
-    {"The Sun Is A Deadly laser", "https://bit.ly/35IeDUt"},
-    {"John Doe Blaster", "https://bit.ly/3hKeXER"},
-    {"The Distorted", "https://bit.ly/3KtVYdJ"},
-    {"Brutal Anti Furry", "https://bit.ly/3HLqxdm"},
-    {"Omni God", "https://bit.ly/3Cq1nQc"},
-    {"Baldi", "https://bit.ly/3Kpj1GH"},
-    {"Shedletsky Rage", "https://bit.ly/3pLSf3E"},
-    {"Nebula Star Glitcher", "https://bit.ly/3IUb8ZC"},
-    {"Lustris PURPLE", "https://bit.ly/3MzAGxq"},
-    {"Touhou Magic", "https://bit.ly/3pNw3Wz"},
-    {"Excalibur", "https://bit.ly/3tB2Qzu"},
-    {"John Doe", "https://bit.ly/3HWSAX7"},
-    {"What another one", "https://bit.ly/3IUKqjB"},
-    {"Ether", "https://bit.ly/3KhwWyC"},
-    {"Uncle Parlo The Redneck", "https://bit.ly/3tCGkpF"},
-    {"Eyo Zen", "https://bit.ly/3tB2UPK"},
-    {"Cop", "https://bit.ly/3CnvhEK"},
-    {"Verlex", "https://bit.ly/361hjws"},
-    {"Lost Hope", "https://bit.ly/3pLoUX1"},
-    {"The Assasian", "https://bit.ly/3Cm5lJI"},
-    {"Dragonian Pyramus", "https://bit.ly/3HRNuvi"},
-    {"Grappler", "https://bit.ly/3pIMKmg"},
-    {"Groundbreaker Gauntlets", "https://bit.ly/35JnOUC"},
-    {"Sexy Staff Girl", "https://bit.ly/35FwHyH"},
-    {"Jojo Super Gauntlets", "https://bit.ly/35Fwyv5"},
-    {"The Pacifist", "https://bit.ly/361hKH6"},
-    {"Sakura Blade", "https://bit.ly/3pLoShL"},
-    {"M41451", "https://bit.ly/35FwKKT"},
-    {"Master Of Elements", "https://bit.ly/3IROgtC"},
-    {"AK47", "https://bit.ly/3hPAdJi"},
-    {"AKV", "https://bit.ly/35z9zC3"}
+    {"GhostHub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub"}
 }
+
 local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(0, 255, 0) -- Verde
+    Button.TextColor3 = Color3.fromRGB(0, 255, 0)
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
@@ -196,28 +85,33 @@ local function createDetailedButton(scriptInfo)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = Color3.fromRGB(255, 0, 0) -- Vermelho
+    ButtonStroke.Color = Color3.fromRGB(255, 0, 0)
     ButtonStroke.Thickness = 2
     ButtonStroke.Parent = Button
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200))
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
 
     Button.MouseEnter:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo ao passar o mouse
+        Button.TextColor3 = Color3.fromRGB(255, 255, 0)
     end)
 
     Button.MouseLeave:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(0, 255, 0) -- Volta ao verde
+        Button.TextColor3 = Color3.fromRGB(0, 255, 0)
     end)
 
     Button.MouseButton1Click:Connect(function()
-        loadstring(game:HttpGet(scriptInfo[2]))()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(scriptInfo[2]))()
+        end)
+        if not success then
+            warn("Failed to load script: " .. scriptInfo[1] .. "\nError: " .. err)
+        end
     end)
 
     local tweenService = game:GetService("TweenService")
@@ -244,13 +138,13 @@ MainFrame.InputBegan:Connect(function(input)
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
-            end
+            end)
         end)
     end
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
