@@ -3,35 +3,21 @@ local Frame = Instance.new("Frame")
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-Frame.Size = UDim2.new(0, 600, 0, 300)
-Frame.Position = UDim2.new(0.5, -300, 0.5, -150)
-Frame.Active = true
-Frame.Draggable = true
-Frame.BorderSizePixel = 5
-Frame.BorderColor3 = Color3.new(0, 1, 1)
-Frame.BackgroundTransparency = 0.3
+
+-- Definindo a imagem de fundo com transparência
+local ImageLabel = Instance.new("ImageLabel")
+ImageLabel.Parent = Frame
+ImageLabel.Size = UDim2.new(1, 0, 1, 0)
+ImageLabel.Position = UDim2.new(0, 0, 0, 0)
+ImageLabel.Image = "rbxassetid://1049060234"  -- ID da imagem
+ImageLabel.ImageTransparency = 0.5
+ImageLabel.BackgroundTransparency = 1
+
+Frame.BackgroundTransparency = 1  -- Torna o Frame transparente
 
 local UICorner = Instance.new("UICorner")
 UICorner.Parent = Frame
 UICorner.CornerRadius = UDim.new(0, 15)
-
-local UIGradient = Instance.new("UIGradient")
-UIGradient.Parent = Frame
-UIGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(0, 255, 255)),
-    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 128, 255))
-})
-
--- Adicionando sombra ao Frame
-local Shadow = Instance.new("Frame")
-Shadow.Parent = Frame
-Shadow.Size = Frame.Size + UDim2.new(0, 10, 0, 10)
-Shadow.Position = Frame.Position + UDim2.new(0, 5, 0, 5)
-Shadow.BackgroundColor3 = Color3.new(0, 0, 0)
-Shadow.BorderSizePixel = 0
-Shadow.BackgroundTransparency = 0.5
-Shadow.ZIndex = 0
 
 local Title = Instance.new("TextLabel")
 Title.Parent = Frame
@@ -179,4 +165,4 @@ KeyInput.FocusLost:Connect(function(enterPressed)
         InfoLabel.Text = valid and "Chave válida: Sim" or "Chave válida: Não"
         InfoLabel.TextColor3 = valid and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
     end
-    end)
+end)
