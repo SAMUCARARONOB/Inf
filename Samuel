@@ -1,168 +1,145 @@
 local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local ImageLabel = Instance.new("ImageLabel")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local UIGridLayout = Instance.new("UIGridLayout")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local dragging, dragInput, dragStart, startPos
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-Frame.Parent = ScreenGui
 
--- Definindo a imagem de fundo com transparência
-local ImageLabel = Instance.new("ImageLabel")
-ImageLabel.Parent = Frame
-ImageLabel.Size = UDim2.new(1, 0, 1, 0)
-ImageLabel.Position = UDim2.new(0, 0, 0, 0)
-ImageLabel.Image = "rbxassetid://1049060234"  -- ID da imagem
-ImageLabel.ImageTransparency = 0.5
-ImageLabel.BackgroundTransparency = 1
+MainFrame.Parent = ScreenGui
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.Size = UDim2.new(0, 500, 0, 500)
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Cor cinza escura
+MainFrame.BackgroundTransparency = 0.2
 
-Frame.BackgroundTransparency = 1  -- Torna o Frame transparente
-
-local UICorner = Instance.new("UICorner")
-UICorner.Parent = Frame
 UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
 
-local Title = Instance.new("TextLabel")
-Title.Parent = Frame
-Title.Size = UDim2.new(1, 0, 0.2, 0)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Text = "Sistema de Chave Futurista"
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 32
-Title.TextStrokeTransparency = 0
+UIStroke.Color = Color3.fromRGB(100, 100, 255) -- Azul
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
 
-local SubTitle = Instance.new("TextLabel")
-SubTitle.Parent = Frame
-SubTitle.Size = UDim2.new(1, 0, 0.1, 0)
-SubTitle.Position = UDim2.new(0, 0, 0.2, 0)
-SubTitle.Text = "Insira sua chave abaixo:"
-SubTitle.TextColor3 = Color3.new(1, 1, 1)
-SubTitle.BackgroundTransparency = 1
-SubTitle.Font = Enum.Font.SourceSans
-SubTitle.TextSize = 24
+TitleLabel.Parent = MainFrame
+TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+TitleLabel.Position = UDim2.new(0, 0, 0, -50)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+TitleLabel.BackgroundTransparency = 0.5
+TitleLabel.Text = "SCRIPTS-OP v1.0"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 28
 
-local TextBoxFrame = Instance.new("Frame")
-TextBoxFrame.Parent = Frame
-TextBoxFrame.Size = UDim2.new(0.9, 0, 0.15, 0)
-TextBoxFrame.Position = UDim2.new(0.05, 0, 0.35, 0)
-TextBoxFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-TextBoxFrame.BackgroundTransparency = 0.5
-TextBoxFrame.BorderSizePixel = 0
+ImageLabel.Parent = TitleLabel
+ImageLabel.Size = UDim2.new(0, 19, 0, 19)
+ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
+ImageLabel.Image = "rbxassetid://1049060234"
 
-local KeyInput = Instance.new("TextBox")
-KeyInput.Parent = TextBoxFrame
-KeyInput.Size = UDim2.new(1, 0, 1, 0)
-KeyInput.Text = ""
-KeyInput.PlaceholderText = "Digite a chave..."
-KeyInput.TextColor3 = Color3.new(1, 1, 1)
-KeyInput.BackgroundTransparency = 1
-KeyInput.Font = Enum.Font.SourceSans
-KeyInput.TextSize = 24
-KeyInput.ClearTextOnFocus = false
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = TitleLabel
 
-local UICornerTextbox = Instance.new("UICorner")
-UICornerTextbox.Parent = TextBoxFrame
-UICornerTextbox.CornerRadius = UDim.new(0, 10)
+ScrollingFrame.Parent = MainFrame
+ScrollingFrame.Size = UDim2.new(1, -40, 1, -80)
+ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
+local maxButtons = 50
+local buttonHeight = 60
+local spacing = 10
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
+ScrollingFrame.ScrollBarThickness = 8
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+ScrollingFrame.BackgroundTransparency = 0.2
 
-local ConfirmButton = Instance.new("TextButton")
-ConfirmButton.Parent = Frame
-ConfirmButton.Size = UDim2.new(0.3, 0, 0.15, 0)
-ConfirmButton.Position = UDim2.new(0.35, 0, 0.55, 0)
-ConfirmButton.Text = "Confirmar"
-ConfirmButton.TextColor3 = Color3.new(1, 1, 1)
-ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
-ConfirmButton.Font = Enum.Font.SourceSansBold
-ConfirmButton.TextSize = 24
-ConfirmButton.BackgroundTransparency = 0.1
+UIGridLayout.Parent = ScrollingFrame
+UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIGridLayout.CellSize = UDim2.new(1, 0, 0, 60)
+UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
-local UICornerButton = Instance.new("UICorner")
-UICornerButton.Parent = ConfirmButton
-UICornerButton.CornerRadius = UDim.new(0, 10)
+local scripts = {
+    {"Rochips Universal", "https://glot.io/snippets/gzrux646yj/raw/main.ts"},
+    {"GhostHub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub"},
+    {"Zygarde", "https://raw.githubusercontent.com/louismich4el/Zygarde/main/Protected%20zygarde.lua"}
+}
 
--- Adicionando botão de cópia
-local CopyButton = Instance.new("TextButton")
-CopyButton.Parent = Frame
-CopyButton.Size = UDim2.new(0.3, 0, 0.15, 0)
-CopyButton.Position = UDim2.new(0.35, 0, 0.75, 0)
-CopyButton.Text = "CÓPIA"
-CopyButton.TextColor3 = Color3.new(1, 1, 1)
-CopyButton.BackgroundColor3 = Color3.new(0.5, 0.5, 1)
-CopyButton.Font = Enum.Font.SourceSansBold
-CopyButton.TextSize = 24
-CopyButton.BackgroundTransparency = 0.1
+local function createDetailedButton(scriptInfo)
+    local Button = Instance.new("TextButton")
+    Button.Parent = ScrollingFrame
+    Button.Text = scriptInfo[1]
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul
+    Button.BorderSizePixel = 0
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+    Button.Font = Enum.Font.SourceSansBold
+    Button.TextScaled = true
 
-local UICornerCopyButton = Instance.new("UICorner")
-UICornerCopyButton.Parent = CopyButton
-UICornerCopyButton.CornerRadius = UDim.new(0, 10)
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = Button
 
--- Função para copiar o texto ao clicar no botão de cópia
-CopyButton.MouseButton1Click:Connect(function()
-    setclipboard("Key_A.SEO8CJ<%289÷2]8YE199DJPSSAMMMMDLDKFJFO20Ij")
-    CopyButton.Text = "Copiado!"
-    wait(0.5)
-    CopyButton.Text = "CÓPIA"
-end)
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Color = Color3.fromRGB(255, 255, 255) -- Branco
+    ButtonStroke.Thickness = 2
+    ButtonStroke.Parent = Button
 
--- Função de feedback ao clicar no botão Confirmar
-ConfirmButton.MouseButton1Click:Connect(function()
-    if KeyInput.Text == "Key_A.SEO8CJ<%289÷2]8YE199DJPSSAMMMMDLDKFJFO20Ij" then
-        -- Destruir a interface
-        ScreenGui:Destroy()
-        -- Executar o script fornecido
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/92929923837373-/refs/heads/main/OPENKEYSMLCST"))()
-    else
-        ConfirmButton.Text = "Confirmado!"
-        ConfirmButton.BackgroundColor3 = Color3.new(0, 1, 0.6)
-        wait(0.5)
-        ConfirmButton.Text = "Confirmar"
-        ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
+    local ButtonGradient = Instance.new("UIGradient")
+    ButtonGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
+    }
+    ButtonGradient.Rotation = 45
+    ButtonGradient.Parent = Button
+
+    Button.MouseEnter:Connect(function()
+        Button.TextColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo ao passar o mouse
+    end)
+
+    Button.MouseLeave:Connect(function()
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Volta ao branco
+    end)
+
+    Button.MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet(scriptInfo[2]))()
+    end)
+
+    local tweenService = game:GetService("TweenService")
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true)
+    local goal = {BackgroundColor3 = Color3.fromRGB(200, 200, 200)}
+    local tween = tweenService:Create(Button, tweenInfo, goal)
+    tween:Play()
+end
+
+for i = 1, #scripts do
+    createDetailedButton(scripts[i])
+end
+
+local function update(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
     end
 end)
 
-local InfoLabel = Instance.new("TextLabel")
-InfoLabel.Parent = Frame
-InfoLabel.Size = UDim2.new(1, 0, 0.15, 0)
-InfoLabel.Position = UDim2.new(0, 0, 0.85, 0)
-InfoLabel.Text = "Chave válida: N/A"
-InfoLabel.TextColor3 = Color3.new(1, 1, 1)
-InfoLabel.BackgroundTransparency = 1
-InfoLabel.Font = Enum.Font.SourceSans
-InfoLabel.TextSize = 20
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
 
--- Adicionando barra de progresso ao Frame
-local ProgressBar = Instance.new("Frame")
-ProgressBar.Parent = Frame
-ProgressBar.Size = UDim2.new(0.9, 0, 0.05, 0)
-ProgressBar.Position = UDim2.new(0.05, 0, 0.75, 0)
-ProgressBar.BackgroundColor3 = Color3.new(0.25, 0.25, 0.25)
-ProgressBar.BorderSizePixel = 0
-
-local ProgressFill = Instance.new("Frame")
-ProgressFill.Parent = ProgressBar
-ProgressFill.Size = UDim2.new(0, 0, 1, 0)
-ProgressFill.BackgroundColor3 = Color3.new(0, 1, 0.6)
-
-local UICornerProgress = Instance.new("UICorner")
-UICornerProgress.Parent = ProgressBar
-UICornerProgress.CornerRadius = UDim.new(0, 10)
-
--- Função para animar barra de progresso
-local function animateProgress(duration)
-    ProgressFill:TweenSize(
-        UDim2.new(1, 0, 1, 0),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Quart,
-        duration,
-        true
-    )
-end
-
--- Função para validar a chave inserida
-KeyInput.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        animateProgress(1) -- Duração da animação
-        wait(1) -- Espera a animação terminar
-        local valid = KeyInput.Text == "chave_correta"
-        InfoLabel.Text = valid and "Chave válida: Sim" or "Chave válida: Não"
-        InfoLabel.TextColor3 = valid and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
     end
 end)
