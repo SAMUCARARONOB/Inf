@@ -37,7 +37,7 @@ TitleLabel.TextSize = 30
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
 ImageLabel.Position = UDim2.new(0, -30, 0.5, -9.5)
-ImageLabel.Image = "rbxassetid://5804028205"
+ImageLabel.Image = "rbxassetid://18394732434" -- Nova imagem
 
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
