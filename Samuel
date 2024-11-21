@@ -13,31 +13,31 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 500, 0, 500)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Cor cinza escura
+MainFrame.Size = UDim2.new(0, 600, 0, 600)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Preto fosco
 MainFrame.BackgroundTransparency = 0.2
 
-UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.CornerRadius = UDim.new(0, 20)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(100, 100, 255) -- Azul
-UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(0, 255, 255) -- Neon ciano
+UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
 TitleLabel.Parent = MainFrame
-TitleLabel.Size = UDim2.new(1, 0, 0, 50)
-TitleLabel.Position = UDim2.new(0, 0, 0, -50)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+TitleLabel.Size = UDim2.new(1, -40, 0, 50)
+TitleLabel.Position = UDim2.new(0.5, -280, 0, -40)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "SCRIPTS-OP v1.0"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Neon ciano
 TitleLabel.Font = Enum.Font.SourceSansBold
-TitleLabel.TextSize = 28
+TitleLabel.TextSize = 30
 
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
-ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
-ImageLabel.Image = "rbxassetid://1049060234"
+ImageLabel.Position = UDim2.new(0, -30, 0.5, -9.5)
+ImageLabel.Image = "rbxassetid://5804028205"
 
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
@@ -50,7 +50,7 @@ local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Preto fosco
 ScrollingFrame.BackgroundTransparency = 0.2
 
 UIGridLayout.Parent = ScrollingFrame
@@ -68,9 +68,9 @@ local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+    Button.TextColor3 = Color3.fromRGB(0, 255, 255) -- Neon ciano
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
@@ -79,14 +79,14 @@ local function createDetailedButton(scriptInfo)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = Color3.fromRGB(255, 255, 255) -- Branco
+    ButtonStroke.Color = Color3.fromRGB(0, 255, 255) -- Neon ciano
     ButtonStroke.Thickness = 2
     ButtonStroke.Parent = Button
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 150)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
@@ -96,7 +96,7 @@ local function createDetailedButton(scriptInfo)
     end)
 
     Button.MouseLeave:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Volta ao branco
+        Button.TextColor3 = Color3.fromRGB(0, 255, 255) -- Volta ao neon ciano
     end)
 
     Button.MouseButton1Click:Connect(function()
@@ -105,7 +105,7 @@ local function createDetailedButton(scriptInfo)
 
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true)
-    local goal = {BackgroundColor3 = Color3.fromRGB(200, 200, 200)}
+    local goal = {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}
     local tween = tweenService:Create(Button, tweenInfo, goal)
     tween:Play()
 end
@@ -133,7 +133,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
