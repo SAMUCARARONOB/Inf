@@ -118,11 +118,18 @@ end)
 
 -- Função de feedback ao clicar no botão Confirmar
 ConfirmButton.MouseButton1Click:Connect(function()
-    ConfirmButton.Text = "Confirmado!"
-    ConfirmButton.BackgroundColor3 = Color3.new(0, 1, 0.6)
-    wait(0.5)
-    ConfirmButton.Text = "Confirmar"
-    ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
+    if KeyInput.Text == "Key_A.SEO8CJ<%289÷2]8YE199DJPSSAMMMMDLDKFJFO20Ij" then
+        -- Destruir a interface
+        ScreenGui:Destroy()
+        -- Executar o script fornecido
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/92929923837373-/refs/heads/main/OPENKEYSMLCST"))()
+    else
+        ConfirmButton.Text = "Confirmado!"
+        ConfirmButton.BackgroundColor3 = Color3.new(0, 1, 0.6)
+        wait(0.5)
+        ConfirmButton.Text = "Confirmar"
+        ConfirmButton.BackgroundColor3 = Color3.new(0, 0.6, 0.6)
+    end
 end)
 
 local InfoLabel = Instance.new("TextLabel")
@@ -172,4 +179,4 @@ KeyInput.FocusLost:Connect(function(enterPressed)
         InfoLabel.Text = valid and "Chave válida: Sim" or "Chave válida: Não"
         InfoLabel.TextColor3 = valid and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
     end
-end)
+    end)
