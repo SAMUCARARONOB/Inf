@@ -91,14 +91,14 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://10101010101010" -- Imagem holográfica
+hologram.Image = "rbxassetid://00000000000" -- Imagem holográfica
 hologram.ImageTransparency = 0.7
 hologram.BackgroundTransparency = 1
 
 NeonEffect.Parent = MainFrame
 NeonEffect.Size = MainFrame.Size
 NeonEffect.Position = MainFrame.Position
-NeonEffect.Image = "rbxassetid://1010101010101010" -- Efeito neon
+NeonEffect.Image = "rbxassetid://0000000" -- Efeito neon
 NeonEffect.ImageTransparency = 0.9
 NeonEffect.BackgroundTransparency = 1
 
