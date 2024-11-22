@@ -15,39 +15,39 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 600, 0, 700)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainFrame.BackgroundTransparency = 0.1
+MainFrame.Size = UDim2.new(0, 500, 0, 600)
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MainFrame.BackgroundTransparency = 0.2
 
-UICornerMain.CornerRadius = UDim.new(0, 30)
+UICornerMain.CornerRadius = UDim.new(0, 20)
 UICornerMain.Parent = MainFrame
 
-UIStrokeMain.Color = Color3.fromRGB(150, 150, 255)
-UIStrokeMain.Thickness = 3
+UIStrokeMain.Color = Color3.fromRGB(100, 100, 255)
+UIStrokeMain.Thickness = 2
 UIStrokeMain.Parent = MainFrame
 
 TitleLabel.Parent = MainFrame
-TitleLabel.Size = UDim2.new(1, 0, 0, 70)
-TitleLabel.Position = UDim2.new(0, 0, 0, -70)
+TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+TitleLabel.Position = UDim2.new(0, 0, 0, -50)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleLabel.BackgroundTransparency = 0.3
+TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "SCRIPTS-OP v1.0"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.Font = Enum.Font.SourceSansBold
-TitleLabel.TextSize = 32
+TitleLabel.TextSize = 28
 
 ImageLabel.Parent = TitleLabel
-ImageLabel.Size = UDim2.new(0, 30, 0, 30)
-ImageLabel.Position = UDim2.new(0, 15, 0.5, -15)
+ImageLabel.Size = UDim2.new(0, 24, 0, 24)
+ImageLabel.Position = UDim2.new(0, 10, 0.5, -12)
 ImageLabel.Image = "rbxassetid://18394732434"
 
-UICornerTitle.CornerRadius = UDim.new(0, 15)
+UICornerTitle.CornerRadius = UDim.new(0, 10)
 UICornerTitle.Parent = TitleLabel
 
 local Gradient = Instance.new("UIGradient")
 Gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)), 
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 120, 120))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)), 
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 100, 100))
 }
 Gradient.Rotation = 45
 Gradient.Parent = MainFrame
@@ -59,50 +59,22 @@ Shadow.Size = UDim2.new(1, 10, 1, 10)
 Shadow.BackgroundTransparency = 1
 Shadow.Image = "rbxassetid://1316045217"
 Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.5
+Shadow.ImageTransparency = 0.6
 Shadow.ScaleType = Enum.ScaleType.Slice
 Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 Shadow.Parent = MainFrame
 
-local Highlight = Instance.new("UIStroke")
-Highlight.Parent = MainFrame
-Highlight.Color = Color3.fromRGB(0, 255, 255)
-Highlight.Thickness = 4
-Highlight.Transparency = 0.5
-
-local AnimatedStroke = Instance.new("UIStroke")
-AnimatedStroke.Parent = MainFrame
-AnimatedStroke.Color = Color3.fromRGB(255, 255, 0)
-AnimatedStroke.Thickness = 2
-AnimatedStroke.Transparency = 0.3
-
-local AnimatedGradient = Instance.new("UIGradient")
-AnimatedGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 0)), 
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 128, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-}
-AnimatedGradient.Rotation = 90
-AnimatedGradient.Offset = Vector2.new(-0.5, 0)
-AnimatedGradient.Parent = MainFrame
-
-local TweenService = game:GetService("TweenService")
-local TweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local TweenGoal = {Offset = Vector2.new(0.5, 0)}
-local Tween = TweenService:Create(AnimatedGradient, TweenInfo, TweenGoal)
-Tween:Play()
-
 ScrollingFrame.Parent = MainFrame
-ScrollingFrame.Size = UDim2.new(1, -40, 1, -120)
-ScrollingFrame.Position = UDim2.new(0, 20, 0, 80)
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 4000)
+ScrollingFrame.Size = UDim2.new(1, -40, 1, -100)
+ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 3000)
 ScrollingFrame.ScrollBarThickness = 8
 ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ScrollingFrame.BackgroundTransparency = 0.2
 
 UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(1, 0, 0, 80)
+UIGridLayout.CellSize = UDim2.new(1, 0, 0, 70)
 UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 local scripts = {
@@ -122,7 +94,7 @@ local function createDetailedButton(scriptInfo)
     Button.TextScaled = true
 
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 15)
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
@@ -180,7 +152,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
 end)
