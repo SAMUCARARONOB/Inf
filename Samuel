@@ -1,11 +1,11 @@
 local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local TitleLabel = Instance.new("TextLabel")
+local MainFrame = Instance TitleLabel = Instance.new("TextLabel")
 local ImageLabel = Instance.new("ImageLabel")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
+local UIGradient = Instance.new("UIGradient")
 local dragging, dragInput, dragStart, startPos
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -13,47 +13,51 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 500, 0, 500)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Cor mais escura
+MainFrame.Size = UDim2.new(0, 550, 0, 550) -- Tamanho um pouco maior
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- Cor cinza mais escura
 MainFrame.BackgroundTransparency = 0.1
-MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = true
 
 UICorner.CornerRadius = UDim.new(0, 20)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(0, 120, 255) -- Azul vibrante
+UIStroke.Color = Color3.fromRGB(50, 50, 255) -- Azul mais escuro
 UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
+}
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
+
 TitleLabel.Parent = MainFrame
-TitleLabel.Size = UDim2.new(1, 0, 0, 60)
-TitleLabel.Position = UDim2.new(0, 0, 0, -60)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleLabel.BackgroundTransparency = 0.3
+TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+TitleLabel.Position = UDim2.new(0, 0, 0, -50)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "SCRIPTS-OP v1.0"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 30
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 28
+
+ImageLabel.Parent = TitleLabel
+ImageLabel.Size = UDim2.new(0, 25, 0, 25) -- Imagem maior
+ImageLabel.Position = UDim2.new(0, 10, 0.5, -12.5)
+ImageLabel.Image = "rbxassetid://18394732434"
 
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
 
-ImageLabel.Parent = TitleLabel
-ImageLabel.Size = UDim2.new(0, 24, 0, 24)
-ImageLabel.Position = UDim2.new(0, 10, 0.5, -12)
-ImageLabel.Image = "rbxassetid://18394732434"
-ImageLabel.ImageTransparency = 0.1
-
 ScrollingFrame.Parent = MainFrame
-ScrollingFrame.Size = UDim2.new(1, -40, 1, -100)
-ScrollingFrame.Position = UDim2.new(0, 20, 0, 80)
+ScrollingFrame.Size = UDim2.new(1, -40, 1, -80)
+ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
 local maxButtons = 50
 local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Mais escuro
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
 ScrollingFrame.BackgroundTransparency = 0.2
 
 UIGridLayout.Parent = ScrollingFrame
@@ -71,14 +75,14 @@ local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(0, 85, 255) -- Azul moderno
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul
     Button.BorderSizePixel = 0
     Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
-    Button.Font = Enum.Font.GothamBold
+    Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 15)
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
@@ -88,8 +92,8 @@ local function createDetailedButton(scriptInfo)
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 190, 255)), -- Neon ciano
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 140, 255)) -- Tom ciano
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
@@ -108,7 +112,7 @@ local function createDetailedButton(scriptInfo)
 
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true)
-    local goal = {BackgroundColor3 = Color3.fromRGB(0, 70, 230)}
+    local goal = {BackgroundColor3 = Color3.fromRGB(200, 200, 200)}
     local tween = tweenService:Create(Button, tweenInfo, goal)
     tween:Play()
 end
