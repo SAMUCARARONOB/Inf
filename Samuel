@@ -4,10 +4,8 @@ local TitleLabel = Instance.new("TextLabel")
 local ImageLabel = Instance.new("ImageLabel")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
-local UICornerMain = Instance.new("UICorner")
-local UICornerTitle = Instance.new("UICorner")
-local UICornerButton = Instance.new("UICorner")
-local UIStrokeMain = Instance.new("UIStroke")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
 local dragging, dragInput, dragStart, startPos
 
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -15,66 +13,49 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 500, 0, 600)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MainFrame.Size = UDim2.new(0, 500, 0, 500)
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Cor cinza escura
 MainFrame.BackgroundTransparency = 0.2
 
-UICornerMain.CornerRadius = UDim.new(0, 20)
-UICornerMain.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
 
-UIStrokeMain.Color = Color3.fromRGB(100, 100, 255)
-UIStrokeMain.Thickness = 2
-UIStrokeMain.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(100, 100, 255) -- Azul
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
 
 TitleLabel.Parent = MainFrame
 TitleLabel.Size = UDim2.new(1, 0, 0, 50)
 TitleLabel.Position = UDim2.new(0, 0, 0, -50)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "SCRIPTS-OP v1.0"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 28
 
 ImageLabel.Parent = TitleLabel
-ImageLabel.Size = UDim2.new(0, 24, 0, 24)
-ImageLabel.Position = UDim2.new(0, 10, 0.5, -12)
+ImageLabel.Size = UDim2.new(0, 19, 0, 19)
+ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
 ImageLabel.Image = "rbxassetid://18394732434"
 
-UICornerTitle.CornerRadius = UDim.new(0, 10)
-UICornerTitle.Parent = TitleLabel
-
-local Gradient = Instance.new("UIGradient")
-Gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)), 
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 100, 100))
-}
-Gradient.Rotation = 45
-Gradient.Parent = MainFrame
-
-local Shadow = Instance.new("ImageLabel")
-Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1, 10, 1, 10)
-Shadow.BackgroundTransparency = 1
-Shadow.Image = "rbxassetid://1316045217"
-Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.6
-Shadow.ScaleType = Enum.ScaleType.Slice
-Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
-Shadow.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = TitleLabel
 
 ScrollingFrame.Parent = MainFrame
-ScrollingFrame.Size = UDim2.new(1, -40, 1, -100)
+ScrollingFrame.Size = UDim2.new(1, -40, 1, -80)
 ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 3000)
+local maxButtons = 50
+local buttonHeight = 60
+local spacing = 10
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
 ScrollingFrame.BackgroundTransparency = 0.2
 
 UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(1, 0, 0, 70)
+UIGridLayout.CellSize = UDim2.new(1, 0, 0, 60)
 UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 local scripts = {
@@ -87,9 +68,9 @@ local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
@@ -98,24 +79,24 @@ local function createDetailedButton(scriptInfo)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+    ButtonStroke.Color = Color3.fromRGB(255, 255, 255) -- Branco
     ButtonStroke.Thickness = 2
     ButtonStroke.Parent = Button
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
 
     Button.MouseEnter:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 0)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo ao passar o mouse
     end)
 
     Button.MouseLeave:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Volta ao branco
     end)
 
     Button.MouseButton1Click:Connect(function()
