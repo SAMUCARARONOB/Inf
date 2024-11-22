@@ -24,6 +24,29 @@ UIStroke.Color = Color3.fromRGB(100, 100, 255) -- Azul
 UIStroke.Thickness = 2
 UIStroke.Parent = MainFrame
 
+local particleEmitter = Instance.new("ParticleEmitter")
+particleEmitter.Parent = MainFrame
+particleEmitter.Texture = "rbxassetid://1062068693" -- Textura de partículas futurista
+particleEmitter.Rate = 5
+particleEmitter.Speed = NumberRange.new(5, 10)
+particleEmitter.Lifetime = NumberRange.new(1, 2)
+particleEmitter.EmissionDirection = Enum.NormalId.Top
+particleEmitter.LightEmission = 1
+
+local ButtonGradient = Instance.new("UIGradient")
+ButtonGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 150, 255)), -- Neon azul
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 200)) -- Tom azul
+}
+ButtonGradient.Rotation = 90
+ButtonGradient.Parent = MainFrame
+
+local TweenService = game:GetService("TweenService")
+local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, -1, true)
+local goal = {Rotation = 180}
+local tween = TweenService:Create(ButtonGradient, tweenInfo, goal)
+tween:Play()
+
 TitleLabel.Parent = MainFrame
 TitleLabel.Size = UDim2.new(1, 0, 0, 50)
 TitleLabel.Position = UDim2.new(0, 0, 0, -50)
@@ -33,11 +56,20 @@ TitleLabel.Text = "SCRIPTS-OP v1.0"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 28
+TitleLabel.TextStrokeTransparency = 0.8
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
 ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
 ImageLabel.Image = "rbxassetid://18394732434"
+
+local ImageShadow = Instance.new("ImageLabel")
+ImageShadow.Size = ImageLabel.Size
+ImageShadow.Position = ImageLabel.Position + UDim2.new(0, 2, 0, 2)
+ImageShadow.Image = ImageLabel.Image
+ImageShadow.ImageTransparency = 0.5
+ImageShadow.Parent = TitleLabel
 
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
@@ -57,6 +89,13 @@ UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIGridLayout.CellSize = UDim2.new(1, 0, 0, 60)
 UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
+
+local hologram = Instance.new("ImageLabel")
+hologram.Parent = MainFrame
+hologram.Size = UDim2.new(1, 0, 1, 0)
+hologram.Image = "rbxassetid://4530603147" -- Imagem holográfica
+hologram.ImageTransparency = 0.8
+hologram.BackgroundTransparency = 1
 
 local scripts = {
     {"Rochips Universal", "https://glot.io/snippets/gzrux646yj/raw/main.ts"},
