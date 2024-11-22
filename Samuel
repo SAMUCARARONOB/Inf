@@ -97,6 +97,40 @@ hologram.Image = "rbxassetid://4530603147" -- Imagem holográfica
 hologram.ImageTransparency = 0.8
 hologram.BackgroundTransparency = 1
 
+local neonLine = Instance.new("Frame")
+neonLine.Parent = MainFrame
+neonLine.Size = UDim2.new(0, 500, 0, 5)
+neonLine.BackgroundColor3 = Color3.fromRGB(0, 255, 255) -- Neon ciano
+neonLine.Position = UDim2.new(0, 0, 0, 0)
+
+local neonTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+local neonGoal = {Position = UDim2.new(0, 0, 1, 0)}
+local neonTween = TweenService:Create(neonLine, neonTweenInfo, neonGoal)
+neonTween:Play()
+
+local neonLine2 = neonLine:Clone()
+neonLine2.Position = UDim2.new(0, 0, 1, -5)
+neonLine2.Parent = MainFrame
+
+local icon1 = Instance.new("ImageLabel")
+icon1.Parent = MainFrame
+icon1.Size = UDim2.new(0, 50, 0, 50)
+icon1.Position = UDim2.new(0, 20, 0, 20)
+icon1.Image = "rbxassetid://4523220769"
+icon1.BackgroundTransparency = 1
+
+local icon2 = icon1:Clone()
+icon2.Position = UDim2.new(1, -70, 0, 20)
+icon2.Parent = MainFrame
+
+local backgroundImage = Instance.new("ImageLabel")
+backgroundImage.Parent = ScreenGui
+backgroundImage.Size = UDim2.new(1, 0, 1, 0)
+backgroundImage.Image = "rbxassetid://4656582072" -- Fundo futurista
+backgroundImage.ImageTransparency = 0.8
+backgroundImage.ZIndex = -1
+backgroundImage.BackgroundTransparency = 1
+
 local scripts = {
     {"Rochips Universal", "https://glot.io/snippets/gzrux646yj/raw/main.ts"},
     {"GhostHub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub"},
@@ -138,9 +172,23 @@ local function createDetailedButton(scriptInfo)
         Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Volta ao branco
     end)
 
+    local soundEffect = Instance.new("Sound")
+    soundEffect.SoundId = "rbxassetid://4852171080" -- Som futurista
+    soundEffect.Volume = 0.5
+    soundEffect.Parent = Button
+
     Button.MouseButton1Click:Connect(function()
+        soundEffect:Play()
         loadstring(game:HttpGet(scriptInfo[2]))()
     end)
+
+    local ButtonShadow = Instance.new("ImageLabel")
+    ButtonShadow.Size = UDim2.new(1, 10, 1, 10)
+    ButtonShadow.Position = UDim2.new(0, -5, 0, -5)
+    ButtonShadow.Image = "rbxassetid://4643940006" -- Sombra neon
+    ButtonShadow.ImageTransparency = 0.7
+    ButtonShadow.Parent = Button
+    ButtonShadow.ZIndex = Button.ZIndex - 1
 
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true)
@@ -159,7 +207,7 @@ local function update(input)
 end
 
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -172,7 +220,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
