@@ -31,11 +31,13 @@ UIStroke.Parent = MainFrame
 
 ParticleEmitter.Parent = MainFrame
 ParticleEmitter.Texture = "rbxassetid://1062068693" -- Textura de partículas futurista
-ParticleEmitter.Rate = 10
+ParticleEmitter.Size = NumberSequence.new(2, 2) -- Tamanho das partículas ajustado para 2x2 pixels
+ParticleEmitter.Rate = 20
 ParticleEmitter.Speed = NumberRange.new(5, 15)
 ParticleEmitter.Lifetime = NumberRange.new(1, 3)
 ParticleEmitter.EmissionDirection = Enum.NormalId.Top
 ParticleEmitter.LightEmission = 1
+ParticleEmitter.Acceleration = Vector3.new(0, -10, 0) -- Movimento de partículas para cima
 
 ButtonGradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)), -- Neon ciano
