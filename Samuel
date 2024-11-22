@@ -9,7 +9,6 @@ local UIStroke = Instance.new("UIStroke")
 local ParticleEmitter = Instance.new("ParticleEmitter")
 local ButtonGradient = Instance.new("UIGradient")
 local hologram = Instance.new("ImageLabel")
-local NeonEffect = Instance.new("ImageLabel")
 local TweenService = game:GetService("TweenService")
 local dragging, dragInput, dragStart, startPos
 
@@ -30,7 +29,6 @@ UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
 ParticleEmitter.Parent = MainFrame
-ParticleEmitter.Texture = "rbxassetid://1062068693" -- Textura de partículas futurista
 ParticleEmitter.Size = NumberSequence.new(2, 2) -- Tamanho das partículas ajustado para 2x2 pixels
 ParticleEmitter.Rate = 20
 ParticleEmitter.Speed = NumberRange.new(5, 15)
@@ -61,7 +59,7 @@ TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 255, 255) -- Azul Neon
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
 ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
-ImageLabel.Image = "rbxassetid://18394732434"
+ImageLabel.Image = "rbxassetid://18394732434" -- Restaurando a imagem do título
 
 local ImageShadow = Instance.new("ImageLabel")
 ImageShadow.Size = ImageLabel.Size
@@ -91,16 +89,7 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://4530603147" -- Imagem holográfica
-hologram.ImageTransparency = 0.7
 hologram.BackgroundTransparency = 1
-
-NeonEffect.Parent = MainFrame
-NeonEffect.Size = MainFrame.Size
-NeonEffect.Position = MainFrame.Position
-NeonEffect.Image = "rbxassetid://1360651858" -- Efeito neon
-NeonEffect.ImageTransparency = 0.9
-NeonEffect.BackgroundTransparency = 1
 
 local scripts = {
     {"Rochips Universal", "https://glot.io/snippets/gzrux646yj/raw/main.ts"},
@@ -169,7 +158,7 @@ MainFrame.InputBegan:Connect(function(input)
         dragStart = input.Position
         startPos = MainFrame.Position
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
+            if input.UserInputState == Enum.UserInputState.End então
                 dragging = false
             end
         end)
@@ -177,13 +166,13 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch então
         dragInput = input
     end
 end)
 
 game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
+    if input == dragInput e dragging então
         update(input)
     end
 end)
