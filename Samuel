@@ -64,6 +64,34 @@ Shadow.ScaleType = Enum.ScaleType.Slice
 Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 Shadow.Parent = MainFrame
 
+local Highlight = Instance.new("UIStroke")
+Highlight.Parent = MainFrame
+Highlight.Color = Color3.fromRGB(0, 255, 255)
+Highlight.Thickness = 4
+Highlight.Transparency = 0.5
+
+local AnimatedStroke = Instance.new("UIStroke")
+AnimatedStroke.Parent = MainFrame
+AnimatedStroke.Color = Color3.fromRGB(255, 255, 0)
+AnimatedStroke.Thickness = 2
+AnimatedStroke.Transparency = 0.3
+
+local AnimatedGradient = Instance.new("UIGradient")
+AnimatedGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 0)), 
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 128, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+}
+AnimatedGradient.Rotation = 90
+AnimatedGradient.Offset = Vector2.new(-0.5, 0)
+AnimatedGradient.Parent = MainFrame
+
+local TweenService = game:GetService("TweenService")
+local TweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+local TweenGoal = {Offset = Vector2.new(0.5, 0)}
+local Tween = TweenService:Create(AnimatedGradient, TweenInfo, TweenGoal)
+Tween:Play()
+
 ScrollingFrame.Parent = MainFrame
 ScrollingFrame.Size = UDim2.new(1, -40, 1, -100)
 ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
@@ -152,7 +180,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
