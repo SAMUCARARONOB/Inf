@@ -76,7 +76,7 @@ UICorner.Parent = TitleLabel
 ScrollingFrame.Parent = MainFrame
 ScrollingFrame.Size = UDim2.new(1, -40, 1, -80)
 ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
-local maxButtons = 10
+local maxButtons = 15
 local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
@@ -91,7 +91,7 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://00000000000" -- Imagem holográfica
+hologram.Image = "rbxassetid://917383648" -- Imagem holográfica
 hologram.ImageTransparency = 0.7
 hologram.BackgroundTransparency = 1
 
@@ -110,7 +110,13 @@ local scripts = {
     {"Nivex Loader", "https://raw.githubusercontent.com/Nivex123456/main/refs/heads/main/Loader.lua"},
     {"Skibidi Menu", "https://raw.githubusercontent.com/SkibidiCen/MainMenu/main/Code"},
     {"Anime Training", "https://raw.githubusercontent.com/01iq/me/refs/heads/main/AnimeTrainingRng.txt"},
-    {"KSI Plinko RNG", "https://raw.githubusercontent.com/agreed69-scripts/open-src-scripts/refs/heads/main/KSI%20Plinko%20RNG.lua"}
+    {"KSI Plinko RNG", "https://raw.githubusercontent.com/agreed69-scripts/open-src-scripts/refs/heads/main/KSI%20Plinko%20RNG.lua"},
+    {"Loader", "https://raw.githubusercontent.com/Looser3itx/Hmmmmmmmmmmmmmmmmmmmmmmmmmmmm/main/loader.lua"},
+    {"Pastefy Script", "https://pastefy.app/p6UfN5F1/raw"},
+    {"Diddy Plinko", "https://raw.githubusercontent.com/ToraScript/Script/main/DiddyPlinko"},
+    {"EGGSols RNG", "https://raw.githubusercontent.com/ToraScript/Script/main/EGGSolsRNG"},
+    {"Hades RNG", "https://raw.githubusercontent.com/ToraScript/Script/main/HadesRNG"},
+    {"LOLking Sol", "https://raw.githubusercontent.com/LOLking123456/RNG/main/Sol"}
 }
 local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
