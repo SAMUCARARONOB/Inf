@@ -18,7 +18,7 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 400, 0, 350)
+MainFrame.Size = UDim2.new(0, 400, 0, 300) -- Ajustado para 600 pixels de largura e 400 pixels de altura
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Cor mais escura para mais contraste
 MainFrame.BackgroundTransparency = 0.1
 
@@ -56,7 +56,7 @@ TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Azul Neon
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(255, 0, 0) -- Azul Neon
 
 local ImageShadow = Instance.new("ImageLabel")
 ImageShadow.Size = ImageLabel.Size
@@ -74,15 +74,15 @@ ScrollingFrame.Position = UDim2.new(0, 20, 0, 60)
 local maxButtons = 15
 local buttonHeight = 60
 local spacing = 10
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing) / 2) -- Ajustado para duas colunas
 ScrollingFrame.ScrollBarThickness = 8
 ScrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Preto mais escuro
 ScrollingFrame.BackgroundTransparency = 0.1
 
 UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(1, 0, 0, 60)
-UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
+UIGridLayout.CellSize = UDim2.new(0.5, -5, 0, buttonHeight) -- Ajustado para duas colunas
+UIGridLayout.CellPadding = UDim2.new(0, 5, 0, spacing) -- Espaçamento ajustado
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
@@ -145,7 +145,7 @@ local function createDetailedButton(scriptInfo)
     end)
 
     Button.MouseLeave:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(1, 1, 1) -- Volta ao branco
+        Button.TextColor3 = Color3.fromRGB(0, 0, 0) -- Volta ao preto
     end)
 
     Button.MouseButton1Click:Connect(function()
