@@ -56,7 +56,7 @@ TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 0) -- Azul Neon
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Azul Neon
 
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
@@ -122,9 +122,9 @@ local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Azul Neon
+    Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Azul Neon
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(1, 1, 1) -- preto
+    Button.TextColor3 = Color3.fromRGB(0, 0, 0) -- preto
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
