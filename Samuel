@@ -1,7 +1,6 @@
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
-local ImageLabel = Instance.new("ImageLabel")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local UICorner = Instance.new("UICorner")
@@ -57,18 +56,6 @@ TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
 TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Azul Neon
-
-ImageLabel.Parent = TitleLabel
-ImageLabel.Size = UDim2.new(0, 19, 0, 19)
-ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
-ImageLabel.Image = "rbxassetid://18394732434"
-
-local ImageShadow = Instance.new("ImageLabel")
-ImageShadow.Size = ImageLabel.Size
-ImageShadow.Position = ImageLabel.Position + UDim2.new(0, 2, 0, 2)
-ImageShadow.Image = ImageLabel.Image
-ImageShadow.ImageTransparency = 0.5
-ImageShadow.Parent = TitleLabel
 
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
@@ -187,7 +174,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
