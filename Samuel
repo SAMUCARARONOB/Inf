@@ -25,7 +25,7 @@ MainFrame.BackgroundTransparency = 0.1
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(0, 255, 255) -- Azul Neon
+UIStroke.Color = Color3.fromRGB(255, 0, 0) -- Azul Neon
 UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
@@ -52,11 +52,11 @@ TitleLabel.Position = UDim2.new(0, 0, 0, -50)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "RNGS SCRIPTS"
-TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Branco
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 255, 255) -- Azul Neon
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 0) -- Azul Neon
 
 ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
@@ -81,7 +81,7 @@ local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Preto mais escuro
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Preto mais escuro
 ScrollingFrame.BackgroundTransparency = 0.1
 
 UIGridLayout.Parent = ScrollingFrame
@@ -124,7 +124,7 @@ local function createDetailedButton(scriptInfo)
     Button.Text = scriptInfo[1]
     Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Azul Neon
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+    Button.TextColor3 = Color3.fromRGB(1, 1, 1) -- preto
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
@@ -139,8 +139,8 @@ local function createDetailedButton(scriptInfo)
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),  -- Neon ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
