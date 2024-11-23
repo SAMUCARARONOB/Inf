@@ -19,29 +19,29 @@ MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.Size = UDim2.new(0, 500, 0, 500)
-MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Cor mais escura para mais contraste
 MainFrame.BackgroundTransparency = 0.1
 
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(0, 255, 255)
+UIStroke.Color = Color3.fromRGB(0, 255, 255) -- Azul Neon
 UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
 ParticleEmitter.Parent = MainFrame
-ParticleEmitter.Texture = "rbxassetid://1062068693"
-ParticleEmitter.Size = NumberSequence.new(2, 2)
+ParticleEmitter.Texture = "rbxassetid://1062068693" -- Textura de partículas futurista
+ParticleEmitter.Size = NumberSequence.new(2, 2) -- Tamanho das partículas ajustado para 2x2 pixels
 ParticleEmitter.Rate = 20
 ParticleEmitter.Speed = NumberRange.new(5, 15)
 ParticleEmitter.Lifetime = NumberRange.new(1, 3)
 ParticleEmitter.EmissionDirection = Enum.NormalId.Top
 ParticleEmitter.LightEmission = 1
-ParticleEmitter.Acceleration = Vector3.new(0, -10, 0)
+ParticleEmitter.Acceleration = Vector3.new(0, -10, 0) -- Movimento de partículas para cima
 
 ButtonGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 150))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)), -- Neon ciano
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 150)) -- Tom ciano
 }
 ButtonGradient.Rotation = 90
 ButtonGradient.Parent = MainFrame
@@ -52,19 +52,13 @@ TitleLabel.Position = UDim2.new(0, 0, 0, -50)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TitleLabel.BackgroundTransparency = 0.5
 TitleLabel.Text = "RNGS SCRIPTS"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 255, 255) -- Azul Neon
 
-local TitleGradient = Instance.new("UIGradient")
-TitleGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 0)),  -- Verde
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 0)),  -- Vermelho
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 255))  -- Azul
-}
-TitleGradient.Parent = TitleLabelImageLabel.Parent = TitleLabel
+ImageLabel.Parent = TitleLabel
 ImageLabel.Size = UDim2.new(0, 19, 0, 19)
 ImageLabel.Position = UDim2.new(0, 10, 0.5, -9.5)
 ImageLabel.Image = "rbxassetid://18394732434"
@@ -87,7 +81,7 @@ local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Preto mais escuro
 ScrollingFrame.BackgroundTransparency = 0.1
 
 UIGridLayout.Parent = ScrollingFrame
@@ -97,14 +91,14 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://00000000000"
+hologram.Image = "rbxassetid://00000000000" -- Imagem holográfica
 hologram.ImageTransparency = 0.7
 hologram.BackgroundTransparency = 1
 
 NeonEffect.Parent = MainFrame
 NeonEffect.Size = MainFrame.Size
 NeonEffect.Position = MainFrame.Position
-NeonEffect.Image = "rbxassetid://102829638"
+NeonEffect.Image = "rbxassetid://102829638" -- Efeito neon
 NeonEffect.ImageTransparency = 0.9
 NeonEffect.BackgroundTransparency = 1
 
@@ -118,14 +112,13 @@ local scripts = {
     {"Anime Training", "https://raw.githubusercontent.com/01iq/me/refs/heads/main/AnimeTrainingRng.txt"},
     {"KSI Plinko RNG", "https://raw.githubusercontent.com/agreed69-scripts/open-src-scripts/refs/heads/main/KSI%20Plinko%20RNG.lua"}
 }
-
 local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
     Button.Parent = ScrollingFrame
     Button.Text = scriptInfo[1]
-    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Azul Neon
     Button.BorderSizePixel = 0
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
     Button.Font = Enum.Font.SourceSansBold
     Button.TextScaled = true
 
@@ -134,24 +127,24 @@ local function createDetailedButton(scriptInfo)
     ButtonCorner.Parent = Button
 
     local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+    ButtonStroke.Color = Color3.fromRGB(255, 255, 255) -- Branco
     ButtonStroke.Thickness = 2
     ButtonStroke.Parent = Button
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),  -- Neon ciano
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 200, 200)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
 
     Button.MouseEnter:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 0)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo ao passar o mouse
     end)
 
     Button.MouseLeave:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Volta ao branco
     end)
 
     Button.MouseButton1Click:Connect(function()
