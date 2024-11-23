@@ -81,7 +81,7 @@ local buttonHeight = 60
 local spacing = 10
 ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, maxButtons * (buttonHeight + spacing))
 ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Preto mais escuro
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Preto mais escuro
 ScrollingFrame.BackgroundTransparency = 0.1
 
 UIGridLayout.Parent = ScrollingFrame
