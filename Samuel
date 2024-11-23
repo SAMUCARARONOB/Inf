@@ -21,7 +21,6 @@ MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.Size = UDim2.new(0, 400, 0, 300) -- Ajustado para 600 pixels de largura e 400 pixels de altura
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Cor mais escura para mais contraste
 MainFrame.BackgroundTransparency = 0.1
-MainFrame.Visible = false -- Inicialmente invisível para a animação
 
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
@@ -170,7 +169,7 @@ local function update(input)
 end
 
 MainFrame.InputBegan:Connect(function(input)
-    if input Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -193,23 +192,3 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
         update(input)
     end
 end)
-
--- Função para a animação de introdução
-local function playIntroAnimation()
-    MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Começa pequeno
-    MainFrame.Visible = true
-
-    local tweenInfo = TweenInfo.new(
-        2, -- Duração da animação em segundos
-        Enum.EasingStyle.Quad, -- Estilo de suavização
-        Enum.EasingDirection.Out -- Direção da suavização
-    )
-
-    local targetSize = UDim2.new(0, 400, 0, 300) -- Tamanho original
-
-    local tween = TweenService:Create(MainFrame, tweenInfo, {Size = targetSize})
-    tween:Play()
-end
-
--- Chama a função de animação quando a interface é carregada
-playIntroAnimation()
