@@ -1,6 +1,7 @@
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
+local ImageLabel = Instance.new("ImageLabel")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local UIGridLayout = Instance.new("UIGridLayout")
 local UICorner = Instance.new("UICorner")
@@ -57,6 +58,13 @@ TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.5
 TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Azul Neon
 
+local ImageShadow = Instance.new("ImageLabel")
+ImageShadow.Size = ImageLabel.Size
+ImageShadow.Position = ImageLabel.Position + UDim2.new(0, 2, 0, 2)
+ImageShadow.Image = ImageLabel.Image
+ImageShadow.ImageTransparency = 0.5
+ImageShadow.Parent = TitleLabel
+
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = TitleLabel
 
@@ -78,7 +86,7 @@ UIGridLayout.CellPadding = UDim2.new(0, 0, 0, 10)
 
 hologram.Parent = MainFrame
 hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://917383648" -- Imagem holográfica
+hologram.Image = "rbxassetid://0000" -- Imagem holográfica
 hologram.ImageTransparency = 0.7
 hologram.BackgroundTransparency = 1
 
@@ -174,7 +182,7 @@ MainFrame.InputBegan:Connect(function(input)
 end)
 
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
 end)
