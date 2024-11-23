@@ -18,7 +18,7 @@ ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 MainFrame.Parent = ScreenGui
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 350, 0, 250) -- Ajustado para 600 pixels de largura e 400 pixels de altura
+MainFrame.Size = UDim2.new(0, 400, 0, 400) -- Ajustado para 600 pixels de largura e 400 pixels de altura
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Cor mais escura para mais contraste
 MainFrame.BackgroundTransparency = 0.1
 
