@@ -98,7 +98,7 @@ NeonEffect.ImageTransparency = 0.9
 NeonEffect.BackgroundTransparency = 1
 
 local scripts = {
-    {"BladeBall Xera", "https://raw.githubusercontent.com/luascriptsROBLOX/BladeBallXera/main/XeraUltron"},
+    {"Player%20RNG", "https://raw.githubusercontent.com/Killa5676/Killa-s-Scripts/main/Player%20RNG"},
     {"Rybowe Release", "https://raw.githubusercontent.com/rybowe/rybowescripts/main/release.lua"},
     {"LHking Sols", "https://raw.githubusercontent.com/LHking123456/n4dgW8TF7rNyL/refs/heads/main/Sols"},
     {"Dungeon RNG", "https://raw.githubusercontent.com/ProjectpopCat/ywxoscripts/main/DungeonRNG231.lua"},
@@ -111,7 +111,7 @@ local scripts = {
     {"Diddy Plinko", "https://raw.githubusercontent.com/ToraScript/Script/main/DiddyPlinko"},
     {"EGGSols RNG", "https://raw.githubusercontent.com/ToraScript/Script/main/EGGSolsRNG"},
     {"Hades RNG", "https://raw.githubusercontent.com/ToraScript/Script/main/HadesRNG"},
-    {"LOLking Sol", "https://raw.githubusercontent.com/LOLking123456/RNG/main/Sol"}
+    {"SOL RNG", "https://raw.githubusercontent.com/LOLking123456/RNG/main/Sol"}
 }
 local function createDetailedButton(scriptInfo)
     local Button = Instance.new("TextButton")
