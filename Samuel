@@ -25,13 +25,13 @@ MainFrame.BackgroundTransparency = 0.1
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
 
-UIStroke.Color = Color3.fromRGB(255, 0, 0) -- Azul Neon
+UIStroke.Color = Color3.fromRGB(0, 200, 255) -- Azul Neon
 UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
 ButtonGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)), -- Neon ciano
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 0)) -- Tom ciano
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)), -- Neon ciano
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)) -- Tom ciano
 }
 ButtonGradient.Rotation = 90
 ButtonGradient.Parent = MainFrame
@@ -39,14 +39,14 @@ ButtonGradient.Parent = MainFrame
 TitleLabel.Parent = MainFrame
 TitleLabel.Size = UDim2.new(1, 0, 0, 50)
 TitleLabel.Position = UDim2.new(0, 0, 0, -50)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TitleLabel.BackgroundTransparency = 0.3
 TitleLabel.Text = "RNGS SCRIPTS"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
 TitleLabel.TextStrokeTransparency = 0.1
-TitleLabel.TextStrokeColor3 = Color3.fromRGB(255, 0, 0) -- Azul Neon
+TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 255, 255) -- Azul Neon
 
 local ImageShadow = Instance.new("ImageLabel")
 ImageShadow.Size = ImageLabel.Size
@@ -73,13 +73,6 @@ UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIGridLayout.CellSize = UDim2.new(0.5, -5, 0, buttonHeight) -- Ajustado para duas colunas
 UIGridLayout.CellPadding = UDim2.new(0, 5, 0, spacing) -- Espaçamento ajustado
-
-NeonEffect.Parent = MainFrame
-NeonEffect.Size = MainFrame.Size
-NeonEffect.Position = MainFrame.Position
-NeonEffect.Image = "rbxassetid://102829638" -- Efeito neon
-NeonEffect.ImageTransparency = 0.9
-NeonEffect.BackgroundTransparency = 1
 
 local scripts = {
     {"Player%20RNG", "https://raw.githubusercontent.com/Killa5676/Killa-s-Scripts/main/Player%20RNG"},
