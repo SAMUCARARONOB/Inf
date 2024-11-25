@@ -29,16 +29,6 @@ UIStroke.Color = Color3.fromRGB(255, 0, 0) -- Azul Neon
 UIStroke.Thickness = 3
 UIStroke.Parent = MainFrame
 
-ParticleEmitter.Parent = MainFrame
-ParticleEmitter.Texture = "rbxassetid://1062068693" -- Textura de partículas futurista
-ParticleEmitter.Size = NumberSequence.new(2, 2) -- Tamanho das partículas ajustado para 2x2 pixels
-ParticleEmitter.Rate = 20
-ParticleEmitter.Speed = NumberRange.new(5, 15)
-ParticleEmitter.Lifetime = NumberRange.new(1, 3)
-ParticleEmitter.EmissionDirection = Enum.NormalId.Top
-ParticleEmitter.LightEmission = 1
-ParticleEmitter.Acceleration = Vector3.new(0, -10, 0) -- Movimento de partículas para cima
-
 ButtonGradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)), -- Neon ciano
     ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 0)) -- Tom ciano
@@ -50,12 +40,12 @@ TitleLabel.Parent = MainFrame
 TitleLabel.Size = UDim2.new(1, 0, 0, 50)
 TitleLabel.Position = UDim2.new(0, 0, 0, -50)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-TitleLabel.BackgroundTransparency = 0.5
+TitleLabel.BackgroundTransparency = 0.3
 TitleLabel.Text = "RNGS SCRIPTS"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Branco
 TitleLabel.Font = Enum.Font.SourceSansBold
 TitleLabel.TextSize = 32
-TitleLabel.TextStrokeTransparency = 0.5
+TitleLabel.TextStrokeTransparency = 0.1
 TitleLabel.TextStrokeColor3 = Color3.fromRGB(255, 0, 0) -- Azul Neon
 
 local ImageShadow = Instance.new("ImageLabel")
@@ -83,12 +73,6 @@ UIGridLayout.Parent = ScrollingFrame
 UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIGridLayout.CellSize = UDim2.new(0.5, -5, 0, buttonHeight) -- Ajustado para duas colunas
 UIGridLayout.CellPadding = UDim2.new(0, 5, 0, spacing) -- Espaçamento ajustado
-
-hologram.Parent = MainFrame
-hologram.Size = UDim2.new(1, 0, 1, 0)
-hologram.Image = "rbxassetid://0000" -- Imagem holográfica
-hologram.ImageTransparency = 0.7
-hologram.BackgroundTransparency = 1
 
 NeonEffect.Parent = MainFrame
 NeonEffect.Size = MainFrame.Size
@@ -134,14 +118,14 @@ local function createDetailedButton(scriptInfo)
 
     local ButtonGradient = Instance.new("UIGradient")
     ButtonGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),  -- Neon ciano
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0)) -- Tom ciano
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),  -- Branco
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255)) -- Tom ciano
     }
     ButtonGradient.Rotation = 45
     ButtonGradient.Parent = Button
 
     Button.MouseEnter:Connect(function()
-        Button.TextColor3 = Color3.fromRGB(255, 255, 0) -- Amarelo ao passar o mouse
+        Button.TextColor3 = Color3.fromRGB(255, 0, 0) -- Amarelo ao passar o mouse
     end)
 
     Button.MouseLeave:Connect(function()
