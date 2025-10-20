@@ -1,12 +1,15 @@
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local RANOX = {}
 
 function RANOX:CreateWindow(config)
     local Window = {}
-
+    config = config or {}
+    
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "REDZHUB_UI"
     screenGui.ResetOnSpawn = false
@@ -15,118 +18,156 @@ function RANOX:CreateWindow(config)
     screenGui.DisplayOrder = 999999
     screenGui.Parent = game:GetService("CoreGui")
 
-    -- MAIN FRAME (REDZ HUB STYLE)
+    -- MAIN FRAME (DESIGN MODERNO)
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 560, 0, 350)
+    mainFrame.Size = UDim2.new(0, 600, 0, 400)
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     mainFrame.BorderSizePixel = 0
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = screenGui
 
-    -- REDZ HUB CORNER STYLE
-    local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 8)
-    mainCorner.Parent = mainFrame
+    -- GRADIENT BACKGROUND
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(13, 13, 13)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 18, 18))
+    })
+    gradient.Rotation = 45
+    gradient.Parent = mainFrame
 
-    -- RED ACCENT BORDER
+    -- BORDER COM GRADIENT
     local border = Instance.new("Frame")
     border.Size = UDim2.new(1, 0, 1, 0)
     border.Position = UDim2.new(0, 0, 0, 0)
-    border.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    border.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     border.BorderSizePixel = 0
     border.ZIndex = 0
     border.Parent = mainFrame
 
+    local borderGradient = Instance.new("UIGradient")
+    borderGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 0, 0)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 0, 0)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+    })
+    borderGradient.Rotation = 45
+    borderGradient.Parent = border
+
     local innerBorder = Instance.new("Frame")
     innerBorder.Size = UDim2.new(1, -2, 1, -2)
     innerBorder.Position = UDim2.new(0, 1, 0, 1)
-    innerBorder.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    innerBorder.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
     innerBorder.BorderSizePixel = 0
     innerBorder.ZIndex = 1
     innerBorder.Parent = border
 
-    -- HEADER (REDZ STYLE)
+    -- CORNER
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 12)
+    mainCorner.Parent = mainFrame
+
+    -- HEADER MODERNO
     local header = Instance.new("Frame")
-    header.Size = UDim2.new(1, 0, 0, 30)
+    header.Size = UDim2.new(1, 0, 0, 40)
     header.Position = UDim2.new(0, 0, 0, 0)
     header.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    header.BackgroundTransparency = 0.5
     header.BorderSizePixel = 0
-    header.ZIndex = 2
+    header.ZIndex = 3
     header.Parent = mainFrame
 
     local headerCorner = Instance.new("UICorner")
-    headerCorner.CornerRadius = UDim.new(0, 8)
+    headerCorner.CornerRadius = UDim.new(0, 12)
     headerCorner.Parent = header
 
-    -- REDZ HUB TITLE
+    -- TÍTULO COM ÍCONE
+    local titleContainer = Instance.new("Frame")
+    titleContainer.Size = UDim2.new(0, 200, 1, 0)
+    titleContainer.Position = UDim2.new(0, 15, 0, 0)
+    titleContainer.BackgroundTransparency = 1
+    titleContainer.ZIndex = 4
+    titleContainer.Parent = header
+
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(0, 200, 1, 0)
-    title.Position = UDim2.new(0, 10, 0, 0)
+    title.Size = UDim2.new(1, 0, 0.6, 0)
+    title.Position = UDim2.new(0, 0, 0, 5)
     title.BackgroundTransparency = 1
-    title.Text = "REDZ HUB"
+    title.Text = config.Title or "REDZ HUB"
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 16
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 18
     title.TextXAlignment = Enum.TextXAlignment.Left
-    title.ZIndex = 3
-    title.Parent = header
+    title.ZIndex = 4
+    title.Parent = titleContainer
 
     local subtitle = Instance.new("TextLabel")
-    subtitle.Size = UDim2.new(0, 100, 1, 0)
-    subtitle.Position = UDim2.new(0, 210, 0, 0)
+    subtitle.Size = UDim2.new(1, 0, 0.4, 0)
+    subtitle.Position = UDim2.new(0, 0, 0.6, -5)
     subtitle.BackgroundTransparency = 1
-    subtitle.Text = "v3.0"
+    subtitle.Text = config.Subtitle or "v3.0"
     subtitle.TextColor3 = Color3.fromRGB(200, 0, 0)
-    subtitle.Font = Enum.Font.Gotham
-    subtitle.TextSize = 12
+    subtitle.Font = Enum.Font.GothamBold
+    subtitle.TextSize = 11
     subtitle.TextXAlignment = Enum.TextXAlignment.Left
-    subtitle.ZIndex = 3
-    subtitle.Parent = header
+    subtitle.ZIndex = 4
+    subtitle.Parent = titleContainer
 
-    -- CLOSE BUTTON (REDZ STYLE)
+    -- BOTÕES DA JANELA
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Size = UDim2.new(0, 60, 1, 0)
+    buttonContainer.Position = UDim2.new(1, -65, 0, 0)
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.ZIndex = 4
+    buttonContainer.Parent = header
+
+    local minimizeBtn = Instance.new("TextButton")
+    minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+    minimizeBtn.Position = UDim2.new(0, 5, 0.5, -12.5)
+    minimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+    minimizeBtn.Text = "_"
+    minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimizeBtn.Font = Enum.Font.GothamBold
+    minimizeBtn.TextSize = 16
+    minimizeBtn.AutoButtonColor = false
+    minimizeBtn.ZIndex = 5
+    minimizeBtn.Parent = buttonContainer
+
+    local minimizeCorner = Instance.new("UICorner")
+    minimizeCorner.CornerRadius = UDim.new(0, 6)
+    minimizeCorner.Parent = minimizeBtn
+
     local closeBtn = Instance.new("TextButton")
     closeBtn.Size = UDim2.new(0, 25, 0, 25)
-    closeBtn.Position = UDim2.new(1, -25, 0, 2)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    closeBtn.Position = UDim2.new(0, 30, 0.5, -12.5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(220, 0, 0)
     closeBtn.Text = "×"
     closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.TextSize = 18
     closeBtn.AutoButtonColor = false
-    closeBtn.ZIndex = 3
-    closeBtn.Parent = header
+    closeBtn.ZIndex = 5
+    closeBtn.Parent = buttonContainer
 
     local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 4)
+    closeCorner.CornerRadius = UDim.new(0, 6)
     closeCorner.Parent = closeBtn
 
-    closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-
-    closeBtn.MouseEnter:Connect(function()
-        closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end)
-
-    closeBtn.MouseLeave:Connect(function()
-        closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    end)
-
-    -- SIDEBAR (REDZ STYLE)
+    -- SIDEBAR MODERNA
     local sidebar = Instance.new("Frame")
-    sidebar.Size = UDim2.new(0, 130, 1, -30)
-    sidebar.Position = UDim2.new(0, 0, 0, 30)
+    sidebar.Size = UDim2.new(0, 150, 1, -40)
+    sidebar.Position = UDim2.new(0, 0, 0, 40)
     sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    sidebar.BackgroundTransparency = 0.3
     sidebar.BorderSizePixel = 0
     sidebar.ZIndex = 2
     sidebar.Parent = mainFrame
 
-    -- TAB BUTTONS CONTAINER
+    -- CONTAINER DE ABAS
     local tabContainer = Instance.new("ScrollingFrame")
-    tabContainer.Size = UDim2.new(1, 0, 1, 0)
-    tabContainer.Position = UDim2.new(0, 0, 0, 0)
+    tabContainer.Size = UDim2.new(1, 0, 1, -10)
+    tabContainer.Position = UDim2.new(0, 0, 0, 10)
     tabContainer.BackgroundTransparency = 1
     tabContainer.BorderSizePixel = 0
     tabContainer.ScrollBarThickness = 3
@@ -138,13 +179,13 @@ function RANOX:CreateWindow(config)
 
     local tabLayout = Instance.new("UIListLayout")
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    tabLayout.Padding = UDim.new(0, 5)
+    tabLayout.Padding = UDim.new(0, 8)
     tabLayout.Parent = tabContainer
 
-    -- CONTENT FRAME
+    -- FRAME DE CONTEÚDO
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -135, 1, -35)
-    contentFrame.Position = UDim2.new(0, 130, 0, 30)
+    contentFrame.Size = UDim2.new(1, -155, 1, -45)
+    contentFrame.Position = UDim2.new(0, 150, 0, 40)
     contentFrame.BackgroundTransparency = 1
     contentFrame.BorderSizePixel = 0
     contentFrame.ZIndex = 2
@@ -164,16 +205,26 @@ function RANOX:CreateWindow(config)
 
     local contentLayout = Instance.new("UIListLayout")
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    contentLayout.Padding = UDim.new(0, 8)
+    contentLayout.Padding = UDim.new(0, 12)
     contentLayout.Parent = contentScroll
 
+    -- VARIÁVEIS DO SISTEMA
     local tabButtons = {}
     local pages = {}
     local currentTab = nil
+    local isMinimized = false
+    local originalSize = mainFrame.Size
+    local originalPosition = mainFrame.Position
 
-    -- MAKE DRAGGABLE
+    -- SISTEMA DE ARRASTO CORRIGIDO
     local dragging = false
     local dragInput, dragStart, startPos
+
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        local newPosition = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        mainFrame.Position = newPosition
+    end
 
     header.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -195,19 +246,58 @@ function RANOX:CreateWindow(config)
         end
     end)
 
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
+    UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            updateInput(input)
         end
     end)
 
-    -- TAB SYSTEM
+    -- FUNÇÃO PARA MINIMIZAR/RESTAURAR
+    local function toggleMinimize()
+        isMinimized = not isMinimized
+        if isMinimized then
+            TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+                Size = UDim2.new(0, 0, 0, 0)
+            }):Play()
+            minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+        else
+            TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = originalSize
+            }):Play()
+            minimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+        end
+    end
+
+    -- EVENTOS DOS BOTÕES
+    minimizeBtn.MouseButton1Click:Connect(toggleMinimize)
+    
+    minimizeBtn.MouseEnter:Connect(function()
+        minimizeBtn.BackgroundColor3 = isMinimized and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(255, 185, 0)
+    end)
+
+    minimizeBtn.MouseLeave:Connect(function()
+        minimizeBtn.BackgroundColor3 = isMinimized and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(255, 165, 0)
+    end)
+
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    closeBtn.MouseEnter:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end)
+
+    closeBtn.MouseLeave:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(220, 0, 0)
+    end)
+
+    -- SISTEMA DE ABAS
     function Window:CreateTab(tabName, icon)
         local tabBtn = Instance.new("TextButton")
-        tabBtn.Size = UDim2.new(1, -10, 0, 35)
-        tabBtn.Position = UDim2.new(0, 5, 0, 0)
+        tabBtn.Size = UDim2.new(1, -20, 0, 40)
+        tabBtn.Position = UDim2.new(0, 10, 0, 0)
         tabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        tabBtn.BackgroundTransparency = 0.5
         tabBtn.BorderSizePixel = 0
         tabBtn.Text = ""
         tabBtn.AutoButtonColor = false
@@ -215,11 +305,11 @@ function RANOX:CreateWindow(config)
         tabBtn.Parent = tabContainer
 
         local tabCorner = Instance.new("UICorner")
-        tabCorner.CornerRadius = UDim.new(0, 6)
+        tabCorner.CornerRadius = UDim.new(0, 8)
         tabCorner.Parent = tabBtn
 
         local btnStroke = Instance.new("UIStroke")
-        btnStroke.Color = Color3.fromRGB(40, 40, 40)
+        btnStroke.Color = Color3.fromRGB(50, 50, 50)
         btnStroke.Thickness = 1
         btnStroke.Parent = tabBtn
 
@@ -228,15 +318,15 @@ function RANOX:CreateWindow(config)
         tabLabel.Position = UDim2.new(0, 10, 0, 0)
         tabLabel.BackgroundTransparency = 1
         tabLabel.Text = tabName
-        tabLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-        tabLabel.Font = Enum.Font.Gotham
-        tabLabel.TextSize = 13
+        tabLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+        tabLabel.Font = Enum.Font.GothamSemibold
+        tabLabel.TextSize = 14
         tabLabel.TextXAlignment = Enum.TextXAlignment.Left
         tabLabel.ZIndex = 4
         tabLabel.Parent = tabBtn
 
         local tabHighlight = Instance.new("Frame")
-        tabHighlight.Size = UDim2.new(0, 3, 0, 0)
+        tabHighlight.Size = UDim2.new(0, 4, 0, 0)
         tabHighlight.Position = UDim2.new(0, 0, 0.5, 0)
         tabHighlight.AnchorPoint = Vector2.new(0, 0.5)
         tabHighlight.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
@@ -258,36 +348,34 @@ function RANOX:CreateWindow(config)
 
         tabBtn.MouseEnter:Connect(function()
             if currentTab ~= tabName then
-                TweenService:Create(tabLabel, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+                TweenService:Create(tabLabel, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(220, 220, 220)}):Play()
+                TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0.3}):Play()
             end
         end)
 
         tabBtn.MouseLeave:Connect(function()
             if currentTab ~= tabName then
-                TweenService:Create(tabLabel, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+                TweenService:Create(tabLabel, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(180, 180, 180)}):Play()
+                TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0.5}):Play()
             end
         end)
 
         tabBtn.MouseButton1Click:Connect(function()
             if currentTab == tabName then return end
             
-            -- Update all tabs
             for name, data in pairs(tabButtons) do
                 if name == tabName then
-                    -- Activate this tab
                     data.Highlight.Visible = true
-                    TweenService:Create(data.Highlight, TweenInfo.new(0.3), {Size = UDim2.new(0, 3, 0, 20)}):Play()
+                    TweenService:Create(data.Highlight, TweenInfo.new(0.3), {Size = UDim2.new(0, 4, 0, 24)}):Play()
                     TweenService:Create(data.Label, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-                    TweenService:Create(tabBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+                    TweenService:Create(tabBtn, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
                 else
-                    -- Deactivate other tabs
                     data.Highlight.Visible = false
-                    TweenService:Create(data.Label, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
-                    TweenService:Create(data.Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(20, 20, 20)}):Play()
+                    TweenService:Create(data.Label, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(180, 180, 180)}):Play()
+                    TweenService:Create(data.Button, TweenInfo.new(0.3), {BackgroundTransparency = 0.5}):Play()
                 end
             end
             
-            -- Show correct page
             for name, page in pairs(pages) do
                 page.Visible = (name == tabName)
             end
@@ -295,13 +383,12 @@ function RANOX:CreateWindow(config)
             currentTab = tabName
         end)
 
-        -- Set first tab as active
         if not currentTab then
             currentTab = tabName
             tabButtons[tabName].Highlight.Visible = true
-            tabButtons[tabName].Highlight.Size = UDim2.new(0, 3, 0, 20)
+            tabButtons[tabName].Highlight.Size = UDim2.new(0, 4, 0, 24)
             tabButtons[tabName].Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            tabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            tabBtn.BackgroundTransparency = 0.2
             tabPage.Visible = true
         end
 
@@ -311,7 +398,7 @@ function RANOX:CreateWindow(config)
         }
     end
 
-    -- REDZ HUB STYLE ELEMENTS
+    -- ELEMENTOS DA INTERFACE
     function Window:CreateSection(tab, title)
         local section = Instance.new("Frame")
         section.Size = UDim2.new(1, 0, 0, 0)
@@ -323,29 +410,34 @@ function RANOX:CreateWindow(config)
 
         local layout = Instance.new("UIListLayout")
         layout.SortOrder = Enum.SortOrder.LayoutOrder
-        layout.Padding = UDim.new(0, 5)
+        layout.Padding = UDim.new(0, 8)
         layout.Parent = section
 
         if title then
+            local titleContainer = Instance.new("Frame")
+            titleContainer.Size = UDim2.new(1, 0, 0, 30)
+            titleContainer.BackgroundTransparency = 1
+            titleContainer.Parent = section
+
             local titleLabel = Instance.new("TextLabel")
-            titleLabel.Size = UDim2.new(1, -20, 0, 20)
+            titleLabel.Size = UDim2.new(1, -20, 1, 0)
             titleLabel.Position = UDim2.new(0, 10, 0, 0)
             titleLabel.BackgroundTransparency = 1
             titleLabel.Text = " " .. string.upper(title)
             titleLabel.TextColor3 = Color3.fromRGB(200, 0, 0)
-            titleLabel.Font = Enum.Font.GothamBold
+            titleLabel.Font = Enum.Font.GothamBlack
             titleLabel.TextSize = 14
             titleLabel.TextXAlignment = Enum.TextXAlignment.Left
             titleLabel.ZIndex = 3
-            titleLabel.Parent = section
+            titleLabel.Parent = titleContainer
 
             local underline = Instance.new("Frame")
-            underline.Size = UDim2.new(1, -20, 0, 1)
+            underline.Size = UDim2.new(1, -20, 0, 2)
             underline.Position = UDim2.new(0, 10, 1, -2)
-            underline.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            underline.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             underline.BorderSizePixel = 0
             underline.ZIndex = 3
-            underline.Parent = section
+            underline.Parent = titleContainer
         end
 
         return section
@@ -353,40 +445,42 @@ function RANOX:CreateWindow(config)
 
     function Window:CreateButton(section, text, callback)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, -10, 0, 32)
+        btn.Size = UDim2.new(1, -10, 0, 36)
         btn.Position = UDim2.new(0, 5, 0, 0)
         btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
         btn.BorderSizePixel = 0
         btn.Text = text
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.Gotham
+        btn.Font = Enum.Font.GothamSemibold
         btn.TextSize = 13
         btn.AutoButtonColor = false
         btn.ZIndex = 3
         btn.Parent = section
 
         local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 6)
+        btnCorner.CornerRadius = UDim.new(0, 8)
         btnCorner.Parent = btn
 
         local btnStroke = Instance.new("UIStroke")
-        btnStroke.Color = Color3.fromRGB(40, 40, 40)
+        btnStroke.Color = Color3.fromRGB(50, 50, 50)
         btnStroke.Thickness = 1
         btnStroke.Parent = btn
 
         btn.MouseEnter:Connect(function()
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}):Play()
+            TweenService:Create(btnStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(255, 50, 50)}):Play()
         end)
 
         btn.MouseLeave:Connect(function()
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+            TweenService:Create(btnStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(50, 50, 50)}):Play()
         end)
 
         btn.MouseButton1Click:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, 28)}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, 32)}):Play()
             TweenService:Create(btn, TweenInfo.new(0.1), {TextSize = 12}):Play()
             wait(0.1)
-            TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, 32)}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, 36)}):Play()
             TweenService:Create(btn, TweenInfo.new(0.1), {TextSize = 13}):Play()
             
             if callback then
@@ -399,7 +493,7 @@ function RANOX:CreateWindow(config)
 
     function Window:CreateToggle(section, text, default, callback)
         local toggleFrame = Instance.new("Frame")
-        toggleFrame.Size = UDim2.new(1, -10, 0, 30)
+        toggleFrame.Size = UDim2.new(1, -10, 0, 35)
         toggleFrame.Position = UDim2.new(0, 5, 0, 0)
         toggleFrame.BackgroundTransparency = 1
         toggleFrame.BorderSizePixel = 0
@@ -419,9 +513,9 @@ function RANOX:CreateWindow(config)
         label.Parent = toggleFrame
 
         local toggle = Instance.new("Frame")
-        toggle.Size = UDim2.new(0, 40, 0, 20)
-        toggle.Position = UDim2.new(1, -40, 0.5, -10)
-        toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        toggle.Size = UDim2.new(0, 50, 0, 24)
+        toggle.Position = UDim2.new(1, -50, 0.5, -12)
+        toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         toggle.BorderSizePixel = 0
         toggle.ZIndex = 3
         toggle.Parent = toggleFrame
@@ -431,9 +525,9 @@ function RANOX:CreateWindow(config)
         toggleCorner.Parent = toggle
 
         local toggleBtn = Instance.new("Frame")
-        toggleBtn.Size = UDim2.new(0, 16, 0, 16)
-        toggleBtn.Position = UDim2.new(0, 2, 0.5, -8)
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        toggleBtn.Size = UDim2.new(0, 20, 0, 20)
+        toggleBtn.Position = UDim2.new(0, 2, 0.5, -10)
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
         toggleBtn.BorderSizePixel = 0
         toggleBtn.ZIndex = 4
         toggleBtn.Parent = toggle
@@ -455,11 +549,11 @@ function RANOX:CreateWindow(config)
             if state then
                 TweenService:Create(toggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}):Play()
                 TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {Position = UDim2.new(1, -18, 0.5, -8)}):Play()
+                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {Position = UDim2.new(1, -22, 0.5, -10)}):Play()
             else
-                TweenService:Create(toggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
-                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100, 100, 100)}):Play()
-                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -8)}):Play()
+                TweenService:Create(toggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(120, 120, 120)}):Play()
+                TweenService:Create(toggleBtn, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -10)}):Play()
             end
             
             if callback then
@@ -487,15 +581,20 @@ function RANOX:CreateWindow(config)
 
     function Window:CreateSlider(section, text, min, max, default, callback)
         local sliderFrame = Instance.new("Frame")
-        sliderFrame.Size = UDim2.new(1, -10, 0, 50)
+        sliderFrame.Size = UDim2.new(1, -10, 0, 60)
         sliderFrame.Position = UDim2.new(0, 5, 0, 0)
         sliderFrame.BackgroundTransparency = 1
         sliderFrame.BorderSizePixel = 0
         sliderFrame.ZIndex = 3
         sliderFrame.Parent = section
 
+        local topFrame = Instance.new("Frame")
+        topFrame.Size = UDim2.new(1, 0, 0, 25)
+        topFrame.BackgroundTransparency = 1
+        topFrame.Parent = sliderFrame
+
         local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, 0, 0, 20)
+        label.Size = UDim2.new(0.7, 0, 1, 0)
         label.Position = UDim2.new(0, 0, 0, 0)
         label.BackgroundTransparency = 1
         label.Text = text
@@ -504,11 +603,11 @@ function RANOX:CreateWindow(config)
         label.TextSize = 13
         label.TextXAlignment = Enum.TextXAlignment.Left
         label.ZIndex = 3
-        label.Parent = sliderFrame
+        label.Parent = topFrame
 
         local valueLabel = Instance.new("TextLabel")
-        valueLabel.Size = UDim2.new(0, 50, 0, 20)
-        valueLabel.Position = UDim2.new(1, -50, 0, 0)
+        valueLabel.Size = UDim2.new(0.3, 0, 1, 0)
+        valueLabel.Position = UDim2.new(0.7, 0, 0, 0)
         valueLabel.BackgroundTransparency = 1
         valueLabel.Text = tostring(default or min)
         valueLabel.TextColor3 = Color3.fromRGB(200, 0, 0)
@@ -516,12 +615,12 @@ function RANOX:CreateWindow(config)
         valueLabel.TextSize = 13
         valueLabel.TextXAlignment = Enum.TextXAlignment.Right
         valueLabel.ZIndex = 3
-        valueLabel.Parent = sliderFrame
+        valueLabel.Parent = topFrame
 
         local track = Instance.new("Frame")
-        track.Size = UDim2.new(1, 0, 0, 4)
-        track.Position = UDim2.new(0, 0, 1, -15)
-        track.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        track.Size = UDim2.new(1, 0, 0, 6)
+        track.Position = UDim2.new(0, 0, 1, -25)
+        track.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         track.BorderSizePixel = 0
         track.ZIndex = 3
         track.Parent = sliderFrame
@@ -542,8 +641,8 @@ function RANOX:CreateWindow(config)
         fillCorner.Parent = fill
 
         local thumb = Instance.new("Frame")
-        thumb.Size = UDim2.new(0, 12, 0, 12)
-        thumb.Position = UDim2.new(0, -6, 0.5, -6)
+        thumb.Size = UDim2.new(0, 16, 0, 16)
+        thumb.Position = UDim2.new(0, -8, 0.5, -8)
         thumb.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         thumb.BorderSizePixel = 0
         thumb.ZIndex = 5
@@ -561,7 +660,7 @@ function RANOX:CreateWindow(config)
             local percent = (currentValue - min) / (max - min)
             
             TweenService:Create(fill, TweenInfo.new(0.1), {Size = UDim2.new(percent, 0, 1, 0)}):Play()
-            TweenService:Create(thumb, TweenInfo.new(0.1), {Position = UDim2.new(percent, -6, 0.5, -6)}):Play()
+            TweenService:Create(thumb, TweenInfo.new(0.1), {Position = UDim2.new(percent, -8, 0.5, -8)}):Play()
             
             valueLabel.Text = tostring(math.floor(currentValue))
             
@@ -589,7 +688,7 @@ function RANOX:CreateWindow(config)
             end
         end)
 
-        game:GetService("UserInputService").InputChanged:Connect(function(input)
+        UserInputService.InputChanged:Connect(function(input)
             if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                 updateFromInput(input)
             end
@@ -609,11 +708,11 @@ function RANOX:CreateWindow(config)
 
     function Window:CreateLabel(section, text)
         local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, -10, 0, 25)
+        label.Size = UDim2.new(1, -10, 0, 30)
         label.Position = UDim2.new(0, 5, 0, 0)
         label.BackgroundTransparency = 1
         label.Text = text
-        label.TextColor3 = Color3.fromRGB(150, 150, 150)
+        label.TextColor3 = Color3.fromRGB(180, 180, 180)
         label.Font = Enum.Font.Gotham
         label.TextSize = 12
         label.TextWrapped = true
@@ -625,7 +724,7 @@ function RANOX:CreateWindow(config)
 
     function Window:CreateDropdown(section, text, options, default, callback)
         local dropdownFrame = Instance.new("Frame")
-        dropdownFrame.Size = UDim2.new(1, -10, 0, 32)
+        dropdownFrame.Size = UDim2.new(1, -10, 0, 36)
         dropdownFrame.Position = UDim2.new(0, 5, 0, 0)
         dropdownFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
         dropdownFrame.BorderSizePixel = 0
@@ -633,11 +732,11 @@ function RANOX:CreateWindow(config)
         dropdownFrame.Parent = section
 
         local dropdownCorner = Instance.new("UICorner")
-        dropdownCorner.CornerRadius = UDim.new(0, 6)
+        dropdownCorner.CornerRadius = UDim.new(0, 8)
         dropdownCorner.Parent = dropdownFrame
 
         local dropdownStroke = Instance.new("UIStroke")
-        dropdownStroke.Color = Color3.fromRGB(40, 40, 40)
+        dropdownStroke.Color = Color3.fromRGB(50, 50, 50)
         dropdownStroke.Thickness = 1
         dropdownStroke.Parent = dropdownFrame
 
@@ -694,11 +793,11 @@ function RANOX:CreateWindow(config)
         dropdownList.Parent = dropdownFrame
 
         local listCorner = Instance.new("UICorner")
-        listCorner.CornerRadius = UDim.new(0, 6)
+        listCorner.CornerRadius = UDim.new(0, 8)
         listCorner.Parent = dropdownList
 
         local listStroke = Instance.new("UIStroke")
-        listStroke.Color = Color3.fromRGB(40, 40, 40)
+        listStroke.Color = Color3.fromRGB(50, 50, 50)
         listStroke.Thickness = 1
         listStroke.Parent = dropdownList
 
@@ -713,7 +812,7 @@ function RANOX:CreateWindow(config)
             dropdownList.Visible = isOpen
             
             if isOpen then
-                TweenService:Create(dropdownList, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, #options * 30)}):Play()
+                TweenService:Create(dropdownList, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, math.min(#options * 35, 150))}):Play()
                 TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = 180}):Play()
             else
                 TweenService:Create(dropdownList, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 0)}):Play()
@@ -725,8 +824,8 @@ function RANOX:CreateWindow(config)
 
         for i, option in ipairs(options) do
             local optionBtn = Instance.new("TextButton")
-            optionBtn.Size = UDim2.new(1, 0, 0, 30)
-            optionBtn.Position = UDim2.new(0, 0, 0, (i-1)*30)
+            optionBtn.Size = UDim2.new(1, 0, 0, 35)
+            optionBtn.Position = UDim2.new(0, 0, 0, (i-1)*35)
             optionBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
             optionBtn.BorderSizePixel = 0
             optionBtn.Text = option
@@ -736,6 +835,10 @@ function RANOX:CreateWindow(config)
             optionBtn.AutoButtonColor = false
             optionBtn.ZIndex = 7
             optionBtn.Parent = dropdownList
+
+            local optionCorner = Instance.new("UICorner")
+            optionCorner.CornerRadius = UDim.new(0, 6)
+            optionCorner.Parent = optionBtn
 
             optionBtn.MouseEnter:Connect(function()
                 TweenService:Create(optionBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}):Play()
@@ -767,14 +870,54 @@ function RANOX:CreateWindow(config)
         }
     end
 
-    -- INITIALIZE FIRST TAB
-    local mainTab = Window:CreateTab("Main")
-    local mainSection = Window:CreateSection(mainTab, "Welcome to REDZ HUB")
+    -- BIND DE TECLA PARA MOSTRAR/OCULTAR
+    local showHideConnection
+    function Window:SetKeybind(key)
+        if showHideConnection then
+            showHideConnection:Disconnect()
+        end
+        
+        showHideConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.KeyCode == key then
+                toggleMinimize()
+            end
+        end)
+    end
 
-    Window:CreateLabel(mainSection, "Premium gaming experience")
-    Window:CreateButton(mainSection, "Execute Script", function()
+    -- TAB INICIAL COM EXEMPLOS
+    local mainTab = Window:CreateTab("Main")
+    local homeSection = Window:CreateSection(mainTab, "Welcome")
+    
+    Window:CreateLabel(homeSection, "Welcome to REDZ HUB v3.0")
+    Window:CreateLabel(homeSection, "Premium gaming experience with modern design")
+    
+    local actionsSection = Window:CreateSection(mainTab, "Actions")
+    
+    Window:CreateButton(actionsSection, "Execute Script", function()
         print("REDZ HUB: Script executed!")
     end)
+    
+    Window:CreateButton(actionsSection, "Load Config", function()
+        print("REDZ HUB: Config loaded!")
+    end)
+    
+    local settingsSection = Window::CreateSection(mainTab, "Settings")
+    
+    local toggleExample = Window:CreateToggle(settingsSection, "Enable Features", false, function(value)
+        print("Toggle state:", value)
+    end)
+    
+    local sliderExample = Window:CreateSlider(settingsSection, "Speed", 1, 100, 50, function(value)
+        print("Speed:", value)
+    end)
+    
+    local dropdownExample = Window:CreateDropdown(settingsSection, "Options", {"Option 1", "Option 2", "Option 3"}, "Option 1", function(value)
+        print("Selected:", value)
+    end)
+
+    -- DEFINE TECLA PADRÃO (RightControl)
+    Window:SetKeybind(Enum.KeyCode.RightControl)
 
     return Window
 end
