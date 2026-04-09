@@ -1,0 +1,586 @@
+local HttpService = game:GetService("HttpService")
+
+-- URL CODIFICADA
+local parts = {104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,83,65,77,85,67,65,82,65,82,79,78,79,66,47,48,45,47,114,101,102,115,47,104,101,97,100,115,47,109,97,105,110,47,82,65,78,79,88,95,73,78,84,69,70,65,82,67,69}
+
+local function assembleURL(parts)
+    local url = ""
+    for _, part in ipairs(parts) do
+        url = url .. string.char(part)
+    end
+    return url
+end
+
+local RANOX = loadstring(game:HttpGet(assembleURL(parts)))()
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- WINDOW
+local Window = RANOX:CreateWindow({
+    Title = "RANOX_FARM (Hyper Speed Runner⚡️)",
+    Subtitle = "v1.0"
+})
+
+Window:CreateTab("FARM", 4483362458)
+
+-- =========================
+-- VARIÁVEIS
+-- =========================
+Window:CreateLabel("FARM", "FUNÇÕES DE FARM")
+local autoFarmSpeed = false
+local farmAmount = 1
+local autoRebirth = false
+local autoWin = false
+local airSwim = false
+local noclip = false
+local infJump = false
+local fly = false
+local fullSystem = false
+
+local savedCollision = {}
+local removedPortals = {}
+local removedParts = {}
+
+local targetPosition = Vector3.new(1.33, 7.48, -9075.88)
+
+-- =========================
+-- AUTO FARM SPEED
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "AUTO FARM SPEED",
+    Default = false,
+    Callback = function(state)
+        autoFarmSpeed = state
+    end
+})
+
+Window:CreateSlider("FARM", {
+    Text = "MULTIPLICADOR DO FARM",
+    Min = 1,
+    Max = 20,
+    Default = 1,
+    Callback = function(value)
+        farmAmount = math.floor(value)
+    end
+})
+
+RunService.Heartbeat:Connect(function()
+    if autoFarmSpeed then
+        for i = 1, farmAmount do
+            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("StepTaken"):FireServer(1e999)
+        end
+    end
+end)
+
+-- =========================
+-- AUTO REBIRTH
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "AUTO REBIRTH",
+    Default = false,
+    Callback = function(state)
+        autoRebirth = state
+    end
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if autoRebirth then
+            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("RequestRebirth"):FireServer("free")
+        end
+    end
+end)
+
+-- =========================
+-- AUTO WIN
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "AUTO WIN",
+    Default = false,
+    Callback = function(state)
+        autoWin = state
+    end
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+
+        if autoWin and LocalPlayer.Character then
+            local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = CFrame.new(targetPosition + Vector3.new(0, 3, 0))
+
+                for _, v in pairs(workspace:GetPartBoundsInRadius(targetPosition, 10)) do
+                    if v:IsA("BasePart") then
+                        firetouchinterest(hrp, v, 0)
+                        firetouchinterest(hrp, v, 1)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- 🎮 LABEL (POSIÇÃO CORRETA)
+Window:CreateLabel("FARM", "Funções para Jogo 🎮")
+
+-- =========================
+-- AIR SWIM
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "AIR SWIM",
+    Default = false,
+    Callback = function(state)
+        airSwim = state
+    end
+})
+
+RunService.Heartbeat:Connect(function()
+    if airSwim and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+
+        if hrp and hum then
+            hum:ChangeState(Enum.HumanoidStateType.Swimming)
+
+            local move = hum.MoveDirection
+            hrp.Velocity = Vector3.new(move.X * 50, hrp.Velocity.Y, move.Z * 50)
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                hrp.Velocity = Vector3.new(hrp.Velocity.X, 50, hrp.Velocity.Z)
+            elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                hrp.Velocity = Vector3.new(hrp.Velocity.X, -50, hrp.Velocity.Z)
+            end
+        end
+    end
+end)
+
+-- =========================
+-- NOCLIP
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "NOCLIP",
+    Default = false,
+    Callback = function(state)
+        noclip = state
+    end
+})
+
+RunService.Stepped:Connect(function()
+    if noclip and LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- =========================
+-- INFINITE JUMP
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "INFINITE JUMP",
+    Default = false,
+    Callback = function(state)
+        infJump = state
+    end
+})
+
+UserInputService.JumpRequest:Connect(function()
+    if infJump and LocalPlayer.Character then
+        local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if hum then
+            hum:ChangeState("Jumping")
+        end
+    end
+end)
+
+-- =========================
+-- FLY
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "FLY",
+    Default = false,
+    Callback = function(state)
+        fly = state
+    end
+})
+
+RunService.Heartbeat:Connect(function()
+    if fly and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.Velocity = Vector3.new(0, 50, 0)
+        end
+    end
+end)
+
+-- =========================
+-- FULL SYSTEM (CORRIGIDO)
+-- =========================
+
+Window:CreateToggle("FARM", {
+    Text = "FULL SYSTEM (SAFE🛡)",
+    Default = false,
+    Callback = function(state)
+        fullSystem = state
+    end
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.3)
+
+        if fullSystem and LocalPlayer.Character then
+            local char = LocalPlayer.Character
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+
+            local stages = workspace:FindFirstChild("Stages")
+            if stages then
+
+                -- STAGES
+                for _, stage in pairs(stages:GetChildren()) do
+                    if string.find(stage.Name, "Stage_") then
+                        local portal = stage:FindFirstChild("Portal")
+                        if portal and portal.Parent then
+                            removedPortals[portal] = stage
+                            portal.Parent = nil
+                        end
+                    end
+                end
+
+                -- LOBBY (SÓ PORTAL)
+                local lobby = stages:FindFirstChild("Lobby")
+                if lobby then
+                    local portalFolder = lobby:FindFirstChild("Portal")
+                    if portalFolder then
+                        for _, v in pairs(portalFolder:GetChildren()) do
+                            removedPortals[v] = portalFolder
+                            v.Parent = nil
+                        end
+                    end
+                end
+            end
+
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    local model = v:FindFirstAncestorOfClass("Model")
+                    if model and model:FindFirstChild("Humanoid") then
+                        continue
+                    end
+
+                    local isInvisible = v.Transparency > 0.5
+                    local insidePlayer = v:IsDescendantOf(char)
+
+                    if hrp then
+                        local dist = (v.Position - hrp.Position).Magnitude
+                        if v.CanCollide == false and dist < 8 and not isInvisible then
+                            removedParts[v] = v.Parent
+                            v.Parent = nil
+                        end
+                    end
+
+                    if v.CanCollide == false and not insidePlayer and not isInvisible then
+                        savedCollision[v] = false
+                        v.CanCollide = true
+                    end
+                end
+            end
+        end
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if not fullSystem then
+        for v, _ in pairs(savedCollision) do
+            if v then v.CanCollide = false end
+        end
+        savedCollision = {}
+
+        for v, parent in pairs(removedPortals) do
+            if v then v.Parent = parent end
+        end
+        removedPortals = {}
+
+        for v, parent in pairs(removedParts) do
+            if v then v.Parent = parent end
+        end
+        removedParts = {}
+    end
+end) Window:CreateTab("PLAYER", 4483362458) -- =========================
+-- PLAYER SYSTEM
+-- =========================
+Window:CreateLabel("PLAYER", "FUNÇÕES PARA PLAYER")
+local speedEnabled = false
+local speedValue = 16
+
+local jumpEnabled = false
+local jumpValue = 50
+
+-- =========================
+-- SPEED
+-- =========================
+
+Window:CreateToggle("PLAYER", {
+    Text = "ATIVAR SPEED",
+    Default = false,
+    Callback = function(state)
+        speedEnabled = state
+    end
+})
+
+Window:CreateSlider("PLAYER", {
+    Text = "VELOCIDADE",
+    Min = 16,
+    Max = 999,
+    Default = 16,
+    Callback = function(value)
+        speedValue = math.floor(value)
+    end
+})
+
+-- =========================
+-- JUMP
+-- =========================
+
+Window:CreateToggle("PLAYER", {
+    Text = "ATIVAR JUMP",
+    Default = false,
+    Callback = function(state)
+        jumpEnabled = state
+    end
+})
+
+Window:CreateSlider("PLAYER", {
+    Text = "PULO",
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Callback = function(value)
+        jumpValue = math.floor(value)
+    end
+})
+
+-- =========================
+-- LOOP PRINCIPAL
+-- =========================
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+
+        if LocalPlayer.Character then
+            local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+
+            if hum then
+                if speedEnabled then
+                    hum.WalkSpeed = speedValue
+                end
+
+                if jumpEnabled then
+                    hum.JumpPower = jumpValue
+                end
+            end
+        end
+    end
+end) Window:CreateTab("SETTING", 4483362458) -- =========================
+-- SETTING SYSTEM
+-- =========================
+Window:CreateLabel("SETTING", "FUNÇÕES PARA CONFIGURAÇÃO")
+local antiAfk = false
+local lowGraphics = false
+local highGraphics = false
+local noShadows = false
+local fpsBoost = false
+local removeTextures = false
+local fullBright = false
+local reduceLag = false
+local noParticles = false
+local noWater = false
+
+local Lighting = game:GetService("Lighting")
+local VirtualUser = game:GetService("VirtualUser")
+
+-- =========================
+-- ANTI AFK
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "ANTI AFK",
+    Default = false,
+    Callback = function(state)
+        antiAfk = state
+    end
+})
+
+LocalPlayer.Idled:Connect(function()
+    if antiAfk then
+        VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end
+end)
+
+-- =========================
+-- LOW GRAPHICS
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "MODO LEVE (LOW GRAPHICS)",
+    Default = false,
+    Callback = function(state)
+        lowGraphics = state
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.Material = state and Enum.Material.Plastic or Enum.Material.SmoothPlastic
+            end
+        end
+    end
+})
+
+-- =========================
+-- HIGH GRAPHICS
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "MODO REALISTA (HIGH GRAPHICS)",
+    Default = false,
+    Callback = function(state)
+        highGraphics = state
+
+        Lighting.GlobalShadows = state
+        Lighting.Brightness = state and 3 or 1
+        Lighting.OutdoorAmbient = state and Color3.fromRGB(128,128,128) or Color3.fromRGB(0,0,0)
+    end
+})
+
+-- =========================
+-- REMOVE SOMBRAS
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "REMOVER SOMBRAS",
+    Default = false,
+    Callback = function(state)
+        noShadows = state
+        Lighting.GlobalShadows = not state
+    end
+})
+
+-- =========================
+-- FPS BOOST
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "FPS BOOST",
+    Default = false,
+    Callback = function(state)
+        fpsBoost = state
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Decal") or v:IsA("Texture") then
+                v.Transparency = state and 1 or 0
+            end
+        end
+    end
+})
+
+-- =========================
+-- REMOVE TEXTURAS
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "REMOVER TEXTURAS",
+    Default = false,
+    Callback = function(state)
+        removeTextures = state
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Texture") or v:IsA("Decal") then
+                v:Destroy()
+            end
+        end
+    end
+})
+
+-- =========================
+-- FULL BRIGHT
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "FULL BRIGHT",
+    Default = false,
+    Callback = function(state)
+        fullBright = state
+
+        Lighting.Brightness = state and 5 or 1
+        Lighting.ClockTime = state and 12 or 14
+    end
+})
+
+-- =========================
+-- REDUZIR LAG
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "REDUZIR LAG",
+    Default = false,
+    Callback = function(state)
+        reduceLag = state
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = not state
+            end
+        end
+    end
+})
+
+-- =========================
+-- REMOVER PARTÍCULAS
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "REMOVER PARTÍCULAS",
+    Default = false,
+    Callback = function(state)
+        noParticles = state
+
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ParticleEmitter") then
+                v.Enabled = not state
+            end
+        end
+    end
+})
+
+-- =========================
+-- REMOVER ÁGUA
+-- =========================
+
+Window:CreateToggle("SETTING", {
+    Text = "REMOVER ÁGUA",
+    Default = false,
+    Callback = function(state)
+        noWater = state
+
+        workspace.Terrain.WaterWaveSize = state and 0 or 0.05
+        workspace.Terrain.WaterTransparency = state and 1 or 0.5
+    end
+}) Window:CreateLabel("SETTING", "Altere as cores da interface e do título:") Window:CreateThemeBoxes("SETTING")
