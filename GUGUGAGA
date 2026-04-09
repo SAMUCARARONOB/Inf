@@ -51,7 +51,51 @@ local targetPosition = Vector3.new(1.33, 7.48, -9075.88)
 -- =========================
 -- AUTO FARM SPEED
 -- =========================
+local farmInf = false
+local farmValue = 99e999 -- valor padrão
 
+Window:CreateToggle("FARM", {
+    Text = "FARM INF (HOOK)",
+    Default = false,
+    Callback = function(state)
+        farmInf = state
+    end
+})
+
+-- 📦 TEXTBOX PRA DEFINIR O VALOR
+Window:CreateInput("FARM", {
+    Text = "VALOR DO FARM (ex: 999e9)",
+    Default = "99e999",
+    Callback = function(text)
+        local num = tonumber(text)
+        if num then
+            farmValue = num
+            print("Novo valor:", farmValue)
+        else
+            warn("Valor inválido!")
+        end
+    end
+})
+
+local Remote = game:GetService("ReplicatedStorage")
+    :WaitForChild("Remotes")
+    :WaitForChild("StepTaken")
+
+local old
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+
+    if self == Remote and method == "FireServer" then
+        if farmInf then
+            args[1] = farmValue -- 👈 valor dinâmico
+            args[2] = false
+            return old(self, unpack(args))
+        end
+    end
+
+    return old(self, ...)
+end)
 Window:CreateToggle("FARM", {
     Text = "AUTO FARM SPEED",
     Default = false,
