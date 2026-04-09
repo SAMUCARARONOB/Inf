@@ -52,9 +52,7 @@ local targetPosition = Vector3.new(1.33, 7.48, -9075.88)
 -- AUTO FARM SPEED
 -- =========================
 local farmInf = false
-local farmValue = 99e999
 
--- 🔘 TOGGLE
 Window:CreateToggle("FARM", {
     Text = "FARM INF (HOOK)",
     Default = false,
@@ -63,19 +61,6 @@ Window:CreateToggle("FARM", {
     end
 })
 
--- 📦 TEXTBOX (DO JEITO CERTO DA SUA LIB)
-Window:CreateTextBox("FARM", "VALOR DO FARM (ex: 999e9)", function(input)
-    local num = tonumber(input)
-
-    if num then
-        farmValue = num
-        print("Valor atualizado:", farmValue)
-    else
-        warn("Valor inválido!")
-    end
-end)
-
--- 🔥 HOOK
 local Remote = game:GetService("ReplicatedStorage")
     :WaitForChild("Remotes")
     :WaitForChild("StepTaken")
@@ -87,7 +72,7 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
 
     if self == Remote and method == "FireServer" then
         if farmInf then
-            args[1] = farmValue
+            args[1] = 99e999
             args[2] = false
             return old(self, unpack(args))
         end
