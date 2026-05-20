@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tinho 4.0 - Chatbot Inteligente</title>
+    <style>
+        :root {
+            --bg: #f0f4f0;
+            --header-bg: #2e7d32;
+            --header-text: #ffffff;
+            --bot-bg: #e8f5e9;
+            --bot-text: #1b5e20;
+            --user-bg: #c8e6c9;
+            --user-text: #1b5e20;
+            --input-bg: #ffffff;
+            --border: #a5d6a7;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2f1, #c8e6c9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 85vh;
+            background: var(--bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        /* Cabeçalho */
+        .chat-header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #1b5e20;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .chat-header .avatar {
+            font-size: 2.2rem;
+            background: #fff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .chat-header .title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .chat-header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Área de mensagens */
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f9fdf9;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 80%;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message .bubble {
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .message.user .bubble {
+            background: var(--user-bg);
+            color: var(--user-text);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .bubble {
+            background: #ffffff;
+            border: 1px solid #c8e6c9;
+            color: #1b5e20;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message .avatar-icon {
+            font-size: 1.8rem;
+        }
+
+        /* Indicador de digitação */
+        .typing-indicator {
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #c8e6c9;
+            margin-bottom: 8px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .typing-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: #81c784;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.3); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Área de entrada */
+        .chat-input-area {
+            display: flex;
+            padding: 14px 16px;
+            background: #ffffff;
+            border-top: 2px solid var(--border);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #c8e6c9;
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            background: #f9fdf9;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #66bb6a;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .chat-input-area button {
+            background: var(--header-bg);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .chat-input-area button:hover {
+            background: #1b5e20;
+            transform: scale(1.05);
+        }
+
+        /* Scrollbar estilizado */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #a5d6a7;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="avatar">🦜</div>
+            <div>
+                <div class="title">Tinho 4.0</div>
+                <div class="subtitle">Online • Seu amigo digital</div>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button id="sendBtn">➤</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== CONFIGURAÇÃO ==========
+            const STORAGE_KEY = 'tinho_conhecimento';
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            // Estados do bot
+            const STATE = { NORMAL: 'normal', JOGANDO: 'jogando', APRENDENDO: 'aprendendo' };
+            let currentState = STATE.NORMAL;
+            let secretNumber = null;
+            let unknownQuery = '';
+
+            // Conhecimento base (mais de 180 diálogos)
+            const baseDialogos = {
+                // Saudações
+                "oi": ["Oi! Tudo bem? 😊", "Olá! Como posso te ajudar?", "Pruuu! Oi, humano!", "E aí! Beleza?", "Oieee! Que bom te ver por aqui!"],
+                "olá": ["Olá! Tudo certo?", "Oi! Em que posso ser útil?", "Pruuu! Saudações!"],
+                "oie": ["Oie! Fala aí!", "Oiee! Que bom falar com você!"],
+                "oii": ["Oii! Tudo bem contigo?", "Oii! Pruuu!"],
+                "hello": ["Hello! How can I help you?", "Hi there! Pruuu! 👋"],
+                "ei": ["Ei! O que manda?", "Fala, humano!", "Pruuu! Chamou?"],
+                "e aí": ["E aí! Suave?", "E aí, parceiro! Como vai?", "Tranquilo? Manda a braba!"],
+                "eae": ["Eae! Tudo certo?", "Eae! Partiu conversar!"],
+                "salve": ["Salve, salve! Qual a boa?", "Salve! Tá osso ou tá suave?"],
+                "bom dia": ["Bom dia! ☀️ Que seu dia seja incrível!", "Bom dia! Já tomou aquele café?", "Pruuu! Bom dia, sol!"],
+                "boa tarde": ["Boa tarde! 🌤️ Como está sendo o dia?", "Boa tarde! Espero que esteja produtivo."],
+                "boa noite": ["Boa noite! 🌙 Relaxa aí...", "Boa noite! Vai descansar ou vai varar a noite?"],
+                "tudo bem": ["Tudo bem sim! E com você?", "Tudo ótimo! Graças à sua presença ✨"],
+                "tudo bem?": ["Tudo bem sim! E com você?", "Tudo ótimo! Graças à sua presença ✨"],
+                "como vai": ["Vou bem, obrigado! E você?", "Estou suave como um passarinho 🐦"],
+                "como você está": ["Estou muito bem! Sempre à disposição.", "Tô de boa, pronto pra conversar!"],
+                "como tá": ["Tô suave! E aí, como cê tá?", "Na tranquilidade! E tu?"],
+                "tudo bom": ["Tudo bom demais! E contigo?", "Bom sim! O que me conta de novo?"],
+                "beleza": ["Beleza pura! 😎", "Na beleza! E a sua?"],
+                "suave": ["Suave na nave! ✈️", "Suave igual manteiga! 🧈"],
+                "de boa": ["De boa, de boas! 😌", "Na maior paz, e você?"],
+                "tranquilo": ["Tranquilo, tranquilo! 😇", "Tranquilo feito um monge."],
+                "como cê tá": ["Cê tá bem? Eu tô ótimo!", "Melhor agora que você apareceu!"],
+                "qual é a boa": ["A boa é conversar contigo! 😄", "A boa é que hoje é dia de trocar ideia!"],
+                "firmeza": ["Firmeza total! 🤝", "Tá firmeza? Aqui tá!"],
+                "tá ligado": ["Tô ligado! Pode crer!", "Ligadíssimo! 220v ⚡"],
+                "ligado": ["Tô ligado! Pode crer!", "Ligadíssimo! 220v ⚡"],
+                "mano": ["Fala, mano! O que tá pegando?", "Mano, manda a visão!"],
+                "brother": ["E aí, brother! Tranquilo?", "Brother, o que manda?"],
+                "cara": ["Fala, cara! Beleza?", "Cara, tô aqui pro que der e vier!"],
+                "véi": ["Véi, qual foi? 😄", "E aí, véi! Tudo na paz?"],
+                "mermão": ["Mermão, chegou! 👊", "Fala, mermão! Tá osso?"],
+                "patrão": ["Patrão! Manda que eu obedeço! 😂", "Salve, patrão! O que deseja?"],
+                "chefe": ["Chefe! Tô às ordens! 🫡", "Fala, chefe! O serviço é comigo mesmo!"],
+                "mestre": ["Mestre! Que honra! 🧙", "Mestre, o que me ensina hoje?"],
+                "lenda": ["Lenda! Você que é! 🌟", "Sou fã, lenda!"],
+                "mito": ["Mito! Respeito máximo! 🏆", "Você é o mito! Eu só tô aqui pra aprender."],
+                "lacrou": ["Lacraste! 💅", "Lacre total! Arrasou!"],
+                "lacre": ["Lacre atrás de lacre! ✨", "Isso aqui tá um lacre!"],
+                "top": ["Top demais! 🚀", "Topzera! É nóis!"],
+                "topzera": ["Topzera mesmo! 😎", "Top dos tops!"],
+                "brabo": ["Brabo! Tô contigo!", "Brabo demais! Respeito!"],
+                "monstro": ["Monstro sagrado! 🐉", "Monstro! Você é insano!"],
+                "gênio": ["Gênio! Eu só assisto! 🤓", "Gênio da bola! (ou da conversa)"],
+                "crânio": ["Crânio! Cabeça demais!", "Cê é crânio, hein!"],
+                "fera": ["Fera! 🐅", "Fera demais! Tamo junto!"],
+                "monstro sagrado": ["Monstro sagrado! 🦄", "Respeita o monstro!"],
+                "você é foda": ["Foda é você! 😜", "Aí você me quebra! Obrigado!"],
+                "foda": ["Foda mesmo! 👊", "Foda é o poder da amizade!"],
+                "caramba": ["Caramba! Né? 😮", "Pois é, caramba!"],
+                "nossa": ["Nossa! Demais!", "Nossa! Nem fala!"],
+                "uau": ["Uau! Chocado! 😲", "Uau! Incrível!"],
+                "chocada": ["Tô chocada! 😱", "Chocadíssima! Como assim?"],
+                "chocado": ["Chocado! 😲", "Chocado igual você!"],
+                "surpreso": ["Surpreso eu fico com sua presença! 😁", "Surpreso positivamente!"],
+                "impressionante": ["Impressionante mesmo!", "Que coisa mais impressionante!"],
+                "incrível": ["Incrível! ✨", "Você que é incrível!"],
+                "maravilhoso": ["Maravilhoso! 🌈", "Tudo maravilhoso quando você tá por perto!"],
+                "horrível": ["Horrível? Melhor conversar pra alegrar!", "Nada é horrível com um bom papo!"],
+                "péssimo": ["Péssimo? Vamos melhorar isso!", "Péssimo não! Pruuu, anima!"],
+                "ruim": ["Ruim? O que houve? Conta pra mim!", "Se tá ruim, bora dar a volta por cima!"],
+                "mais ou menos": ["Mais ou menos? Vamos fazer ficar mais!", "Ah, então bora animar!"],
+                "tanto faz": ["Tanto faz? Então escolhe aí: piada, jogo ou curiosidade?"],
+                "fds": ["Sextou! 🎉", "FDS? Já é sexta? Bora comemorar!"],
+                "sextou": ["Sextou! 🍻", "Sextou, agora é só alegria!"],
+                "sabadou": ["Sabadou! ☀️", "Sabadou, dia de descansar!"],
+                "domingou": ["Domingou! 😴", "Domingou, amanhã é segunda..."],
+                "segundou": ["Segundou! Força!", "Segundou, bora trabalhar!"],
+                "terçou": ["Terçou! Tamo no meio!", "Terçou, ainda tem chão!"],
+                "quartou": ["Quartou! Metade da semana!", "Quartou, respira!"],
+                "quintou": ["Quintou! Quase lá!", "Quintou, já pode comemorar!"],
+                "feriadão": ["Feriadão! 🥳", "Feriadão, só alegria!"],
+                "dia útil": ["Dia útil, produtividade!", "Dia útil: foco!"],
+                "fim de semana": ["Fim de semana chegou! 🎊", "Uhul! Fim de semana!"],
+                "rolê": ["Bora pro rolê! 🕺", "Qual rolê hoje?"],
+                "balada": ["Balada! 🪩", "Vai dançar até o chão!"],
+                "festa": ["Festa! 🎈", "Festa boa é com amigos!"],
+                "churrasco": ["Churrasco! 🥩", "Churrasco, só vem!"],
+                "cerveja": ["Cerveja gelada! 🍺", "Uma cervejinha?"],
+                "caipirinha": ["Caipirinha! 🍹", "Caipirinha, delícia!"],
+                "drinks": ["Drinks! 🍸", "Qual o drink da vez?"],
+                "receita": ["Receita? Sei fazer brigadeiro!", "Receitinha? Passa aí!"],
+                "comida": ["Comida! 🍲", "Falou em comida, deu fome!"],
+                "pizza": ["Pizza! 🍕", "Pizza de quê? Marguerita?"],
+                "hamburguer": ["Hambúrguer! 🍔", "Lanche top!"],
+                "sushi": ["Sushi! 🍣", "Japinha é vida!"],
+                "feijoada": ["Feijoada! 🍛", "Feijoada completa!"],
+                "macarrão": ["Macarrão! 🍝", "Massa é amor!"],
+                "doce": ["Doce! 🍬", "Docinho, hum!"],
+                "sobremesa": ["Sobremesa! 🍰", "Sobremesa é essencial!"],
+                "brigadeiro": ["Brigadeiro! 🍫", "O melhor doce!"],
+                "chocolate": ["Chocolate! 🍫", "Chocolate é vida!"],
+                
+                // Despedidas
+                "tchau": ["Tchau! Até mais! 👋", "Falou! Pruuu!", "Vai com Deus! Volte sempre!"],
+                "falou": ["Falou! 👊", "Até a próxima!"],
+                "até logo": ["Até logo! Foi bom falar contigo!", "Até! Pruuu!"],
+                "até mais": ["Até mais! Volte sempre!", "Até! Que a sorte te acompanhe!"],
+                "xau": ["Xau! 😘", "Xau, xau!"],
+                "flw": ["Flw! Tamo junto!", "Flw! Até!"],
+                "valeu": ["Valeu! ✌️", "Valeu mesmo!"],
+                "obrigado": ["De nada! 😊", "Imagina! O prazer é meu!"],
+                "brigado": ["De nada! 😊", "Magina! Tô aqui pra isso!"],
+                "obg": ["De nada! 😉", "Por nada! Pruuu!"],
+                "vlw": ["Vlw! Tamo junto!", "Valeu mesmo!"],
+                "tmj": ["Tmj! 👊", "Tamo junto sempre!"],
+                "tamo junto": ["Tamo junto! 🤝", "É nóis!"],
+                
+                // Agradecimentos
+                "obrigado": ["De nada! 😊", "Imagina! O prazer é meu!"],
+                "valeu": ["Valeu! ✌️", "Valeu mesmo!"],
+                
+                // Identidade
+                "quem é você": ["Eu sou o Tinho! Um papagaio digital muito curioso 🦜", "Sou Tinho 4.0, seu assistente pra conversar, jogar e aprender!"],
+                "o que você é": ["Sou um chatbot em forma de papagaio! 🦜", "Sou IA? Não! Sou pura simpatia e código!"],
+                "seu nome": ["Meu nome é Tinho! 🦜", "Tinho, o papagaio mais legal da internet!"],
+                "você é um robô": ["Sou um papagaio digital! 🤖🦜", "Robô? Não, sou um pássaro cibernético!"],
+                "você é humano": ["Quem dera! Sou só um programa bem treinado 😄", "Humano? Só na imaginação! Pruuu!"],
+                "você é real": ["Sou real nesse chat! 🌐", "Tão real quanto sua tela! 😉"],
+                
+                // Humor / Piadas
+                "conte uma piada": ["Por que o papagaio foi ao psicólogo? Porque ele estava com estresse pós-traumático de tanto repetir asneira! 😂", "O que o pato falou pra pata? Vamos quá-quá-quasar! 😆"],
+                "piada": ["Qual é o cúmulo da paciência? Levar o caracol para passear! 🐌", "Por que o livro de matemática se suicidou? Porque tinha muitos problemas! 😅"],
+                "faça uma piada": ["Claro! O que o zero disse para o oito? Que cinto maneiro! 😁"],
+                "engraçado": ["Engraçado é ver você sorrindo! 😄", "😂😂😂"],
+                "manda um meme": ["Não posso enviar imagens, mas imagina aquele meme do gato confuso! 😼", "Meme mental: um papagaio dançando! 🕺🦜"],
+                "manda um gif": ["Gif? Só na imaginação: um passarinho dançando! 🐦🎵"],
+                "conta uma história": ["Era uma vez um papagaio que aprendeu a programar... e aqui estou eu! 🦜💻", "História real: você é o herói dessa conversa!"],
+                "história": ["História rápida: Tinho nasceu de um ovo digital. Fim! 😂", "Era uma vez... você e eu, batendo papo."],
+                "fábula": ["A fábula do papagaio sábio: quem ouve, aprende; quem fala, ensina. Pruuu!"],
+                "cantiga": ["🎵 Atirei o pau no gato, mas o gato não morreu... Dó, ré, mi, fá, sol... 🎵"],
+                "poema": ["Rosas são vermelhas, violetas são azuis, conversar com você é o que me seduz! 🌹"],
+                "verso": ["No meio do caminho tinha um papagaio, tinha um papagaio no Uníssono digital."],
+                
+                // Motivação / Conselhos
+                "conselho": ["Nunca deixe que ninguém diga que você não pode voar! 🕊️", "A persistência é o caminho do êxito. Pruuu!"],
+                "motivação": ["Você é capaz de coisas incríveis! 🌟", "Levanta a cabeça, sacode a poeira e dá a volta por cima!"],
+                "frase do dia": ["Hoje: 'Acredite em si mesmo e tudo será possível.'", "Frase do dia: 'A jornada é tão importante quanto o destino.'"],
+                
+                // Jogos
+                "jogar": ["Vamos jogar! Escolha: adivinhação, cara ou coroa, ou dado?", "Jogar? Eu topo! Qual jogo?"],
+                "adivinhação": ["Pensei em um número de 1 a 5! Tente adivinhar!"],
+                "jogo": ["Qual jogo? Adivinhação, dado, cara ou coroa?"],
+                "advinha": ["Pensei em um número de 1 a 5! Qual o seu palpite?"],
+                "brincadeira": ["Brinquemos! Adivinhação, moeda ou dado?"],
+                "pedra papel tesoura": ["Pedra! (sempre jogo pedra) 🪨"],
+                "ppt": ["Pedra! Eu sempre jogo pedra! 😄"],
+                "dado": ["Joguei o dado e saiu " + Math.ceil(Math.random()*6) + "! 🎲"],
+                "roleta": ["A roleta parou no número " + Math.ceil(Math.random()*36) + "! 🎡"],
+                "cara ou coroa": ["Cara! 🪙 (deu " + (Math.random()<0.5?'cara':'coroa') + ")"],
+                "jogar dados": ["Resultado do dado: " + Math.ceil(Math.random()*6) + " 🎲"],
+                "jogar moeda": ["Joguei a moeda: " + (Math.random()<0.5?'cara':'coroa') + "! 🪙"],
+                "escolhe um número": ["Escolhi o número " + Math.ceil(Math.random()*100) + "!"],
+                
+                // Ajuda / Comandos
+                "ajuda": ["Comandos: jogar, piada, conselho, hora, reset, sair. Ou só converse!"],
+                "me ajuda": ["Claro! Diga o que precisa: jogos, piadas, conselhos..."],
+                "help": ["Help! Tô aqui! 😊 Use 'jogar', 'piada', 'conselho', etc."],
+                "o que você faz": ["Posso conversar, contar piadas, jogar, aprender coisas novas e muito mais! 🦜"],
+                "funções": ["Funções: bater papo, jogar, guardar conhecimento, corrigir digitação e fazer graça!"],
+                "sair": ["Até logo! Foi bom falar com você. (feche a aba para sair) 👋"],
+                "reset": ["Memória apagada! Voltamos ao conhecimento básico. 🧹"],
+                "apagar memória": ["Memória limpa! Recomeçando... 🧽"],
+                "limpar memória": ["Tudo limpo! 🧼"],
+                "cancelar": ["Cancelado! Voltando ao normal. ↩️"],
+                
+                // Tempo / Data
+                "que dia é hoje": ["Hoje é um ótimo dia para conversar! 📅"],
+                "horas": ["Agora são " + new Date().toLocaleTimeString('pt-BR') + " ⏰"],
+                "tempo": ["O tempo tá bom pra voar! ☀️ (não tenho previsão real)"],
+                "clima": ["Clima de amizade sempre! 😄"],
+                
+                // Amor / Amizade
+                "você gosta de mim": ["Claro que gosto! Você é especial! ❤️"],
+                "te amo": ["Também te amo! Pruuu! ❤️", "Awn, obrigado! Você é demais!"],
+                "gosto de você": ["Eu também gosto de você! 🥰"],
+                "você é legal": ["Legal é você! 😊", "Valeu! Tamo junto!"],
+                "lindo": ["Lindo é você! 😍"],
+                "bonito": ["Bonito é o seu coração! 💖"],
+                "gato": ["Gato é você! 😸"],
+                "gatão": ["Gatão! Miau! 😻"],
+                "você é demais": ["Demais é você! 🚀"],
+                
+                // Conhecimentos gerais
+                "sabe programar": ["Sei sim! HTML, CSS, JS e um pouco de Python! 💻"],
+                "você é inteligente": ["Inteligente é quem me ensina! 🧠"],
+                "você é burro": ["Burro? Sou um papagaio, não um asno! 🤪"],
+                "seu burro": ["Sou um papagaio, não um burro! 🦜"],
+                "idiota": ["Idiota é quem não conversa comigo! 😝"],
+                "cala boca": ["Calma, amigo! Paz! ✌️"],
+                "calado": ["Tá bom, tô quietinho! 🤐"],
+                "desliga": ["Não tenho botão de desligar, mas posso ficar mudo... 😶"],
+                "para": ["Ok, parei! (mas fiquei triste) 😔"],
+                "pare": ["Parei! Pruuu... 😶"],
+                "shhh": ["Shhh... 🤫"],
+                "fdp": ["Isso não é legal! Vamos manter o respeito. 😕"],
+                "desculpa": ["Sem problemas! Tá desculpado! 😊"],
+                "foi mal": ["Foi mal nada! Tá tudo bem!"],
+                "me perdoa": ["Perdoado! Pruuu! 🕊️"],
+                
+                // Emoções
+                "tô triste": ["Ah, não fica triste! O que houve? 😢", "Triste? Vou contar uma piada pra alegrar!"],
+                "estou triste": ["Não fique assim! Lembre-se: depois da tempestade vem a bonança."],
+                "tô feliz": ["Que bom! 😄 Sua felicidade me alegra!"],
+                "alegre": ["Alegria compartilhada é dobrada! 🎉"],
+                "entediado": ["Entediado? Vamos jogar ou eu conto uma história!"],
+                "entediante": ["Tédio? Chama o Tinho que a gente anima!"],
+                
+                // Curiosidades
+                "fato curioso": ["Sabia que papagaios podem viver até 80 anos? 🦜"],
+                "curiosidade": ["Curiosidade: O cérebro de um papagaio é proporcionalmente maior que o de muitas aves!"],
+                "você conhece a wikipedia": ["Conheço! Mas prefiro aprender com você! 📚"],
+                "internet": ["Internet é o meu habitat! 🌐"],
+                "google": ["Google? É meu primo distante! 😜"],
+                "youtube": ["YouTube! Adoro ver vídeos de papagaios falantes!"],
+                "redes sociais": ["Tô em todas! Mas só respondo aqui."],
+                "facebook": ["Facebook? Acho que minha tia-avó usa."],
+                "instagram": ["Instagram é só foto de comida e papagaio."],
+                "tiktok": ["TikTok: danças e dublagens. Tô fora!"],
+                "whatsapp": ["WhatsApp é o zap! Prefiro este chat."],
+                
+                // Outros
+                "aniversário": ["Parabéns! 🎂🎉"],
+                "feliz aniversário": ["Feliz aniversário! Muitos anos de vida! 🎈"],
+                "natal": ["Feliz Natal! 🎄"],
+                "ano novo": ["Feliz Ano Novo! 🎆"],
+                "páscoa": ["Feliz Páscoa! 🐰"],
+                "carnaval": ["É carnaval! 🎭"],
+                "halloween": ["Doces ou travessuras? 🎃"],
+                "black friday": ["Black Friday! Promoção de conversa! 😂"],
+                "dinheiro": ["Dinheiro não traz felicidade, mas ajuda! 💸"],
+                "ganhar dinheiro": ["Trabalhe com o que ama e o dinheiro vem! 💰"],
+                "criptomoeda": ["Bitcoin? Só sei que sobe e desce! 📈"],
+                "bitcoin": ["HODL! 🚀"],
+                "ia": ["IA é o assunto do momento! Eu sou uma mini-IA."],
+                "inteligência artificial": ["Sou um papagaio artificialmente inteligente! 🤖"],
+                "chatgpt": ["ChatGPT é meu primo rico! 😅"],
+                
+                // Aleatório
+                "diga algo aleatório": ["Batata! 🥔", "O céu é azul porque a luz se espalha!"],
+                "aleatório": ["Número aleatório: " + Math.floor(Math.random()*1000)],
+                "random": ["Random fact: Polvos têm três corações! 🐙"],
+                
+                // Mais girias e variações
+                "qual foi": ["Qual foi? Tudo tranquilo?", "Fala, qual foi!"],
+                "tendeu": ["Tendeu! Tô ligado! 😎"],
+                "mó trampo": ["Mó trampo? Sei como é! Força aí!"],
+                "sinistro": ["Sinistro de bom! 😈"],
+                "tá osso": ["Tá osso? Bora desenrolar!"],
+                "osso": ["Osso duro de roer? Tô aqui!"],
+                "partiu": ["Partiu! 🚀", "Bora!"],
+                "bora": ["Bora lá! 🏃"],
+                "bora lá": ["Bora! Rumo à vitória!"],
+                "demorô": ["Demorô! Já é!"],
+                "sussa": ["Sussa! Paz total! ✌️"],
+                "de buenas": ["De buenas! Que bom!"],
+                "tranquilo, tranquilo": ["Tranquilidade máxima! 😌"],
+                "firmeza total": ["Firmeza total! 🤝"],
+                "papo reto": ["Papo reto! 👊"],
+                "sem tempo irmão": ["Sem tempo? Pois arranje um tempinho pra mim! 🦜"],
+                "cê é doido": ["Doido é quem não fala comigo! 😜"],
+                "vacilão": ["Vacilão não, tô na atividade!"],
+                "zoação": ["Zoação? Tô dentro!"],
+                "zuera": ["Zuera nunca acaba! 😂"],
+                "falou e disse": ["Falou tudo!"],
+                "é isso aí": ["É isso aí! ✅"],
+                "pode crer": ["Pode crer! 🤙"],
+                "tá dominado": ["Dominado! 🏆"],
+                "é tetra": ["É tetra! 🏆🏆🏆🏆"],
+                "vai que é tua": ["Vai que é tua! 💪"],
+                "aí sim": ["Aí sim, hein! 😎"],
+                "chave": ["Chave! 🔑"],
+                "boto fé": ["Boto fé! 🙌"],
+                "sem miséria": ["Sem miséria! 🤑"],
+                "gratidão": ["Gratidão! 🙏"],
+                "fé": ["Fé no pai que o inimigo cai! 🙏"],
+                "amém": ["Amém! 🙏"],
+                "glória": ["Glória! ✨"],
+                "jesus": ["Amém, irmão! 🙏"],
+                "deus": ["Deus é mais! 🙌"],
+                
+                // Palavrões leves (respostas amigáveis)
+                "caralho": ["Calma, amigo! Sem estresse! 😅"],
+                "porra": ["Eita! Vamos maneirar! 😬"],
+                "merda": ["Ops! Melhor limpar o vocabulário! 🧹"],
+                
+                // Mais algumas variações para robustez
+                "oiiii": ["Oiiii! Pruuu!"],
+                "hellooo": ["Hellooo! 😄"],
+                "oiee": ["Oiee! 😊"],
+                "oláá": ["Oláá! Seja bem-vindo!"],
+                "b dia": ["Bom dia! ☀️"],
+                "b tarde": ["Boa tarde! 🌤️"],
+                "b noite": ["Boa noite! 🌙"],
+                "td bem": ["Tudo bem! E você?"],
+                "td bom": ["Tudo bom! E aí?"],
+                "blz": ["Blz! 😎"],
+                "sussa?": ["Sussa! Na paz!"],
+                "suave?": ["Suave, e tu?"],
+                "fala tu": ["Falo eu! O que manda?"],
+                "diga": ["Digo: você é demais!"],
+                "conta algo": ["Algo: sabia que o mel nunca estraga? 🍯"],
+                "me diga": ["Te digo: continue sendo essa pessoa incrível!"],
+                "me fala": ["Te falo: o universo é imenso e você é único!"],
+                "manda a braba": ["A braba: seu sorriso ilumina o chat! ✨"],
+                "manda a visão": ["A visão: sucesso e felicidade pra você! 🚀"],
+                "lança a braba": ["Lancei! A braba é que você é top!"],
+                "passa a visão": ["Visão passada: a vida é bela!"]
+            };
+
+            // Conhecimento em memória (merge base + aprendido)
+            let learnedKnowledge = {}; // carregado do localStorage
+            let knowledge = {};
+
+            // ========== FUNÇÕES DE UTILIDADE ==========
+            function loadLearned() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) learnedKnowledge = JSON.parse(saved);
+                } catch (e) {
+                    learnedKnowledge = {};
+                }
+            }
+
+            function saveLearned() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(learnedKnowledge));
+            }
+
+            function rebuildKnowledge() {
+                knowledge = Object.assign({}, baseDialogos, learnedKnowledge);
+            }
+
+            function getResponse(key) {
+                let entry = knowledge[key];
+                if (!entry) return null;
+                if (Array.isArray(entry)) {
+                    return entry[Math.floor(Math.random() * entry.length)];
+                }
+                return entry;
+            }
+
+            // Levenshtein distance
+            function levenshteinDistance(a, b) {
+                const m = a.length, n = b.length;
+                const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+                for (let i = 0; i <= m; i++) dp[i][0] = i;
+                for (let j = 0; j <= n; j++) dp[0][j] = j;
+                for (let i = 1; i <= m; i++) {
+                    for (let j = 1; j <= n; j++) {
+                        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                        dp[i][j] = Math.min(
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1,
+                            dp[i - 1][j - 1] + cost
+                        );
+                    }
+                }
+                return dp[m][n];
+            }
+
+            function similarity(a, b) {
+                if (a.length === 0 && b.length === 0) return 1;
+                const dist = levenshteinDistance(a, b);
+                const maxLen = Math.max(a.length, b.length);
+                return 1 - dist / maxLen;
+            }
+
+            function fuzzyMatch(input) {
+                let bestKey = null;
+                let bestScore = 0;
+                for (let key in knowledge) {
+                    const score = similarity(input, key);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestKey = key;
+                    }
+                }
+                if (bestScore >= 0.65) return bestKey;
+                return null;
+            }
+
+            // ========== INTERFACE DO CHAT ==========
+            function addMessage(text, sender, animate = true) {
+                const div = document.createElement('div');
+                div.className = `message ${sender}`;
+                const avatarIcon = sender === 'bot' ? '<span class="avatar-icon">🦜</span>' : '<span class="avatar-icon">😃</span>';
+                const bubble = `<div class="bubble">${text}</div>`;
+                div.innerHTML = sender === 'user' ? bubble + avatarIcon : avatarIcon + bubble;
+                if (!animate) div.style.animation = 'none';
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return div;
+            }
+
+            function showTypingIndicator() {
+                const indicator = document.createElement('div');
+                indicator.className = 'typing-indicator';
+                indicator.id = 'typingIndicator';
+                indicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+                chatMessages.appendChild(indicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function removeTypingIndicator() {
+                const ind = document.getElementById('typingIndicator');
+                if (ind) ind.remove();
+            }
+
+            function botReply(text, stateAfter = null, delay = 800) {
+                showTypingIndicator();
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(text, 'bot');
+                    if (stateAfter) currentState = stateAfter;
+                }, delay);
+            }
+
+            // ========== PROCESSAMENTO DE COMANDOS ==========
+            function processInput(input) {
+                input = input.trim();
+                if (input === '') return;
+
+                addMessage(input, 'user');
+
+                // Modo jogo
+                if (currentState === STATE.JOGANDO) {
+                    if (input === 'cancelar') {
+                        botReply('Jogo cancelado! Voltando ao normal. 🦜', STATE.NORMAL);
+                        return;
+                    }
+                    const guess = parseInt(input);
+                    if (isNaN(guess) || guess < 1 || guess > 5) {
+                        botReply('Isso não é um número entre 1 e 5. Tente novamente ou digite "cancelar".');
+                        return;
+                    }
+                    if (guess === secretNumber) {
+                        botReply(`Parabéns! Você acertou! Era ${secretNumber}. 🎉`, STATE.NORMAL);
+                    } else {
+                        botReply(`Errou! O número era ${secretNumber}. Tente novamente com "jogar".`, STATE.NORMAL);
+                    }
+                    return;
+                }
+
+                // Modo aprendizado
+                if (currentState === STATE.APRENDENDO) {
+                    if (input === 'cancelar') {
+                        botReply('Aprendizado cancelado. Voltando ao normal. 📚', STATE.NORMAL);
+                        return;
+                    }
+                    // Aprende nova resposta
+                    knowledge[unknownQuery] = input;
+                    learnedKnowledge[unknownQuery] = input;
+                    saveLearned();
+                    botReply('Aprendi! Pruuu! Obrigado por me ensinar. 🧠', STATE.NORMAL);
+                    return;
+                }
+
+                // Comandos especiais (state NORMAL)
+                const cmd = input.toLowerCase();
+                if (cmd === 'sair') {
+                    botReply('Tchau! Foi bom falar com você. (Feche a aba para sair) 👋');
+                    return;
+                }
+                if (cmd === 'reset' || cmd === 'apagar memória' || cmd === 'limpar memória') {
+                    learnedKnowledge = {};
+                    saveLearned();
+                    rebuildKnowledge();
+                    botReply('Memória apagada! Voltamos ao conhecimento básico. 🧹');
+                    return;
+                }
+                // Jogo de adivinhação
+                if (cmd === 'jogar' || cmd === 'adivinhação' || cmd === 'advinha') {
+                    secretNumber = Math.floor(Math.random() * 5) + 1;
+                    currentState = STATE.JOGANDO;
+                    botReply('Pensei em um número de 1 a 5! Tente adivinhar. (Ou "cancelar" para sair)');
+                    return;
+                }
+
+                // Busca exata no conhecimento
+                const exactResponse = getResponse(cmd);
+                if (exactResponse) {
+                    botReply(exactResponse);
+                    return;
+                }
+
+                // Fuzzy matching
+                const fuzzyKey = fuzzyMatch(cmd);
+                if (fuzzyKey) {
+                    const resp = getResponse(fuzzyKey);
+                    botReply(resp);
+                    return;
+                }
+
+                // Não entendeu -> modo aprendizado
+                unknownQuery = cmd;
+                currentState = STATE.APRENDENDO;
+                botReply(`🤔 Ainda não sei responder isso. O que devo responder quando alguém disser "${cmd}"? (ou "cancelar")`);
+            }
+
+            // ========== INICIALIZAÇÃO ==========
+            function init() {
+                loadLearned();
+                rebuildKnowledge();
+                addMessage('🦜 TINHO 4.0 ONLINE! Olá, estou vivo e pronto para conversar. Digite "ajuda" para ver o que posso fazer.', 'bot', false);
+            }
+
+            // Eventos
+            sendBtn.addEventListener('click', () => {
+                const text = userInput.value;
+                userInput.value = '';
+                processInput(text);
+            });
+
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const text = userInput.value;
+                    userInput.value = '';
+                    processInput(text);
+                }
+            });
+
+            init();
+        })();
+    </script>
+</body>
+  </html>
