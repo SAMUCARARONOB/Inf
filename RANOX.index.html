@@ -380,18 +380,34 @@
             return null;
         }
         function detectListRequest(input) {
-            const l = input.toLowerCase().trim();
-            const patterns=[/(?:top\s*(\d+)|(\d+)\s*(?:melhores?|maiores?|principais?|piores?))\s*(.+)/i,/(?:quais\s+(?:são|sao)\s+(?:os\s+)?)?(?:top\s*(\d+)|(\d+))\s*(?:de\s+)?(.+)/i,/(?:liste|lista|cite|diga|fale|mostre|exiba)\s*(?:os\s+)?(?:top\s*(\d+)|(\d+))\s*(.+)/i,/(?:me\s+)?(?:diga|fale|mostre|liste|cite)\s+(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,/(?:quero|queria)\s+(?:saber\s+)?(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,/(\d+)\s+(.+)\s*(?:selvagens?|perigosos?|famosos?|conhecidos?)/i,/(?:top|top\s*(\d+))\s+(.+)/i];
-            for (let p of patterns) {
-                const m = l.match(p);
-                if (m) {
-                    let count = parseInt(m[1] || m[2] || '10');
-                    if (isNaN(count) || count < 1) count = 10;
-                    const topic = (m[3] || '').trim();
-                    if (topic.length > 1) return { count, topic };
-                }
+    const l = input.toLowerCase().trim();
+    // Padrões para "top N", "N maiores/melhores", "liste os N..."
+    const patterns = [
+        /(?:top\s*(\d+)|(\d+)\s*(?:melhores?|maiores?|principais?|piores?|mais\s+\w+))\s*(.+)/i,
+        /(?:quais\s+(?:são|sao)\s+(?:os\s+)?)?(?:top\s*(\d+)|(\d+))\s*(?:de\s+)?(.+)/i,
+        /(?:liste|lista|cite|diga|fale|mostre|exiba)\s*(?:os\s+)?(?:top\s*(\d+)|(\d+))\s*(.+)/i,
+        /(?:me\s+)?(?:diga|fale|mostre|liste|cite)\s+(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,
+        /(?:quero|queria)\s+(?:saber\s+)?(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,
+        /(\d+)\s+(.+)\s*(?:selvagens?|perigosos?|famosos?|conhecidos?)/i,
+        /(?:top|top\s*(\d+))\s+(.+)/i,
+        /(?:os\s+)?(\d+)\s+(?:animais|bichos|criaturas)\s+(.+)/i,
+        /(?:liste|mostre|exiba)\s+(?:os\s+)?(\d+)\s+(.+)/i,
+        /^(\d+)\s+(.+)$/i  // "10 animais fortes"
+    ];
+    
+    for (let p of patterns) {
+        const m = l.match(p);
+        if (m) {
+            let count = parseInt(m[1] || m[2] || '10');
+            if (isNaN(count) || count < 1) count = 10;
+            if (count > 100) count = 100; // limita
+            const topic = (m[3] || m[2] || '').trim();
+            if (topic.length > 1) {
+                return { count, topic: topic.replace(/^(mais|melhor|pior)\s+/i, '') };
             }
-            return null;
+        }
+    }
+    return null;
         }
 
         // ==================== BASE DE CONHECIMENTO GIGANTE ====================
@@ -506,6 +522,114 @@
             "história de são francisco":"⛪ São Francisco de Assis (1182-1226) foi um frade católico italiano, fundador da Ordem Franciscana. Conhecido por seu amor à natureza e aos animais. Padroeiro dos animais e do meio ambiente.",
             "história de brasília":"🏛️ Brasília foi inaugurada em 21 de abril de 1960, projetada por Lúcio Costa e Oscar Niemeyer. Substituiu o Rio de Janeiro como capital do Brasil.",
         };
+        // ==================== BASE DE LISTAS DINÂMICAS ====================
+const listDatabase = {
+    "animais mais fortes": [
+        "🐘 Elefante-africano (levanta até 9 toneladas)",
+        "🦏 Rinoceronte-branco (força de carga de 2,5 toneladas)",
+        "🐅 Tigre-siberiano (arrasta presas de 500 kg)",
+        "🐻 Urso-pardo (força de mordida de 1200 PSI)",
+        "🦍 Gorila (levanta até 2 toneladas)",
+        "🐊 Crocodilo-de-água-salgada (mordida de 3700 PSI)",
+        "🦛 Hipopótamo (mordida de 1800 PSI, vira barcos)",
+        "🐆 Leopardo (sobe em árvores com presas de 2x seu peso)",
+        "🦈 Tubarão-branco (mordida de 4000 PSI)",
+        "🐋 Baleia-azul (maior força absoluta, puxa 100 toneladas)",
+        "🐃 Búfalo-africano (chifrada fatal)",
+        "🐘 Elefante-asiático",
+        "🦏 Rinoceronte-de-sumatra",
+        "🐻‍❄️ Urso-polar",
+        "🐅 Leão"
+    ],
+    "animais mais rápidos": [
+        "🦅 Falcão-peregrino (390 km/h em mergulho)",
+        "🐆 Guepardo (120 km/h em terra)",
+        "🐟 Agulhão-vela (110 km/h na água)",
+        "🦅 Águia-real (320 km/h em mergulho)",
+        "🐎 Antílope-americano (88 km/h sustentado)",
+        "🐆 Leopardo (58 km/h)",
+        "🐕 Galgo-inglês (72 km/h)",
+        "🐇 Lebre-europeia (72 km/h)",
+        "🐎 Cavalo-quarto-de-milha (88 km/h)",
+        "🦌 Gazela-de-thomson (80 km/h)",
+        "🐘 Elefante? (40 km/h, mas impressionante)",
+        "🦏 Rinoceronte-negro (55 km/h)"
+    ],
+    "animais mais inteligentes": [
+        "🐒 Chimpanzé (usa ferramentas, resolve problemas)",
+        "🐬 Golfinho-nariz-de-garrafa (linguagem complexa, auto-reconhecimento)",
+        "🐘 Elefante (memória excepcional, empatia)",
+        "🦜 Papagaio-cinzento (vocabulário de até 1000 palavras)",
+        "🐙 Polvo (resolução de labirintos, camuflagem)",
+        "🐕 Cão (entende até 250 palavras e gestos)",
+        "🐦 Corvo (usa ferramentas, planeja futuro)",
+        "🐷 Porco (joga videogame, aprende rápido)",
+        "🐭 Rato (resolução de labirintos, metacognição)",
+        "🐋 Orca (técnicas de caça ensinadas culturalmente)"
+    ],
+    "animais mais venenosos": [
+        "🐍 Taipan-do-interior (veneno mais letal do mundo)",
+        "🐸 Sapo-dardo-venenoso (pele contém batracotoxina)",
+        "🐍 Cobra-real (injeção de até 7 ml de veneno)",
+        "🦂 Escorpião-amarelo (veneno neurotóxico)",
+        "🐍 Mamba-negra (altamente agressiva, veneno rápido)",
+        "🐙 Polvo-de-anéis-azuis (tetrodotoxina, sem antídoto)",
+        "🕷️ Aranha-armadeira (veneno potente, comum no Brasil)",
+        "🐍 Víbora-de-areia (mata em minutos)",
+        "🐌 Caracol-de-cone (arpão venenoso)",
+        "🐍 Cobra-marrom (responsável por mais mortes na Austrália)"
+    ],
+    "animais mais perigosos": [
+        "🦟 Mosquito (transmite doenças, mata ~1 milhão/ano)",
+        "🐍 Cobra (veneno, ~100 mil mortes/ano)",
+        "🐊 Crocodilo-de-água-salgada (ataque fatal)",
+        "🦛 Hipopótamo (agressivo, mata mais que leões na África)",
+        "🐘 Elefante (carga violenta, ~500 mortes/ano)",
+        "🦈 Tubarão-branco (predador marinho)",
+        "🦁 Leão (ataques a humanos)",
+        "🐅 Tigre (caçador solitário perigoso)",
+        "🦑 Água-viva-caravela (veneno paralisante)",
+        "🦂 Escorpião (espécies letais no Brasil e África)"
+    ],
+    "animais mais longevos": [
+        "🐢 Tartaruga-gigante-de-aldabra (até 200 anos)",
+        "🐋 Baleia-da-groenlândia (até 200 anos)",
+        "🐘 Elefante (até 70 anos)",
+        "🦜 Arara-azul (até 80 anos)",
+        "🐊 Crocodilo (até 70 anos)",
+        "🐟 Carpa (até 50 anos)",
+        "🐎 Cavalo (até 30 anos)",
+        "🐕 Cão (até 20 anos, varia por raça)"
+    ],
+    "animais mais raros": [
+        "🐅 Leopardo-de-amur (cerca de 100 indivíduos)",
+        "🦏 Rinoceronte-de-java (menos de 70)",
+        "🐬 Vaquita-marinha (menos de 10!)",
+        "🐒 Macaco-prego-dourado (poucas centenas)",
+        "🐢 Tartaruga-de-couro (população em declínio)",
+        "🦍 Gorila-das-montanhas (cerca de 1000)",
+        "🐆 Guepardo-asiático (menos de 50)",
+        "🐘 Elefante-da-floresta (ameaçado)"
+    ]
+};
+        function generateTopList(categoryKey, count) {
+    // categoryKey é a chave normalizada (ex: "animais mais rapidos")
+    const list = listDatabase[categoryKey];
+    if (!list) return null;
+    
+    const total = list.length;
+    const n = Math.min(count, total);
+    if (n <= 0) return null;
+    
+    let result = `🔝 <b>Top ${n} ${categoryKey.replace(/\b\w/g, l => l.toUpperCase())}:</b>\n\n`;
+    for (let i = 0; i < n; i++) {
+        result += `${i+1}. ${list[i]}\n`;
+    }
+    if (count > total) {
+        result += `\n⚠️ Só existem ${total} itens nessa lista.`;
+    }
+    return result;
+        }
         // ==================== DIÁLOGOS ====================
         const dialogues = [
     // ==================== SAUDAÇÕES ====================
@@ -609,7 +733,7 @@
     {patterns:['me faz um elogio','me elogia','diz algo bonito','me elogie'],
      responses:['Você é incrível por estar aqui aprendendo! 🌟','Sua curiosidade é admirável! 🤩']},
 
-    // SENTIMENTOS
+    // SENfunction
     {patterns:['estou com fome','to com fome','fome','com fome','quero comer'],
      responses:['Que tal preparar algo gostoso? 🍳','Peça uma pizza! 🍕']},
     {patterns:['estou com sono','to com sono','sono','cansado','cansada','com sono'],
@@ -1540,20 +1664,38 @@ if (historiaMatch && historiaMatch[1]) {
                 if (knowledgeBase[nht.replace(/^como fazer /,'')]) return knowledgeBase[nht.replace(/^como fazer /,'')];
             }
 
-            // Listas (top 10, etc.)
-            const listReq = detectListRequest(searchInput);
-            if (listReq) {
-                const { count, topic } = listReq;
-                const nt = normalize(topic);
-                const exactKey = `top ${count} ${nt}`;
-                if (knowledgeBase[exactKey]) return knowledgeBase[exactKey];
-                for (let k in knowledgeBase) {
-                    if (k.includes(nt) && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
-                    if (similarity(nt, k) >= 0.8 && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
-                }
-                if (knowledgeBase[nt]) return knowledgeBase[nt];
-                if (knowledgeBase[nt+'s']) return knowledgeBase[nt+'s'];
+            // Listas (top N, etc.) - versão com listDatabase
+const listReq = detectListRequest(searchInput);
+if (listReq) {
+    const { count, topic } = listReq;
+    const nt = normalize(topic);
+    const exactKey = `top ${count} ${nt}`;
+    if (knowledgeBase[exactKey]) return knowledgeBase[exactKey];
+    for (let k in knowledgeBase) {
+        if (k.includes(nt) && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
+        if (similarity(nt, k) >= 0.8 && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
+    }
+    if (knowledgeBase[nt]) return knowledgeBase[nt];
+    
+    // 🆕 Busca dinâmica na listDatabase
+    let bestListKey = null;
+    let bestScore = 0;
+    for (let key in listDatabase) {
+        const nk = normalize(key);
+        if (nk.includes(nt) || nt.includes(nk) || similarity(nt, nk) >= 0.7) {
+            const sc = similarity(nt, nk);
+            if (sc > bestScore) {
+                bestScore = sc;
+                bestListKey = key;
             }
+        }
+    }
+    if (bestListKey) {
+        return generateTopList(bestListKey, count);
+    }
+    
+    // Se não encontrou, continua para busca web (o código segue)
+}
 
             // Definição
             const dq = extractDefinitionQuery(searchInput);
