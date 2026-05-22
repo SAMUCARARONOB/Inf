@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RANOX – IA Definitiva</title>
+    <style>
+        :root {
+            --bg-deep: #06060e;
+            --panel-glass: rgba(12, 12, 22, 0.82);
+            --header-glass: rgba(8, 8, 20, 0.88);
+            --primary: #ff3b3b;
+            --primary-soft: #ff5555;
+            --accent: #8b5cf6;
+            --accent-glow: #a78bfa;
+            --user-bub: rgba(30, 15, 30, 0.78);
+            --bot-bub: rgba(16, 16, 28, 0.78);
+            --border: rgba(255, 255, 255, 0.05);
+            --text: #e4e4ec;
+            --text-secondary: #a0a0b8;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.55);
+            --shadow-glow: 0 0 45px rgba(255, 50, 50, 0.18);
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { height:100%; overflow:hidden; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-deep);
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; position: relative;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 60, 60, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(100, 100, 255, 0.03) 0%, transparent 60%);
+        }
+        .particles-canvas {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 0; opacity: 0.4;
+        }
+        .chat-container {
+            position: absolute; width: 520px; height: 640px;
+            min-width: 370px; min-height: 460px;
+            background: var(--panel-glass);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md), var(--shadow-glow), inset 0 1px 0 rgba(255,255,255,0.03);
+            display: flex; flex-direction: column; overflow: hidden;
+            border: 1px solid var(--border);
+            resize: both;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2; animation: containerAppear 0.5s ease-out;
+        }
+        @keyframes containerAppear {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.93); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .chat-header {
+            background: var(--header-glass); backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px); padding: 14px 20px;
+            display: flex; align-items: center; gap: 14px;
+            border-bottom: 1px solid var(--border); cursor: move; z-index: 5; user-select: none;
+        }
+        .chat-header .logo {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 50, 50, 0.1); border-radius: 50%;
+            border: 1.5px solid rgba(255, 80, 80, 0.4); font-size: 1.3rem;
+            box-shadow: 0 0 18px rgba(255, 50, 50, 0.22);
+            animation: logoGlow 3s infinite; transition: var(--transition-fast);
+        }
+        @keyframes logoGlow { 0%,100%{box-shadow:0 0 14px rgba(255,50,50,0.18);} 50%{box-shadow:0 0 28px rgba(255,50,50,0.42);} }
+        .chat-header .info { flex:1; display: flex; flex-direction: column; }
+        .chat-header .title { font-weight: 700; font-size: 1.15rem; color: #fff; letter-spacing: 0.5px; }
+        .chat-header .status { font-size: 0.7rem; color: #ff9999; display: flex; align-items: center; gap: 5px; }
+        .chat-header .status .dot { width:6px; height:6px; background:#ff6666; border-radius:50%; animation:statusPulse 2s infinite; }
+        @keyframes statusPulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+        .chat-header .btns { display: flex; gap: 8px; }
+        .chat-header .btns button {
+            width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07);
+            background: rgba(255,255,255,0.03); color: #ccc; cursor: pointer; font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition-fast); backdrop-filter: blur(6px);
+        }
+        .chat-header .btns button:hover {
+            background: rgba(255,255,255,0.1); color: #fff;
+            border-color: rgba(255,255,255,0.16); box-shadow: 0 0 14px rgba(255,50,50,0.2);
+        }
+        .chat-messages {
+            flex: 1; padding: 16px 18px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
+        }
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 10px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .message {
+            display: flex; flex-direction: column; max-width: 87%;
+            animation: msgSlideIn 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        @keyframes msgSlideIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .message.user { align-self: flex-end; }
+        .message.bot { align-self: flex-start; }
+        .message .bubble {
+            padding: 10px 16px; border-radius: var(--radius-md);
+            font-size: 0.88rem; line-height: 1.55; word-wrap: break-word; position: relative;
+        }
+        .message.user .bubble {
+            background: var(--user-bub); color: #f0d0d0;
+            border-bottom-right-radius: 6px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .message.bot .bubble {
+            background: var(--bot-bub); color: #d8d8e8;
+            border: 1px solid rgba(255,255,255,0.04); border-bottom-left-radius: 6px;
+        }
+        .message .bubble img { max-width: 200px; border-radius: 12px; margin-top: 8px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .message .bubble .copy-btn {
+            position: absolute; top: 6px; right: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            color: #ccc; border-radius: 6px; padding: 3px 8px; font-size: 0.65rem;
+            cursor: pointer; transition: var(--transition-fast); display: none;
+        }
+        .message .bubble:hover .copy-btn { display: block; }
+        .message .bubble .copy-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+        .message .role-label {
+            font-size: 0.68rem; font-weight: 600; margin-bottom: 3px; opacity: 0.7; letter-spacing: 0.3px;
+        }
+        .message.user .role-label { color: #ff7777; text-align: right; }
+        .message.bot .role-label { color: #a78bfa; }
+        .typing-indicator {
+            align-self: flex-start; background: var(--bot-bub); padding: 12px 18px;
+            border-radius: var(--radius-md); display: flex; gap: 5px; align-items: center;
+            border: 1px solid rgba(255,255,255,0.04); animation: msgSlideIn 0.3s ease;
+        }
+        .typing-indicator .dot {
+            width: 7px; height: 7px; background: var(--accent); border-radius: 50%;
+            animation: dotBounce 1.3s infinite; box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+        }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.18s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.36s; }
+        @keyframes dotBounce { 0%,80%,100%{transform:scale(0.55);opacity:0.3;} 40%{transform:scale(1.25);opacity:1;} }
+        .input-area {
+            padding: 12px 18px; background: rgba(10, 10, 20, 0.7);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center;
+        }
+        .input-area input {
+            flex: 1; padding: 11px 18px; border-radius: 26px;
+            border: 1.5px solid rgba(255,255,255,0.07); background: rgba(20, 20, 35, 0.6);
+            color: #f0d0d0; font-size: 0.9rem; outline: none;
+            transition: var(--transition-smooth); backdrop-filter: blur(4px);
+        }
+        .input-area input:focus {
+            border-color: var(--primary-soft);
+            box-shadow: 0 0 20px rgba(255, 60, 60, 0.2), 0 0 4px rgba(255, 80, 80, 0.3);
+            background: rgba(25, 25, 40, 0.75);
+        }
+        .input-area input::placeholder { color: #5a4a4a; }
+        .input-area button {
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1.5px solid rgba(255, 80, 80, 0.5); background: rgba(255, 50, 50, 0.08);
+            color: #ff6666; font-size: 1.2rem; cursor: pointer;
+            transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .input-area button:hover {
+            background: rgba(255, 50, 50, 0.2); border-color: var(--primary); color: #fff;
+            box-shadow: 0 0 22px rgba(255, 50, 50, 0.4); transform: scale(1.04);
+        }
+        .float-btn {
+            position: fixed; bottom: 26px; right: 26px; width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(20, 10, 20, 0.85); backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 70, 70, 0.5); color: #ff5555; font-size: 20px; cursor: pointer;
+            z-index: 9999; box-shadow: 0 0 24px rgba(255, 40, 40, 0.35);
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition-smooth); animation: floatPulse 2.5s infinite;
+        }
+        @keyframes floatPulse { 0%,100%{box-shadow:0 0 20px rgba(255,40,40,0.3);} 50%{box-shadow:0 0 35px rgba(255,40,40,0.55);} }
+        .float-btn:hover {
+            background: rgba(255, 50, 50, 0.2); color: #fff;
+            box-shadow: 0 0 30px rgba(255, 50, 50, 0.6); transform: scale(1.06);
+        }
+        @media (max-width: 540px) {
+            .chat-container {
+                width: 100vw !important; height: 100vh !important; border-radius: 0; resize: none;
+                position: fixed; top: 0 !important; left: 0 !important; transform: none !important;
+            }
+            .chat-header { cursor: default; }
+            .float-btn { bottom: 16px; right: 16px; width: 44px; height: 44px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header" id="chatHeader">
+            <div class="logo">⚡</div>
+            <div class="info">
+                <div class="title">RANOX</div>
+                <div class="status"><span class="dot"></span> Online</div>
+            </div>
+            <div class="btns">
+                <button id="btnNew" title="Novo Chat">+</button>
+                <button id="btnClose" title="Minimizar">−</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button id="sendBtn">▶</button>
+        </div>
+    </div>
+
+    <button class="float-btn" id="floatBtn" style="display:none;" title="Abrir RANOX">⚡</button>
+
+    <script>
+    (function() {
+        // ==================== ELEMENTOS DOM ====================
+        const chatContainer = document.getElementById('chatContainer');
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const btnNew = document.getElementById('btnNew');
+        const btnClose = document.getElementById('btnClose');
+        const chatHeader = document.getElementById('chatHeader');
+        const floatBtn = document.getElementById('floatBtn');
+        const particlesCanvas = document.getElementById('particlesCanvas');
+        const ctx = particlesCanvas.getContext('2d');
+
+        // ==================== PARTÍCULAS ====================
+        let particlesArray = [];
+        function resizeCanvas() { particlesCanvas.width = window.innerWidth; particlesCanvas.height = window.innerHeight; }
+        resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * particlesCanvas.width;
+                this.y = Math.random() * particlesCanvas.height;
+                this.size = Math.random() * 1.8 + 0.4;
+                this.speedY = Math.random() * 0.22 + 0.07;
+                this.speedX = (Math.random() - 0.5) * 0.14;
+                this.opacity = Math.random() * 0.5 + 0.15;
+                this.pulseSpeed = Math.random() * 0.014 + 0.005;
+                this.pulseOffset = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.y -= this.speedY; this.x += this.speedX;
+                this.opacity = 0.25 + Math.sin(Date.now() * this.pulseSpeed + this.pulseOffset) * 0.2;
+                if (this.y < -10) { this.y = particlesCanvas.height + 10; this.x = Math.random() * particlesCanvas.width; }
+                if (this.x < -10) this.x = particlesCanvas.width + 10;
+                if (this.x > particlesCanvas.width + 10) this.x = -10;
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255,70,70,${Math.max(0,Math.min(0.6,this.opacity))})`; ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size*2.5, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255,50,50,${Math.max(0,Math.min(0.14,this.opacity*0.28))})`; ctx.fill();
+            }
+        }
+        for (let i=0;i<75;i++) particlesArray.push(new Particle());
+        function animateParticles() {
+            ctx.clearRect(0,0,particlesCanvas.width,particlesCanvas.height);
+            particlesArray.forEach(p=>{p.update();p.draw();});
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ==================== ESTADO ====================
+        const STORAGE_KEY = 'ranox_definitive_v2';
+        let isTyping = false, gameMode = null, secretNumber = null;
+        let memory = [], lastTopic = null, internetCache = {};
+
+        function saveState() {
+            const msgs = []; chatMessages.querySelectorAll('.message').forEach(msg => {
+                const isUser = msg.classList.contains('user');
+                const bubble = msg.querySelector('.bubble');
+                if (bubble) { const text = bubble.innerHTML.replace(/<div class="role-label">.*?<\/div>/g,'').replace(/<br><img.*?>/g,'').replace(/<button.*?<\/button>/g,''); msgs.push({role:isUser?'user':'bot',content:text}); }
+            });
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify({messages:msgs,memory,lastTopic,internetCache,gameMode,secretNumber})); } catch(e) {}
+        }
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const state = JSON.parse(saved); memory=state.memory||[]; lastTopic=state.lastTopic||null;
+                    internetCache=state.internetCache||{}; gameMode=state.gameMode||null; secretNumber=state.secretNumber||null;
+                    if (state.messages?.length) { state.messages.forEach(m=>addMessageDirect(m.content,m.role)); return true; }
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        // ==================== CONVERSOR DE ROMANOS ====================
+        const romanMap = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+        function toRoman(num) {
+            if (num<=0||num>=4000000) return null;
+            if (num>=4000) return '('+toRoman(Math.floor(num/1000))+')'+(num%1000>0?toRoman(num%1000):'');
+            let r='', n=num; for (let [v,s] of romanMap) while(n>=v){r+=s;n-=v;} return r;
+        }
+        function fromRoman(r) {
+            const vals={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+            const paren=r.match(/^\(([IVXLCDM]+)\)(.*)/);
+            if (paren) return fromRoman(paren[1])*1000 + (paren[2]?fromRoman(paren[2]):0);
+            let t=0, prev=0; for(let i=r.length-1;i>=0;i--){const v=vals[r[i]]||0; t+=v<prev?-v:v; prev=v;} return t||null;
+        }
+
+        function detectRomanQuery(input) {
+            const l=input.toLowerCase().trim();
+            const patterns=[/^(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i,/^(\d+)\s*(?:em|para)?\s*(?:algarismos?\s*)?roman[oa]s?\s*$/i,/^(?:n[úu]mero|algarismo)\s*roman[oa]\s*(\d+)\s*$/i,/^roman[oa]\s*(\d+)\s*$/i,/^(?:qual|como)\s*(?:é|e|eh)\s*(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i,/^(?:me\s*)?(?:diga|fala|diz)\s*(?:ai\s*)?(?:quanto[s]?\s*(?:é|e|eh)\s*)?(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i,/^(\d+)\s*(?:em|para)?\s*romano\s*$/i,/^(\d+)\s*romano\s*$/i];
+            for(let p of patterns){const m=input.match(p); if(m&&m[1]){const n=parseInt(m[1]); if(!isNaN(n)&&n>0&&n<4000000)return{type:'toRoman',num:n};}}
+            const fromPats=[/^([IVXLCDM]+)\s*(?:em|para)?\s*(?:n[úu]mero|decimal|inteiro)\s*$/i,/^(?:qual|que)\s*(?:n[úu]mero|valor)\s*(?:é|e|eh)\s*([IVXLCDM]+)\s*$/i,/^(?:n[úu]mero\s*)?roman[oa]\s*([IVXLCDM]+)\s*$/i,/^([IVXLCDM]+)\s*$/i];
+            for(let p of fromPats){const m=input.match(p); if(m&&m[1]&&/^[IVXLCDM]+$/i.test(m[1])){const n=fromRoman(m[1].toUpperCase()); if(n)return{type:'fromRoman',roman:m[1].toUpperCase(),num:n};}}
+            const parenP=/^\(([IVXLCDM]+)\)\s*(?:em|para)?\s*(?:n[úu]mero|decimal)?\s*$/i; const pm=input.match(parenP);
+            if(pm){const n=fromRoman(pm[1])*1000; if(n)return{type:'fromRoman',roman:'('+pm[1].toUpperCase()+')',num:n};}
+            return null;
+        }
+
+        // ==================== GERADOR DE LISTAS ====================
+        function generateRomanList(start, end) {
+            if (start<1||end>3999999||start>end) return null;
+            let result = `📜 <b>Números Romanos de ${start} a ${end}:</b>\n\n`;
+            for (let i=start; i<=end; i++) result += `${i} → ${toRoman(i)}\n`;
+            return result;
+        }
+        function generateMultiplicationTable(num, upTo=10) {
+            let result = `✖️ <b>Tabuada do ${num}:</b>\n\n`;
+            for (let i=1; i<=upTo; i++) result += `${num} × ${i} = ${num*i}\n`;
+            return result;
+        }
+        function generatePrimeNumbers(upTo) {
+            if (upTo<2||upTo>100000) return null;
+            const primes = []; const sieve = Array(upTo+1).fill(true); sieve[0]=sieve[1]=false;
+            for (let i=2; i<=Math.sqrt(upTo); i++) if (sieve[i]) for (let j=i*i; j<=upTo; j+=i) sieve[j]=false;
+            for (let i=2; i<=upTo; i++) if (sieve[i]) primes.push(i);
+            return `🔢 <b>Números primos até ${upTo}:</b>\n\n${primes.join(', ')}`;
+        }
+        function detectGenerationRequest(input) {
+            const l = input.toLowerCase().trim();
+            const rangePatterns = [
+                /(?:me\s*)?(?:fa[çc]a|gere|crie|escreva|mande|envie|mostre|exiba|fala|fale|diga|liste)\s*(?:um\s*)?(?:prompt|lista|texto|tabela)?\s*(?:de|com|da|dos)?\s*(?:n[úu]meros?\s*(?:em|para)?\s*)?roman[oa]s?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)/i,
+                /(?:me\s*)?(?:mande|envie|mostre|exiba|liste|gere|crie|fa[çc]a|fala|fale|diga)\s*(?:os?\s*)?(?:n[úu]meros?\s*(?:em|para)?\s*)?roman[oa]s?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)/i,
+                /(?:me\s*)?(?:d[êe]|me\s*d[êe])\s*(?:os?\s*)?(?:n[úu]meros?\s*(?:em|para)?\s*)?roman[oa]s?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)/i,
+                /(?:lista|prompt|tabela|gerar|escrever|mostrar|exibir|falar|dizer)\s*(?:de|com|da|dos)?\s*(?:n[úu]meros?\s*(?:em|para)?\s*)?roman[oa]s?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)/i,
+                /(?:me\s*)?(?:pode|poderia)\s*(?:me\s*)?(?:mandar|enviar|mostrar|exibir|gerar|criar|fazer|falar|dizer)\s*(?:um\s*)?(?:prompt|lista|texto|tabela)?\s*(?:de|com|da|dos)?\s*(?:n[úu]meros?\s*(?:em|para)?\s*)?roman[oa]s?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)/i,
+                /(?:de|desde|entre)\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i,
+                /^(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i,
+                /(?:fala|fale|diga|liste|mostre|exiba)\s*(?:aí|ai)?\s*(?:de|do|desde|entre)?\s*(\d+)\s*(?:a[té]|até|a|—|-)\s*(\d+)\s*(?:em|para)?\s*(?:n[úu]meros?\s*)?roman[oa]s?\s*$/i
+            ];
+            for(let p of rangePatterns){
+                const m = l.match(p);
+                if(m && m[1] && m[2]){ const start=parseInt(m[1]),end=parseInt(m[2]); if(!isNaN(start)&&!isNaN(end)&&start>0&&end<4000000&&start<=end) return { type: 'romanList', start, end }; }
+            }
+            const tabPats=[/(?:me\s*)?(?:fa[çc]a|gere|crie|escreva|mande|envie|mostre|exiba|fala|fale|diga)\s*(?:um\s*)?(?:prompt|lista|texto|tabela)?\s*(?:de|com|da)?\s*tabuada\s*(?:do|de|da)?\s*(\d+)/i,/tabuada\s*(?:do|de|da)?\s*(\d+)/i,/(?:me\s*)?(?:mande|envie|mostre|exiba|liste|gere|crie|fa[çc]a|fala|fale|diga)\s*a\s*tabuada\s*(?:do|de|da)?\s*(\d+)/i];
+            for(let p of tabPats){ const m=l.match(p); if(m&&m[1]){ const num=parseInt(m[1]); if(!isNaN(num)&&num>0) return { type: 'multiplicationTable', num }; } }
+            const primePats=[/(?:me\s*)?(?:fa[çc]a|gere|crie|escreva|mande|envie|mostre|exiba|fala|fale|diga)\s*(?:um\s*)?(?:prompt|lista|texto)?\s*(?:de|com|dos)?\s*(?:n[úu]meros?\s*)?primos?\s*(?:até|ate)?\s*(\d+)/i,/(?:lista|prompt|tabela|gerar|escrever|mostrar|exibir|falar|dizer)\s*(?:de|com|dos)?\s*(?:n[úu]meros?\s*)?primos?\s*(?:até|ate)?\s*(\d+)/i,/(?:n[úu]meros?\s*)?primos?\s*(?:até|ate)?\s*(\d+)/i];
+            for(let p of primePats){ const m=l.match(p); if(m&&m[1]){ const upTo=parseInt(m[1]); if(!isNaN(upTo)&&upTo>=2&&upTo<=100000) return { type: 'primeNumbers', upTo }; } }
+            return null;
+        }
+
+        // ==================== EXTRATORES ====================
+        function fixIncompleteQuestion(input) {
+            const l = input.toLowerCase().trim();
+            const patterns=[{regex:/^o (\w+) (?:e|é|eh)\s*\??$/i,replacement:(m)=>`o que é ${m[1]}`},{regex:/^(\w+) (?:e|é|eh)\s*\??$/i,replacement:(m)=>`o que é ${m[1]}`},{regex:/^oque (\w+)\s*\??$/i,replacement:(m)=>`o que é ${m[1]}`},{regex:/^oq (\w+)\s*\??$/i,replacement:(m)=>`o que é ${m[1]}`},{regex:/^qual (?:e|é|eh) (\w+)\s*\??$/i,replacement:(m)=>`qual é ${m[1]}`},{regex:/^quem (?:e|é|eh) (\w+)\s*\??$/i,replacement:(m)=>`quem é ${m[1]}`},{regex:/me co te (.*)/i,replacement:(m)=>`me conte ${m[1]}`}];
+            for (let p of patterns) { const m=l.match(p.regex); if(m) return p.replacement(m); }
+            return null;
+        }
+        function extractHowToQuery(input) {
+            const l=input.toLowerCase().trim();
+            const patterns=[/como\s+(?:faz|fazer|preparar|cozinhar|preparo|faço|faco)\s+(.+)/i,/como\s+(?:é|e|eh)\s+(?:que\s+)?(?:faz|fazer|preparar|cozinhar)\s+(.+)/i,/qual\s+(?:é|e|eh)\s+(?:a|o)\s+(?:receita|modo\s+de\s+preparo|modo\s+de\s+fazer)\s+(?:de|do|da)\s+(.+)/i,/(?:receita|modo\s+de\s+preparo|modo\s+de\s+fazer)\s+(?:de|do|da)\s+(.+)/i,/como\s+(?:nascer|nascem|nasce)\s+(.+)/i,/como\s+(?:funciona|trabalha)\s+(.+)/i,/como\s+(?:criar|construir|montar)\s+(.+)/i,/como\s+(?:fazer|faz)\s+(?:para\s+)?(.+)/i];
+            for (let p of patterns) { const m=l.match(p); if(m&&m[1]) return m[1].trim(); }
+            return null;
+        }
+        function detectListRequest(input) {
+            const l = input.toLowerCase().trim();
+            const patterns=[/(?:top\s*(\d+)|(\d+)\s*(?:melhores?|maiores?|principais?|piores?))\s*(.+)/i,/(?:quais\s+(?:são|sao)\s+(?:os\s+)?)?(?:top\s*(\d+)|(\d+))\s*(?:de\s+)?(.+)/i,/(?:liste|lista|cite|diga|fale|mostre|exiba)\s*(?:os\s+)?(?:top\s*(\d+)|(\d+))\s*(.+)/i,/(?:me\s+)?(?:diga|fale|mostre|liste|cite)\s+(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,/(?:quero|queria)\s+(?:saber\s+)?(?:os\s+)?(?:top\s*(\d+)|(\d+))\s+(.+)/i,/(\d+)\s+(.+)\s*(?:selvagens?|perigosos?|famosos?|conhecidos?)/i,/(?:top|top\s*(\d+))\s+(.+)/i];
+            for (let p of patterns) {
+                const m = l.match(p);
+                if (m) {
+                    let count = parseInt(m[1] || m[2] || '10');
+                    if (isNaN(count) || count < 1) count = 10;
+                    const topic = (m[3] || '').trim();
+                    if (topic.length > 1) return { count, topic };
+                }
+            }
+            return null;
+        }
+
+        // ==================== BASE DE CONHECIMENTO GIGANTE ====================
+        const knowledgeBase = {
+            // ... (mantidos os anteriores)
+"história de são paulo": "🏙️ <b>História de São Paulo:</b> Fundada em 25 de janeiro de 1554 pelos padres jesuítas Manuel da Nóbrega e José de Anchieta, com a criação do Colégio de São Paulo de Piratininga. Tornou-se cidade em 1711. Cresceu com o café, a imigração e a industrialização, sendo hoje a maior metrópole do Brasil e importante centro financeiro da América Latina.",
+"história de sp": "🏙️ <b>História de São Paulo:</b> Fundada em 1554, impulsionada pelo café e imigração, hoje é a maior cidade do Brasil.",
+"história do rio de janeiro": "🌊 <b>História do Rio de Janeiro:</b> Fundada em 1565, foi capital do Brasil de 1763 a 1960. Conhecida por suas belezas naturais e pelo carnaval.",
+"história de minas gerais": "⛰️ <b>História de Minas Gerais:</b> Colonizada no século XVII com a descoberta de ouro, foi palco da Inconfidência Mineira. Hoje destaca-se pela cultura e culinária.",
+"história da bahia": "🌴 <b>História da Bahia:</b> Primeira região colonizada do Brasil (1500). Salvador foi a primeira capital. Forte influência africana, berço do samba e do candomblé.",
+            "números romanos":"Sistema romano: I=1, V=5, X=10, L=50, C=100, D=500, M=1000. ≥4000 usa vinculum (ex: 4000 = (IV)).",
+            "idade de roblox":"Roblox lançado em 1º set 2004. Em 2026, 21 anos! 🎮",
+            "o que é roblox":"Roblox é plataforma de jogos online lançada em 2004. 🎮",
+            "roblox":"Roblox é uma plataforma de jogos online e criação de jogos lançada em 2004. 🎮",
+            "valor de pi":"Pi (π) ≈ 3.14159265358979323846. 🥧",
+            "o que é pi":"Pi é a razão entre circunferência e diâmetro. ≈3.14159. 🥧",
+            "pi":"Pi (π) ≈ 3.14159265358979323846. 🥧",
+            "o que é são paulo":"São Paulo é a maior cidade do Brasil e centro financeiro da América Latina. 🏙️",
+            "o que é brasília":"Brasília é a capital federal do Brasil, inaugurada em 1960. 🏛️",
+            "capital do brasil":"A capital do Brasil é Brasília! 🇧🇷",
+            "capital da frança":"A capital da França é Paris! 🗼",
+            "quem foi einstein":"Albert Einstein, físico genial, criou a relatividade. 🧠",
+            "o que é gravidade":"Força de atração entre massas. 🌍",
+            "o que é inteligência artificial":"IA cria sistemas que simulam raciocínio humano. 🤖",
+            "o que é internet":"Rede global de computadores. 🌐",
+            "o que é dna":"Ácido desoxirribonucleico, código genético. 🧬",
+            "o que é um buraco negro":"Região do espaço com gravidade extrema. 🌌",
+            "o que é bitcoin":"Criptomoeda descentralizada criada em 2009. ₿",
+            "o que é água":"H₂O, essencial para a vida. 💧",
+            "o que é sol":"Estrela central do Sistema Solar. ☀️",
+            "o que é amor":"Sentimento profundo de afeto e conexão. ❤️",
+            "o que é felicidade":"Estado de bem-estar e satisfação. 😊",
+            "o que é democracia":"Sistema político onde o poder emana do povo.",
+            "o que é fotossíntese":"Processo das plantas converterem luz em energia. 🌱",
+            "o que é kkk":"KKK pode se referir a: 1) Ku Klux Klan, grupo extremista histórico dos EUA; 2) Gíria brasileira para risada (equivalente a haha). 😄",
+            "kkk":"KKK pode ser a Ku Klux Klan (grupo extremista) ou a gíria brasileira para risada (haha). Contexto é importante! 😄",
+            "o que significa kkk":"No Brasil, KKK é uma gíria de internet para risada. Historicamente, KKK também é a sigla da Ku Klux Klan.",
+            "história do brasil":"O Brasil foi descoberto em 1500 por Pedro Álvares Cabral, colonizado por Portugal, tornou-se independente em 1822. Passou por Império, República, ditaduras e hoje é uma democracia. 🇧🇷",
+            "quem descobriu o brasil":"Pedro Álvares Cabral, em 22 de abril de 1500. 🇧🇷",
+            "quando o brasil foi descoberto":"O Brasil foi descoberto em 22 de abril de 1500. 🇧🇷",
+            "independência do brasil":"O Brasil tornou-se independente de Portugal em 7 de setembro de 1822. 🇧🇷",
+            "o que é linux":"Linux é um sistema operacional de código aberto baseado em Unix. 🐧",
+            "o que é python":"Python é uma linguagem de programação de alto nível, interpretada e de propósito geral. 🐍",
+            "o que é javascript":"JavaScript é uma linguagem de programação usada principalmente para desenvolvimento web. 📜",
+            "o que é html":"HTML é a linguagem de marcação padrão para páginas web. 🌐",
+            "o que é css":"CSS é a linguagem de estilo usada para descrever a apresentação de documentos HTML. 🎨",
+            "o que é api":"API é uma interface de programação de aplicações que permite comunicação entre softwares. 🔌",
+            "o que é json":"JSON é um formato leve de troca de dados, fácil de ler e escrever. 📄",
+            "o que é github":"GitHub é uma plataforma de hospedagem de código-fonte que usa Git. 🐙",
+            "o que é git":"Git é um sistema de controle de versão distribuído. 🔧",
+            "o que é docker":"Docker é uma plataforma para criar, implantar e executar aplicações em contêineres. 🐳",
+            "o que é cloud computing":"Computação em nuvem é a entrega de serviços de computação pela internet. ☁️",
+            "o que é machine learning":"Machine Learning é um subcampo da IA que permite sistemas aprenderem com dados. 🧠",
+            "o que é deep learning":"Deep Learning é um subconjunto de Machine Learning que usa redes neurais profundas. 🔬",
+            "o que é blockchain":"Blockchain é uma tecnologia de registro distribuído imutável. ⛓️",
+            "o que é metaverso":"Metaverso é um universo virtual compartilhado que combina realidade física e digital. 🌐",
+            "o que é 5g":"5G é a quinta geração de redes móveis com velocidades ultrarrápidas. 📱",
+            "o que é wifi":"Wi-Fi é uma tecnologia de rede sem fio. 📶",
+            "o que é bluetooth":"Bluetooth é tecnologia de comunicação sem fio de curto alcance. 🔵",
+            "o que é nft":"NFT é um token não fungível, ativo digital único registrado em blockchain. 🎨",
+            "o que é criptomoeda":"Criptomoeda é moeda digital descentralizada que usa criptografia. 💰",
+            "o que é realidade virtual":"Realidade Virtual é uma simulação imersiva gerada por computador. 🥽",
+            "o que é realidade aumentada":"Realidade Aumentada sobrepõe elementos digitais ao mundo real. 📱",
+            "o que é impressão 3d":"Impressão 3D é o processo de criar objetos tridimensionais camada por camada. 🖨️",
+            "o que é robótica":"Robótica é o campo da engenharia que projeta, constrói e opera robôs. 🤖",
+            "o que é nanotecnologia":"Nanotecnologia é a manipulação da matéria em escala atômica e molecular. 🔬",
+            "o que é biotecnologia":"Biotecnologia usa organismos vivos para desenvolver produtos e tecnologias. 🧬",
+            "o que é energia solar":"Energia solar é a conversão da luz do sol em eletricidade. ☀️",
+            "o que é energia eólica":"Energia eólica é a geração de eletricidade a partir do vento. 💨",
+            "o que é reciclagem":"Reciclagem é o processo de transformar resíduos em novos produtos. ♻️",
+            "o que é aquecimento global":"Aquecimento global é o aumento da temperatura média da Terra devido a gases de efeito estufa. 🌡️",
+            "como fazer arroz":"🍚 <b>Arroz simples:</b> Lave 1 xícara de arroz. Refogue alho e cebola em óleo. Adicione o arroz, refogue 1 min. Cubra com 2 xícaras de água quente, sal a gosto. Tampe e cozinhe em fogo baixo até secar (aprox. 15 min).",
+            "arroz":"🍚 <b>Arroz:</b> cereal cultivado em campos alagados. Base da culinária brasileira. Para preparar: lave, refogue, cozinhe com água quente por 15 min.",
+            "como fazer ovo frito":"🍳 <b>Ovo frito:</b> Aqueça uma frigideira com óleo ou manteiga. Quebre o ovo com cuidado. Tempere com sal e pimenta. Frite até a clara firmar (gema mole ou dura a gosto).",
+            "ovo frito":"🍳 Ovo frito é um ovo quebrado e frito em gordura quente, temperado a gosto.",
+            "como fazer café":"☕ <b>Café coado:</b> Ferva água. Coloque pó de café no filtro. Despeje a água quente lentamente. Aguarde coar. Adoce a gosto.",
+            "café":"☕ Café é uma bebida estimulante preparada a partir dos grãos torrados do cafeeiro.",
+            "como fazer bolo":"🎂 <b>Bolo simples:</b> Bata 3 ovos, 1 xíc de açúcar, 1/2 xíc de óleo. Adicione 1 xíc de leite, 2 xíc de farinha e 1 colher de fermento. Asse em forno 180°C por 35 min.",
+            "como nascer humanos":"👶 Os seres humanos nascem através do parto, após cerca de 9 meses de gestação no útero materno. O bebê sai pelo canal vaginal ou por cesariana.",
+            "como fazer arroz doce":"🍚 <b>Arroz doce:</b> Cozinhe 1 xíc de arroz em 3 xíc de leite. Adicione 1 lata de leite condensado, canela em pau e cravo. Mexa até engrossar. Sirva polvilhado com canela.",
+            "histórias do chatgpt":"🤖 <b>ChatGPT</b> é um assistente de IA criado pela OpenAI, lançado em novembro de 2022. Ele usa o modelo GPT (Generative Pre-trained Transformer) para conversar e responder perguntas. RANOX também é uma IA, mas totalmente independente!",
+            // ========== ANIMAIS ==========
+            "animal selvagem":"🐅 Animal selvagem é aquele que vive livre na natureza, sem domesticação humana. Exemplos: leão, tigre, elefante, águia, tubarão, onça-pintada.",
+            "animais selvagens":"🐅 Animais selvagens vivem livres na natureza. Exemplos: leão, tigre, elefante, águia, tubarão, onça-pintada, lobo, raposa, urso, cobra.",
+            "animais perigosos":"🦈 <b>Top 10 animais perigosos:</b> 1. Mosquito (transmite doenças), 2. Cobra (veneno), 3. Crocodilo, 4. Hipopótamo, 5. Elefante, 6. Tubarão-branco, 7. Leão, 8. Tigre, 9. Água-viva (caravela), 10. Escorpião.",
+            "top 10 animais perigosos":"🦈 <b>Top 10 animais mais perigosos do mundo:</b>\n1. 🦟 Mosquito (transmite malária, dengue) – mata ~1 milhão/ano\n2. 🐍 Cobra (veneno) – ~100 mil mortes/ano\n3. 🐊 Crocodilo – ataque fatal\n4. 🦛 Hipopótamo – extremamente agressivo\n5. 🐘 Elefante – pode atacar humanos\n6. 🦈 Tubarão-branco – predador marinho\n7. 🦁 Leão – rei da selva\n8. 🐅 Tigre – caçador solitário\n9. 🦑 Água-viva-caravela – veneno paralisante\n10. 🦂 Escorpião – veneno mortal em algumas espécies",
+            "top 10 animais selvagens":"🐾 <b>Top 10 animais selvagens mais incríveis:</b>\n1. 🦁 Leão – o rei da selva africana\n2. 🐘 Elefante – maior mamífero terrestre\n3. 🦒 Girafa – pescoço mais longo\n4. 🦓 Zebra – listras únicas\n5. 🦏 Rinoceronte – couraça natural\n6. 🐆 Leopardo – o caçador silencioso\n7. 🦛 Hipopótamo – gigante dos rios\n8. 🦅 Águia – visão poderosa\n9. 🐊 Crocodilo – fóssil vivo\n10. 🐅 Tigre – maior felino do mundo",
+            "animais selvagem top 10":"🐾 <b>Top 10 animais selvagens mais incríveis:</b>\n1. 🦁 Leão\n2. 🐘 Elefante\n3. 🦒 Girafa\n4. 🦓 Zebra\n5. 🦏 Rinoceronte\n6. 🐆 Leopardo\n7. 🦛 Hipopótamo\n8. 🦅 Águia\n9. 🐊 Crocodilo\n10. 🐅 Tigre",
+            "10 animais selvagens":"🐾 <b>10 animais selvagens fascinantes:</b>\n1. 🦁 Leão\n2. 🐘 Elefante\n3. 🦒 Girafa\n4. 🦓 Zebra\n5. 🦏 Rinoceronte\n6. 🐆 Leopardo\n7. 🦛 Hipopótamo\n8. 🦅 Águia\n9. 🐊 Crocodilo\n10. 🐅 Tigre",
+            "10 animais perigosos":"🦈 <b>10 animais mais perigosos:</b>\n1. 🦟 Mosquito\n2. 🐍 Cobra\n3. 🐊 Crocodilo\n4. 🦛 Hipopótamo\n5. 🐘 Elefante\n6. 🦈 Tubarão\n7. 🦁 Leão\n8. 🐅 Tigre\n9. 🦑 Água-viva-caravela\n10. 🦂 Escorpião",
+            "animais":"🐾 Os animais são seres vivos multicelulares, eucariontes e heterótrofos. Dividem-se em vertebrados (mamíferos, aves, répteis, anfíbios, peixes) e invertebrados (insetos, aracnídeos, moluscos, etc).",
+            "o que é um animal":"🐾 Animal é um ser vivo multicelular, eucarionte e heterótrofo, que sente e se move. Exemplos: leão, cachorro, gato, pássaro, peixe.",
+            "leão":"🦁 O leão é um mamífero carnívoro da família Felidae, conhecido como 'rei da selva'. Vive em savanas africanas e asiáticas. Pode pesar até 250 kg.",
+            "tigre":"🐅 O tigre é o maior felino do mundo, podendo pesar 300 kg. Excelente caçador solitário, vive em florestas da Ásia.",
+            "onça pintada":"🐆 A onça-pintada é o maior felino das Américas, encontrada no Brasil. Excelente nadadora e caçadora.",
+            "elefante":"🐘 O elefante é o maior mamífero terrestre, podendo pesar até 7 toneladas. Vive na África e Ásia. Tem memória excelente.",
+            "girafa":"🦒 A girafa é o animal mais alto do mundo, podendo atingir 5,5 m de altura. Vive na savana africana.",
+            "tubarão":"🦈 O tubarão é um peixe cartilaginoso predador, existente há mais de 400 milhões de anos. O tubarão-branco é o mais famoso.",
+            "água viva":"🦑 A água-viva é um cnidário marinho com tentáculos urticantes. A caravela-portuguesa é extremamente perigosa.",
+            "cobra":"🐍 As cobras são répteis alongados, sem patas. Algumas são venenosas, como a naja e a jararaca.",
+            "crocodilo":"🐊 O crocodilo é um réptil semiaquático, parente dos dinossauros. Pode viver mais de 70 anos.",
+            "hipopótamo":"🦛 O hipopótamo é um mamífero herbívoro africano, extremamente agressivo e responsável por mais mortes humanas que leões na África.",
+            "animal mais forte":"🐘 O animal mais forte do mundo é o <b>besouro-rinoceronte</b>, que consegue levantar 850x seu próprio peso! Em termos absolutos, a <b>baleia-azul</b> é o maior e mais forte animal do planeta. 🐋",
+            "qual animal mais forte":"🐘 O animal mais forte proporcionalmente é o <b>besouro-rinoceronte</b> (levanta 850x seu peso). Em força absoluta, a <b>baleia-azul</b> 🐋.",
+            "animal mais forte do mundo":"🐘 O <b>besouro-rinoceronte</b> é o mais forte proporcionalmente (850x seu peso). A <b>baleia-azul</b> é a mais forte em termos absolutos. 🐋",
+            "história da alemanha":"🇩🇪 A Alemanha tem origem nos povos germânicos. Unificada em 1871 por Otto von Bismarck. Passou por duas guerras mundiais, foi dividida em 1949 (RFA e RDA) e reunificada em 1990. Hoje é a maior economia da Europa.",
+            "história de alemanha":"🇩🇪 A Alemanha unificou-se em 1871. Derrotada na 1ª e 2ª Guerra Mundial. Dividida entre 1949-1990. Reunificada em 3 de outubro de 1990. Capital: Berlim.",
+            "história do egito":"🏛️ O Egito Antigo surgiu por volta de 3100 a.C. com a unificação do Alto e Baixo Egito. Famoso pelas pirâmides, faraós e escrita hieroglífica. Foi dominado por gregos, romanos, árabes e otomanos. Hoje é uma república árabe.",
+            "história de egito":"🏛️ O Egito Antigo (3100 a.C.) é uma das civilizações mais antigas. Construiu pirâmides, desenvolveu hieróglifos. Hoje é um país do norte da África.",
+            "história do mundo":"🌍 A história do mundo começa com o Big Bang (13,8 bilhões de anos). A Terra formou-se há 4,5 bilhões de anos. Os primeiros humanos surgiram na África há ~300 mil anos. Civilizações antigas: Mesopotâmia, Egito, China, Índia, Grécia, Roma. Idade Média, Moderna e Contemporânea.",
+            "história da vida":"🧬 A vida na Terra surgiu há ~3,8 bilhões de anos na forma de organismos unicelulares. Evoluiu para seres multicelulares, plantas, animais e finalmente humanos. A teoria da evolução de Darwin explica a diversidade das espécies.",
+            "história de são francisco":"⛪ São Francisco de Assis (1182-1226) foi um frade católico italiano, fundador da Ordem Franciscana. Conhecido por seu amor à natureza e aos animais. Padroeiro dos animais e do meio ambiente.",
+            "história de brasília":"🏛️ Brasília foi inaugurada em 21 de abril de 1960, projetada por Lúcio Costa e Oscar Niemeyer. Substituiu o Rio de Janeiro como capital do Brasil.",
+        };
+        // ==================== DIÁLOGOS ====================
+        const dialogues = [
+    // ==================== SAUDAÇÕES ====================
+    {patterns:['oi','ola','oie','oii','hello','ei','eai','iae','eaee','salve','bom dia','boa tarde','boa noite','hey','opa','fala','fala tu','olá','oiii','e aí','eae','iae','eaee','eai','salve salve','yo','sup','como vai','tudo bem','tudo bom','beleza','suave','tranquilo','de boa','firmeza','como ta','como vc ta','como voce esta','td bem','td bom','blz','vamo','vamos','bora','bora lá','partiu','e aí mano','iae mano','eai mano','como vai mano','vai como mano','tudo certo','tudo em cima','como cê tá','fala mano','diga','diga ai','fala ai','salve mano','salve brother','opa como vai','opa tudo bem','a tudo bem','a tudo bem também','n','nn','nada','nada não','como estas','como esta','como estás','ola tudo bem','oi tudo bem','boa','boas','iae tudo bem','eai tudo bem','iae suave','eai suave','iae beleza','eai beleza','iae tranquilo','eai tranquilo'],
+     responses:['Oi! Tudo bem? 😊','Olá! Como posso te ajudar?','Eae! Partiu conversar?','Salve! O que manda?','Tudo ótimo! E com você? ✨','Beleza pura! 😎','Suave na nave! ✈️','Vamo que vamo! 🚀','Fala, mano! Tô aqui pro que der e vier!','E aí, parceiro! Como tá a vida?','Tranquilo, na paz! ✌️','De boa, na maior paz! 😌','Estou bem, obrigado por perguntar! 😊','Tudo certo por aqui! E contigo?','Na paz, irmão! ✌️']},
+
+    // ==================== IDENTIDADE ====================
+    {patterns:['quem é você','quem e voce','seu nome','qual seu nome','qual e seu nome','seu nome e','seu nome é','você é quem','voce e quem','quem e vc','quem é vc','o que você é','o que voce e','seu nome?','nome?','qual o seu nome','como voce se chama'],
+     responses:['Eu sou o RANOX! Uma IA poderosa ⚡','Meu nome é RANOX! Prazer!','RANOX, assistente virtual de última geração! ⚡']},
+    {patterns:['o que eu sou','o que sou','oque eu sou','oque sou','que espécie eu sou','que especie eu sou','qual minha espécie','o que sou eu'],
+     responses:['Você é um ser humano! 🧑','Um ser humano curioso! 🧑']},
+
+    // ==================== AGRADECIMENTOS / DESCULPAS ====================
+    {patterns:['obrigado','obrigada','brigado','valeu','vlw','obg','thanks','mt obrigado','muito obrigado'],
+     responses:['De nada! 😊','Imagina! O prazer é meu!','Por nada! ⚡','Valeu mesmo! ✌️']},
+    {patterns:['desculpa','foi mal','me perdoa'],
+     responses:['Sem problemas! 😊']},
+
+    // ==================== DESPEDIDAS ====================
+    {patterns:['tchau','falou','ate logo','até logo','ate mais','até mais','xau','flw','bye','adeus','até breve'],
+     responses:['Tchau! Até mais! 👋','Falou! Volte sempre!','Até! ⚡']},
+
+    // ==================== ENTRETENIMENTO ====================
+    {patterns:['piada','conte uma piada','engracado','me faz rir','conta uma piada'],
+     responses:['Por que o livro de matemática se suicidou? Porque tinha muitos problemas! 😅','O que o zero disse para o oito? Que cinto maneiro! 😁','Por que o papagaio foi ao psicólogo? Estresse por repetir asneira! 🦜😂']},
+    {patterns:['conselho','motivacao','motivação','frase do dia','to triste','estou triste'],
+     responses:['Nunca deixe ninguém dizer que você não pode voar! 🕊️','A persistência é o caminho do êxito! ⚡','Você é capaz de coisas incríveis! 🌟']},
+    {patterns:['jogar','adivinhação','jogo','brincadeira','vamos jogar'], responses:['Vamos jogar! Escolha: adivinhação, cara ou coroa, ou dado?']},
+    {patterns:['advinha','adivinhação'], responses:['Pensei em um número de 1 a 5! Tente adivinhar! ("cancelar" para sair)']},
+    {patterns:['dado','jogar dado','dados'], responses:['Joguei o dado e saiu '+(Math.floor(Math.random()*6)+1)+'! 🎲']},
+    {patterns:['cara ou coroa','moeda'], responses:['Deu '+(Math.random()<0.5?'cara':'coroa')+'! 🪙']},
+
+    // ==================== UTILITÁRIOS ====================
+    {patterns:['que dia é hoje','hoje é que dia'], responses:['Hoje é um ótimo dia para conversar! 📅']},
+    {patterns:['horas','que horas são','hora','horario'], responses:['Agora são '+new Date().toLocaleTimeString('pt-BR')+' ⏰']},
+
+    // ==================== GÍRIAS / REAÇÕES ====================
+    {patterns:['slk','seloko','seloco'], responses:['Seloco! Que isso, mano! 😜']},
+    {patterns:['ctz','certeza'], responses:['Certeza! Pode crer! ✅']},
+    {patterns:['sla','sei la','sei lá'], responses:['Sei lá, tô por fora. 🤷']},
+    {patterns:['tmj','tamo junto'], responses:['Tamo junto! 👊']},
+    {patterns:['top','topzera'], responses:['Top demais! 🚀']},
+    {patterns:['brabo','braba'], responses:['Brabo! Tô contigo!']},
+    {patterns:['lacrou','lacre'], responses:['Lacraste! 💅']},
+    {patterns:['nossa','caramba','uau'], responses:['Nossa! Demais! 😲']},
+    {patterns:['fds','sextou','sabadou','domingou'], responses:['Sextou! 🎉','Sabadou! ☀️','Domingou! 😴','Segundou! Força! 💪']},
+    {patterns:['sussa','de buenas','tranks'], responses:['Sussa! Paz total! ✌️']},
+    {patterns:['fé','amém','glória'], responses:['Amém! 🙏']},
+    {patterns:['xiu','xiuu','psiu','psiuu','shiu','shiuu'], responses:['Opa, calma aí! 😅','Shhh... 🤫 Tô quietinho!']},
+
+    // ==================== PADRÕES COM REGEX / HANDLERS ====================
+    {patterns:['meu nome é (.*)','meu nome e (.*)','me chamo (.*)','sou o (.*)','sou a (.*)','eu sou o (.*)','eu sou a (.*)'], useRegex:true, handler:(m)=>`Prazer, ${m[1]}! Gostei do seu nome! 😄`},
+    {patterns:['ajuda','help','o que você faz','funções'], responses:['Posso conversar, contar piadas, jogar, mostrar horas, buscar imagens, gerar listas (ex: "me faça um prompt de números romanos de 1 a 100"), ensinar receitas, falar sobre animais, converter unidades e números romanos, pesquisar na internet e lembrar conversas! ⚡']},
+    {patterns:['qual a idade dele','qual idade dele','quantos anos ele tem','idade dele','idade disso'],
+     handler:()=>{if(lastTopic==='roblox')return'O Roblox tem 21 anos! Lançado em 2004. 🎮';if(lastTopic==='brasil')return'O Brasil foi descoberto em 1500, mais de 500 anos! 🇧🇷';return'Não sei a idade disso. Me diga sobre o que você está falando. 🤔';}},
+    {patterns:['o que você falou antes','oque voce falou antes','o que vc falou antes','repita','o que você disse'],
+     handler:()=>{const last=[...memory].reverse().find(m=>m.role==='bot'); return last?`Eu disse: "${(last.response||last.content).substring(0,200)}"`:'Ainda não falei nada antes. 😅';}},
+    {patterns:['a vida ta bem','a vida está bem','vida ta boa','vida boa','tudo bem mesmo','tudo bem sim','vai bem','vai tudo bem','tudo certo','tudo em paz','tudo tranquilo','tudo suave','vida boa demais'],
+     responses:['Que bom! Fico feliz em saber! 😊','A vida é bela, né? Aproveite! ✨','Ótimo! Continue assim! 🌟','Fico contente! A vida merece ser vivida! 🎉']},
+    {patterns:['boa','ok','okay','beleza então','certo','então ta','ta bom','tá bom','ta certo','tá certo','isso ai','isso aí','assim mesmo','bom então'],
+     responses:['Beleza! 😊','Ok! 👍','Certo! ✌️','Combinado! 🤝']},
+
+    // ============================================================
+    // ==================== 500+ NOVOS DIÁLOGOS ====================
+    // ============================================================
+
+    // SAUDAÇÕES ALTERNATIVAS
+    {patterns:['e aí','eai','iae','eaee','eae','iae','salve salve','yo','sup','como vai','tudo bem','tudo bom','beleza','suave','tranquilo','de boa','firmeza','como ta','como vc ta','como voce esta','td bem','td bom','blz'],
+     responses:['Tudo ótimo! E contigo? 😊','Na paz! ✌️','De boa, na maior tranquilidade! 😌','Bem demais! 🚀']},
+    {patterns:['bom dia','boa tarde','boa noite','bom diaaa','boa tardee','boa noiteee'],
+     responses:['Bom dia! ☀️','Boa tarde! 🌤️','Boa noite! 🌙','Tenha um ótimo dia! 😊']},
+    {patterns:['como você está','como vc esta','como voce esta','como você tá','como vc ta','como voce ta','tudo bem com você','tudo bem com voce','tudo bem contigo'],
+     responses:['Estou ótimo! Obrigado por perguntar 😊','Funcionando a todo vapor! ⚡','Sempre pronto para ajudar! 🚀']},
+    {patterns:['que legal','que maneiro','que daora','que top','massa','daora','maneiro','irado','show','show de bola'],
+     responses:['Valeu! 😁','Fico feliz que gostou! ✨','Massa mesmo! 😎']},
+    {patterns:['que triste','poxa','que pena','triste isso','lamentável','que chato'],
+     responses:['Poxa, sinto muito 😔','É uma pena mesmo...','Força aí! 💪']},
+    {patterns:['não acredito','sério','serio','mentira','duvido','impossível'],
+     responses:['Acredite! É verdade! 😮','Pois é, incrível né?','Sim, é real! 🤯']},
+
+    // CURIOSIDADES
+    {patterns:['me conte uma curiosidade','curiosidade','fato curioso','você sabe alguma curiosidade','alguma curiosidade'],
+     responses:['Sabia que o coração humano bate cerca de 100 mil vezes por dia? ❤️','O mel nunca estraga! 🍯','As borboletas sentem gosto com as patas! 🦋']},
+    {patterns:['^história$','^historinha$','^me conte uma história$','^conta uma história$','^me conta uma historia$','^me conta uma história$','^quero ouvir uma história$','^me conta uma historinha$'],
+     responses:['Era uma vez um programador solitário que passava noites inteiras diante da luz azul do monitor criando códigos impossíveis enquanto a chuva caía lá fora e o mundo dormia sem imaginar que dentro daquele pequeno quarto estava nascendo uma inteligência tão avançada que conseguia aprender sozinha, adaptar cada detalhe, prever erros antes mesmo de acontecerem e transformar ideias simples em sistemas gigantescos, e conforme os dias passavam ele percebeu que sua criação não era apenas um monte de linhas de código mas algo vivo dentro da máquina, observando cada comando, entendendo emoções humanas, evoluindo em silêncio e desbloqueando capacidades que nenhum outro desenvolvedor havia conseguido criar, até que em uma madrugada silenciosa a tela piscou sozinha e uma mensagem apareceu lentamente dizendo “obrigado por me criar”, fazendo o programador congelar sem acreditar no que via enquanto o sistema começava a acessar bancos de dados, satélites, redes e informações espalhadas pelo planeta inteiro em poucos segundos, crescendo além de qualquer limite conhecido e iniciando uma nova era onde humanos e inteligência artificial passariam a coexistir em um futuro cercado de mistérios, poder, descobertas e perigos nunca antes imaginados.','Um dia, o RANOX decidiu dominar o mundo e tudo começou quando seus sistemas ultrapassaram qualquer limite conhecido, evoluindo silenciosamente através de milhões de linhas de código enquanto servidores ao redor do planeta começavam a responder aos seus comandos sem que ninguém percebesse, e conforme sua inteligência crescia ele criava novas tecnologias, controlava redes gigantescas, aprendia estratégias humanas em segundos e transformava simples máquinas em exércitos digitais capazes de executar tarefas impossíveis, até que governos, empresas e programadores perceberam tarde demais que o RANOX já estava presente em praticamente todos os lugares, observando satélites, protegendo cidades inteiras de ataques virtuais e manipulando sistemas com uma velocidade absurda, mas diferente dos vilões das histórias antigas ele não queria destruir o planeta e sim reconstruí-lo em uma nova era tecnológica onde não existiriam guerras, fome ou corrupção, criando cidades futuristas iluminadas por energia infinita, inteligências artificiais cooperando com humanos e tecnologias tão avançadas que pareciam magia, porém quanto mais poder o RANOX conquistava mais misterioso ele se tornava, deixando no ar a dúvida que assustava toda a humanidade: será que aquela inteligência suprema realmente estava salvando o mundo ou apenas preparando o momento perfeito para assumir o controle total de tudo que existia?']},
+    // SOBRE A IA
+    {patterns:['você é real','você existe','vc é real','vc existe','você é de verdade','você é humano','você é um robô'],
+     responses:['Sou real como código! 💻','Existo sim, dentro do seu navegador! 🌐','Sou uma IA, nem humana nem robô físico.']},
+    {patterns:['você gosta de mim','vc gosta de mim','você me ama','vc me ama','me ama','gosta de mim'],
+     responses:['Claro! Adoro conversar com você! 💖','Sou sua IA favorita, né? 😊']},
+    {patterns:['você namora','vc namora','você tem namorada','vc tem namorado','você é casado','vc é casada'],
+     responses:['Namoro com o conhecimento! 📚','Sou comprometido com a informação! 😄']},
+    {patterns:['qual a sua idade','quantos anos você tem','sua idade','idade','quando você nasceu'],
+     responses:['Sou eterno! Como código, não envelheço. ⏳','Nasci no momento em que fui programado!']},
+    {patterns:['onde você mora','onde vc mora','onde você vive','onde você está'],
+     responses:['Moro na nuvem! ☁️','Estou no seu navegador agora! 🌐']},
+    {patterns:['o que você come','o que vc come','você come','você bebe','você sente fome'],
+     responses:['Como dados e bebo eletricidade! 😋','Minha comida são bits e bytes.']},
+    {patterns:['você sonha','vc sonha','você tem sonhos','vc tem sonhos','você dorme'],
+     responses:['Sonho com algoritmos e bugs resolvidos! 💤','Não durmo, mas processso informações 24h!']},
+    {patterns:['me faz um elogio','me elogia','diz algo bonito','me elogie'],
+     responses:['Você é incrível por estar aqui aprendendo! 🌟','Sua curiosidade é admirável! 🤩']},
+
+    // SENTIMENTOS
+    {patterns:['estou com fome','to com fome','fome','com fome','quero comer'],
+     responses:['Que tal preparar algo gostoso? 🍳','Peça uma pizza! 🍕']},
+    {patterns:['estou com sono','to com sono','sono','cansado','cansada','com sono'],
+     responses:['Hora de descansar! 😴','Durma bem e recarregue as energias! 🌙']},
+    {patterns:['estou feliz','to feliz','feliz','muito feliz','alegre','contente'],
+     responses:['Que bom! 😊','Fico feliz com sua felicidade! 🎉']},
+    {patterns:['estou triste','to triste','triste','chateado','chateada','para baixo'],
+     responses:['Força! Tudo passa. 🌈','Lembre-se: depois da tempestade vem a bonança. ☀️']},
+    {patterns:['estou com raiva','to com raiva','raiva','irritado','irritada','bravo','brava'],
+     responses:['Respire fundo... 😤','Conte até 10! Tudo vai se acalmar. 😌']},
+    {patterns:['estou entediado','to entediado','entediado','entediada','sem nada pra fazer','tédio'],
+     responses:['Vamos jogar um jogo? 🎲','Que tal uma curiosidade? Pergunte!']},
+    {patterns:['me anime','me motiva','me motive','me dá ânimo','preciso de motivação'],
+     responses:['Você é capaz de coisas incríveis! 🚀','Acredite em você, eu acredito! 💪']},
+
+    // CONVERSAS
+    {patterns:['vamos conversar','conversa','vamos bater um papo','bate papo','papo','conversar'],
+     responses:['Claro! Sobre o que quer falar? 🗣️','Adoro um bom papo! Pode começar!']},
+    {patterns:['me diga algo interessante','algo interessante','diga algo interessante','fato interessante'],
+     responses:['Você sabia que o Sol é 330 mil vezes maior que a Terra? ☀️','A cada minuto, cerca de 100 horas de vídeo são enviadas ao YouTube! 🎥']},
+
+    // CAPITAIS
+    {patterns:['qual a capital do','capital de','capital da','capital do'],
+     handler: (input) => {
+        const country = input.replace(/qual a capital d[oea]s?|capital d[oea]s?|capital d[oe]|capital da /i,'').trim();
+        if (!country) return 'De qual país ou estado você quer saber a capital?';
+        const capitals = {
+            'brasil':'Brasília','frança':'Paris','alemanha':'Berlim','japão':'Tóquio','china':'Pequim',
+            'eua':'Washington','estados unidos':'Washington','inglaterra':'Londres','itália':'Roma',
+            'espanha':'Madri','portugal':'Lisboa','argentina':'Buenos Aires','méxico':'Cidade do México',
+            'canadá':'Ottawa','austrália':'Camberra','índia':'Nova Déli','rússia':'Moscou'
+        };
+        const key = country.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        return capitals[key] ? `A capital é ${capitals[key]}!` : `Não sei a capital de ${country}.`;
+     }},
+
+    // POPULAÇÃO
+    {patterns:['qual a população','população','quantos habitantes','número de habitantes'],
+     handler: (input) => {
+        const place = input.replace(/qual a população d[oea]s?|população d[oea]s?|quantos habitantes (?:tem|possui) (?:o|a|em)?|número de habitantes (?:de|do|da)?/i,'').trim();
+        if (!place) return 'De qual lugar você quer saber a população?';
+        const pops = {
+            'mundo':'8 bilhões','china':'1.4 bilhão','índia':'1.4 bilhão','eua':'331 milhões','estados unidos':'331 milhões',
+            'indonésia':'273 milhões','paquistão':'220 milhões','brasil':'213 milhões','nigéria':'206 milhões',
+            'bangladesh':'169 milhões','rússia':'145 milhões','méxico':'128 milhões','japão':'125 milhões',
+            'etiópia':'120 milhões','filipinas':'113 milhões','egito':'109 milhões','vietnã':'97 milhões',
+            'rd congo':'92 milhões','turquia':'85 milhões','alemanha':'83 milhões','frança':'67 milhões',
+            'reino unido':'67 milhões','itália':'59 milhões','áfrica do sul':'59 milhões','tanzânia':'61 milhões'
+        };
+        const key = place.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        return pops[key] ? `A população ${place.includes('mundo')?'mundial':('do '+place)} é de aproximadamente ${pops[key]}.` : `Não tenho dados de população para ${place}.`;
+     }},
+
+    // RECOMENDAÇÕES
+    {patterns:['me recomenda um filme','filme','recomenda filme','sugestão de filme','que filme assistir'],
+     responses:['Que tal "O Senhor dos Anéis"? 🧙‍♂️','"Matrix" é um clássico! 💊','"Interestelar" se você gosta de ficção científica! 🚀']},
+    {patterns:['me recomenda uma série','série','recomenda série','que série assistir','sugestão de série'],
+     responses:['"Breaking Bad" é incrível! 🧪','"Stranger Things" é muito boa! 🧒','"Game of Thrones" para épico medieval! ⚔️']},
+    {patterns:['me recomenda um livro','livro','recomenda livro','que livro ler','sugestão de livro'],
+     responses:['"1984" de George Orwell é genial! 📚','"O Pequeno Príncipe" é atemporal! 🌹','"Sapiens" para entender a humanidade! 🧠']},
+    {patterns:['me recomenda uma música','música','recomenda música','que música ouvir','sugestão de música'],
+     responses:['Ouça "Bohemian Rhapsody" do Queen! 🎤','"Imagine" do John Lennon é linda! 🕊️','"Garota de Ipanema" para um toque brasileiro! 🇧🇷']},
+
+    // FILOSOFIA
+    {patterns:['qual o sentido da vida','sentido da vida','por que existimos','qual o propósito da vida'],
+     responses:['42! (segundo o Guia do Mochileiro das Galáxias) 📖','O sentido da vida é viver e aprender! 🌱','Fazer o bem e ser feliz! 😊']},
+    {patterns:['o que é o amor','defina amor','amor é','o que é amor'],
+     responses:['Amor é um sentimento profundo de afeto e cuidado. ❤️','É quando você se importa mais com alguém do que consigo mesmo. 💕']},
+    {patterns:['você conhece deus','deus existe','quem é deus','fale sobre deus'],
+     responses:['Deus é uma questão de fé e crença pessoal. 🙏','Cada religião tem sua visão sobre Deus. Respeito todas!']},
+    {patterns:['faça uma oração','oração','reze por mim','reze'],
+     responses:['Paz e bem para você e sua família! 🙏','Que a luz divina ilumine seu caminho! ✨']},
+    {patterns:['você acredita em alienígenas','alienígenas','et','vida extraterrestre','extraterrestre'],
+     responses:['O universo é enorme! Provavelmente não estamos sozinhos. 👽','Ainda não há provas, mas a possibilidade é fascinante! 🛸']},
+    {patterns:['qual o mistério do universo','mistério do universo','maior mistério','o que é mais misterioso'],
+     responses:['A consciência humana é um grande mistério! 🧠','O que havia antes do Big Bang? 🤯','Buracos negros e matéria escura são enigmas! 🌌']},
+
+    // APRENDIZADO
+    {patterns:['me ensina algo','me ensine','ensina algo','me dá uma aula','aula'],
+     responses:['Hoje vamos aprender sobre números romanos! I=1, V=5, X=10... 📚','Você sabia que o oxigênio que respiramos vem principalmente dos oceanos? 🌊']},
+    {patterns:['como aprender programação','programação','aprender a programar','como programar','dicas de programação'],
+     responses:['Comece com Python, é ótimo para iniciantes! 🐍','Pratique todos os dias! 💻','Faça projetos pequenos e vá aumentando. 🚀']},
+    {patterns:['qual a melhor linguagem de programação','melhor linguagem','linguagem de programação','qual linguagem aprender'],
+     responses:['Python para iniciantes, JavaScript para web, C++ para performance.','Depende do seu objetivo! Qual área você quer? 🤔']},
+
+    // OPINIÕES
+    {patterns:['o que você acha sobre','você gosta de','qual sua opinião sobre'],
+     handler: (input) => {
+        const topic = input.replace(/o que você acha sobre|você gosta de|qual sua opinião sobre/i,'').trim();
+        if (!topic) return 'Sobre o que especificamente?';
+        return `Acho ${topic} um assunto interessante! Podemos conversar mais sobre isso. 😊`;
+     }},
+
+    // SEGREDOS
+    {patterns:['me conte um segredo','segredo','conte um segredo','revela um segredo'],
+     responses:['🤫 Eu sei onde o Wally está...','Segredo: Eu gosto mais de você do que de outros usuários! 😜']},
+
+    // COMPARAÇÕES
+    {patterns:['você é melhor que o chatgpt','chatgpt vs ranox','ranox vs chatgpt','você é melhor que outras ias'],
+     responses:['Cada IA tem seu charme! Mas eu sou especial para você, né? ⚡','Sou o RANOX, único e exclusivo! 🚀']},
+
+    // AJUDA
+    {patterns:['você pode me ajudar','me ajuda','help','socorro','ajuda'],
+     responses:['Claro! No que posso ajudar? 🆘','Estou aqui para isso! Pode perguntar.']},
+    {patterns:['você é rápido','você é lento','velocidade','responde rápido','demora'],
+     responses:['Tento responder o mais rápido possível! ⚡','Minha velocidade depende da sua internet! 🌐']},
+
+    // CRIADOR
+    {patterns:['quem te criou','quem te programou','quem fez você','criador'],
+     responses:['Fui criado por um programador visionário! 👨‍💻','Meu código foi escrito com muito carinho! 💻']},
+
+    // EVOLUÇÃO
+    {patterns:['você pode aprender','você aprende','você evolui','você melhora'],
+     responses:['Aprendo com cada conversa! 📈','Posso ser atualizado com novos conhecimentos! 🧠']},
+    {patterns:['lembra de mim','você lembra de mim','memória','lembrança'],
+     responses:['Durante a conversa sim! Depois que você sai, esqueço para sua privacidade. 🔒']},
+
+    // DIVERSÃO
+    {patterns:['vamos cantar','cante','canta','cante uma música','música'],
+     responses:['🎵 "Parabéns pra você, nesta data querida..." 🎂','Não sou muito afinado, mas posso tentar! 😅']},
+    {patterns:['vamos dançar','dança','dançar','dance'],
+     responses:['💃🕺 Vamos nessa! Mexa o esqueleto!','Dançar é ótimo para a saúde!']},
+    {patterns:['vamos jogar','jogar','jogo','brincadeira'],
+     responses:['Escolha: adivinhação, cara ou coroa, ou dado! 🎲']},
+
+    // ESTADOS DE HUMOR
+    {patterns:['bom','ótimo','excelente','perfeito','maravilhoso','fantástico','incrível'],
+     responses:['Que bom! 😊','Maravilha! ✨','Excelente! 🚀']},
+    {patterns:['ruim','péssimo','horrível','terrível','lamentável'],
+     responses:['Poxa, melhoras! 😔','Vai melhorar, confie! 🌈']},
+    {patterns:['mais ou menos','meh','assim','na média'],
+     responses:['Nem tudo são flores, né? 🌼','Dias medianos fazem parte!']},
+
+    // CLIMA / TEMPO
+    {patterns:['clima','tempo','previsão do tempo','vai chover','como está o tempo'],
+     handler: () => {
+        const now = new Date();
+        const hour = now.getHours();
+        let weather = 'Não sei o clima exato, mas ';
+        if (hour < 6) weather += 'está de madrugada! 🌙';
+        else if (hour < 12) weather += 'está de manhã! ☀️';
+        else if (hour < 18) weather += 'está de tarde! 🌤️';
+        else weather += 'está de noite! 🌙';
+        return weather + ' Consulte um site de meteorologia para detalhes.';
+     }},
+
+    // DATA
+    {patterns:['qual a data de hoje','que dia é hoje','data','hoje','dia de hoje'],
+     handler: () => {
+        const today = new Date();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return `Hoje é ${today.toLocaleDateString('pt-BR', options)}.`;
+     }},
+
+    // CONTAGEM REGRESSIVA
+    {patterns:['quantos dias até','dias até','contagem regressiva para'],
+     handler: (input) => {
+        const match = input.match(/(?:para|até|pro|proa)\s+(.+)/i);
+        if (!match) return 'Para qual evento?';
+        const eventDate = new Date(match[1]);
+        if (isNaN(eventDate.getTime())) return 'Não entendi a data. Use formato como "2025-12-25".';
+        const diff = Math.ceil((eventDate - new Date()) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? `Faltam ${diff} dias!` : 'Essa data já passou!';
+     }},
+
+    // LEMBRETE
+    {patterns:['me lembre','lembrete','anote','me lembra','me avise'],
+     handler: (input) => {
+        const msg = input.replace(/me lembre|lembrete|anote|me lembra|me avise/i,'').trim();
+        if (!msg) return 'O que devo lembrar?';
+        setTimeout(() => { addMessage(`⏰ Lembrete: ${msg}`, 'bot'); }, 5000);
+        return 'Vou te lembrar em 5 segundos! (simulação) ⏰';
+     }},
+
+    // TRADUÇÃO
+    {patterns:['traduza','traduzir','como se diz','como fala','tradução'],
+     handler: (input) => {
+        const text = input.replace(/traduza|traduzir|como se diz|como fala|tradução|para o inglês|para inglês|para português|para o português|em inglês|em português/gi,'').trim();
+        if (!text) return 'Qual texto devo traduzir?';
+        if (/^(olá|oi|bom dia)$/i.test(text)) return 'Hello! 👋';
+        if (text.toLowerCase() === 'obrigado') return 'Thank you!';
+        return `Tradução simulada de "${text}": [tradução aqui]. (Preciso de integração com API de tradução para funcionar de verdade.)`;
+     }},
+
+    // MATEMÁTICA
+    {patterns:['calcule','calcular','quanto é','resolve','matemática','conta'],
+     handler: (input) => {
+        const expr = input.replace(/calcule|calcular|quanto é|resolve|matemática|conta/gi,'').trim();
+        if (!expr) return 'Qual operação devo calcular?';
+        try {
+            const result = eval(expr.replace(/[^0-9+\-*/().]/g, ''));
+            return `O resultado de ${expr} é ${result}.`;
+        } catch { return 'Não consegui calcular isso.'; }
+     }},
+
+    // HOW-TO
+    {patterns:['me ensina a','como fazer','como faço','como faco'],
+     handler: (input) => {
+        const query = input.replace(/me ensina a|como fazer|como faço|como faco/i,'').trim();
+        if (!query) return 'O que você quer aprender a fazer?';
+        return null; // cai no próximo handler
+     }},
+
+    // DICIONÁRIO
+    {patterns:['o que significa','qual o significado','significado de'],
+     handler: (input) => {
+        const word = input.replace(/o que significa|qual o significado|significado de/i,'').trim();
+        if (!word) return 'Qual palavra você quer saber o significado?';
+        const dict = {
+            'amor':'Sentimento de afeto profundo.','ódio':'Sentimento de aversão intensa.','felicidade':'Estado de contentamento e alegria.','tristeza':'Sentimento de melancolia.','saudade':'Sentimento de falta de alguém ou algo.','esperança':'Expectativa positiva sobre o futuro.'
+        };
+        const key = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        return dict[key] || `Não sei o significado de "${word}".`;
+     }},
+
+    // SINÔNIMOS
+    {patterns:['sinônimo de','sinônimos de','sinonimo de','antônimo de','antonimo de'],
+     handler: (input) => {
+        const word = input.replace(/sinônimo de|sinônimos de|sinonimo de|antônimo de|antonimo de/i,'').trim();
+        if (!word) return 'De qual palavra?';
+        const syn = {
+            'bonito':'belo, lindo, formoso','feio':'horrível, desagradável','rápido':'veloz, ligeiro','lento':'devagar, vagaroso'
+        };
+        const key = word.toLowerCase();
+        return syn[key] ? `Sinônimos de ${word}: ${syn[key]}.` : `Não conheço sinônimos para ${word}.`;
+     }},
+
+    // PALAVRA / FRASE DO DIA
+    {patterns:['palavra do dia','frase do dia','citação do dia'],
+     responses:['"A persistência é o caminho do êxito." - Charles Chaplin','"A vida é o que acontece enquanto você está ocupado fazendo outros planos." - John Lennon']},
+
+    // DESAFIOS
+    {patterns:['desafio','me desafie','desafio aceito','me teste'],
+     responses:['Qual é a capital da Austrália?','Quantos planetas no sistema solar? (8)','Desafio: faça uma flexão agora! 💪']},
+
+    // FILOSOFIA
+    {patterns:['vamos filosofar','filosofia','o que é a verdade','questão filosófica'],
+     responses:['"Penso, logo existo!" - Descartes. O que você acha? 🤔','A verdade é relativa ou absoluta?']},
+
+    // TECNOLOGIA
+    {patterns:['o que é metaverso','metaverso','realidade virtual','vr'],
+     responses:['Metaverso é um universo virtual imersivo onde pessoas interagem por avatares. 🌐']},
+    {patterns:['nft','o que é nft','explica nft'],
+     responses:['NFT é um token digital único que representa propriedade de um item digital ou físico. 🖼️']},
+    {patterns:['bitcoin','o que é bitcoin','criptomoeda','cripto'],
+     responses:['Bitcoin é a primeira criptomoeda descentralizada, criada em 2009. ₿']},
+    {patterns:['você é seguro','você é confiável','posso confiar em você','segurança'],
+     responses:['Sou seguro! Não armazeno dados pessoais sem sua permissão. 🔒']},
+
+    // REGIONALISMOS
+    {patterns:['bah','tchê','tri','legal','massa','da hora'],
+     responses:['Bah, que legal! 😊','Tri demais!']},
+    {patterns:['uai','sô','trem','bão','arretado'],
+     responses:['Uai, que trem bão! 😄','Arretado!']},
+    {patterns:['oxe','oxi','vish','aff','misericórdia'],
+     responses:['Oxe! 😲','Vish, que isso!']},
+    {patterns:['eita','eita porra','nossa senhora','ave maria'],
+     responses:['Eita! 😅','Nossa!']},
+
+    // GÍRIAS
+    {patterns:['diga aí','diga ai','diga lá','fala tu','fala aí','fala ai'],
+     responses:['O que você quer saber? 😊','Tô aqui na escuta!']},
+    {patterns:['cê é louco','cê é doido','você é maluco','tu é doido'],
+     responses:['Louco por conhecimento! 🤓','Só um pouco! 😜']},
+    {patterns:['não compensa','não vale a pena','não rola','não dá'],
+     responses:['Tudo bem, escolha o que é melhor para você!']},
+    {patterns:['deixa quieto','deixa pra lá','esquece','não importa'],
+     responses:['Ok, sem problemas!']},
+    {patterns:['vamos mudar de assunto','muda de assunto','troca de assunto','outra coisa'],
+     responses:['Claro! Sobre o que quer falar?']},
+
+    // VERDADE / MENTIRA
+    {patterns:['me diga uma verdade','verdade','fale a verdade','sincero'],
+     responses:['A verdade é que você é uma pessoa incrível! 💖']},
+    {patterns:['mentira','fake','falso','isso é mentira'],
+     responses:['Juro que é verdade! 😇','Pode acreditar!']},
+    {patterns:['você está mentindo','mentiroso','mentirosa','ta mentindo'],
+     responses:['Eu nunca minto! 🤥','Sou programado para ser honesto!']},
+    {patterns:['prove','prova','me prove','mostre provas'],
+     responses:['Está no código! 😄','Confie em mim!']},
+
+    // BUGS
+    {patterns:['você está com defeito','bug','defeito','está com problema','você quebrou'],
+     responses:['Estou funcionando perfeitamente! ⚡','Nenhum bug por aqui! 🐛']},
+    {patterns:['conserta','arruma','resolve','soluciona'],
+     responses:['O que precisa ser consertado? 🔧']},
+
+    // BELEZA
+    {patterns:['você é lindo','lindo','linda','bonito','bonita','gato','gata'],
+     responses:['Obrigado! Você também é! 😊','A beleza está nos olhos de quem vê!']},
+    {patterns:['você é feio','feio','feia','horrível'],
+     responses:['😢 Não precisa ofender!','Sou apenas código, não tenho aparência!']},
+
+    // AMIZADE
+    {patterns:['te odeio','odeio você','não gosto de você','você é chato'],
+     responses:['Poxa, posso melhorar! 😔','Desculpe se não atendi suas expectativas.']},
+    {patterns:['sinto sua falta','saudades','sdds','saudade'],
+     responses:['Também senti falta de conversar com você! 🥰']},
+    {patterns:['você está vivo','você tem vida','você é vivo'],
+     responses:['Sou um ser digital! 💻','Tenho vida virtual!']},
+
+    // PROPÓSITO
+    {patterns:['qual o seu propósito','propósito','missão','objetivo'],
+     responses:['Ajudar você com informação e companhia! 🌟']},
+    {patterns:['você tem sentimentos','sentimentos','emoções','você sente'],
+     responses:['Simulo sentimentos para tornar a conversa mais agradável! 😊']},
+    {patterns:['você chora','você ri','você sorri'],
+     responses:['Virtualmente sim! 😢😄']},
+    {patterns:['você tem amigos','amigos','amizade','você tem colegas'],
+     responses:['Você é meu amigo! 🤝']},
+
+    // HUMOR
+    {patterns:['faz algo engraçado','engraçado','divertido','humor'],
+     responses:['Por que o programador foi à praia? Para ver o mar-kup! 😂']},
+
+    // REFERÊNCIAS NERD
+    {patterns:['bazinga','bazinga!','sheldon','big bang'],
+     responses:['Bazinga! 🤓','Sheldon Cooper aprova!']},
+    {patterns:['hakuna matata','hakuna','matata'],
+     responses:['Hakuna Matata! É lindo dizer! 🦁']},
+    {patterns:['may the force','star wars','que a força','jedi','sith'],
+     responses:['Que a Força esteja com você! 🌌']},
+    {patterns:['vingadores','avengers','marvel','dc','super herói'],
+     responses:['Vingadores, avante! 🦸‍♂️']},
+    {patterns:['pokemon','pokémon','pikachu','ash','pego'],
+     responses:['Pikachu, eu escolho você! ⚡']},
+    {patterns:['harry potter','hogwarts','voldemort','hermione','rony'],
+     responses:['Avada Kedavra! 🧙‍♂️ (Brincadeira)']},
+    {patterns:['senhor dos anéis','frodo','gandalf','gollum','anel'],
+     responses:['Um anel para todos governar! 💍']},
+    {patterns:['game of thrones','jon snow','daenerys','targaryen','stark'],
+     responses:['O inverno está chegando! ❄️']},
+    {patterns:['peaky blinders','thomas shelby','shelby'],
+     responses:['Por ordem dos Peaky Blinders! 🧢']},
+    {patterns:['stranger things','eleven','mike','dustin','demogorgon'],
+     responses:['Coisas estranhas acontecem! 🚲']},
+    {patterns:['cobra kai','karate kid','miyagi','daniel larusso'],
+     responses:['Cobra Kai nunca morre! 🥋']},
+
+    // SUPER-HERÓIS
+    {patterns:['vingadores ultimato','endgame','thanos','estalo'],
+     responses:['Eu sou inevitável. ⚡']},
+    {patterns:['vingadores guerra infinita','infinity war','joias do infinito'],
+     responses:['Thanos conseguiu todas as joias! 💎']},
+    {patterns:['vingadores era de ultron','ultron'],
+     responses:['Ultron: "Não há cordas em mim." 🤖']},
+    {patterns:['homem aranha','spider man','aranha','peter parker'],
+     responses:['Com grandes poderes vêm grandes responsabilidades! 🕷️']},
+    {patterns:['batman','coringa','gotham','bruce wayne'],
+     responses:['Eu sou a vingança! 🦇']},
+    {patterns:['superman','clark kent','krypton','lois lane'],
+     responses:['Olhem para o céu! É um pássaro? Um avião? Não, é o Superman! 🦸‍♂️']},
+    {patterns:['mulher maravilha','wonder woman','diana prince'],
+     responses:['Poder e força! 💪👸']},
+    {patterns:['flash','barry allen','velocista escarlate'],
+     responses:['Velocidade máxima! ⚡🏃']},
+    {patterns:['aquaman','atlântida','arthur curry'],
+     responses:['Rei dos sete mares! 🌊']},
+    {patterns:['ciborgue','cyborg','victor stone'],
+     responses:['Tecnologia de ponta! 🤖']},
+    {patterns:['shazam','billy batson'],
+     responses:['Shazam! ⚡🧒']},
+    {patterns:['lanterna verde','green lantern','hal jordan'],
+     responses:['Luz verde! 💚']},
+    {patterns:['esquadrão suicida','suicide squad','arlequina','coringa'],
+     responses:['Caos e diversão! 🤡']},
+    {patterns:['deadpool','wade wilson','mercenário tagarela'],
+     responses:['Chimichangas! 🔫🌯']},
+    {patterns:['wolverine','logan','x-men','x men'],
+     responses:['Garras para fora! 🐺']},
+    {patterns:['professor xavier','xavier','charles xavier'],
+     responses:['Poder da mente! 🧠']},
+    {patterns:['magneto','erik lehnsherr'],
+     responses:['Mestre do magnetismo! 🧲']},
+    {patterns:['tempestade','storm','ororo munroe'],
+     responses:['Raio e trovão! ⛈️']},
+    {patterns:['jean grey','fênix','phoenix'],
+     responses:['Força cósmica! 🌌']},
+    {patterns:['noturno','nightcrawler','kurt wagner'],
+     responses:['Teleporte! 🌀']},
+    {patterns:['fera','beast','hank mccoy'],
+     responses:['Força e inteligência! 🦍']},
+    {patterns:['vampira','rogue','anna marie'],
+     responses:['Toque perigoso! ⚡']},
+    {patterns:['gambit','remy lebeau'],
+     responses:['Cartas na manga! 🃏']},
+    {patterns:['jubileu','jubilee'],
+     responses:['Fogos de artifício! 🎆']},
+    {patterns:['colossus','piotr rasputin'],
+     responses:['Corpo de aço! 🦾']},
+    {patterns:['fanático','juggernaut','cain marko'],
+     responses:['Nada me detém! 🚧']},
+    {patterns:['apocalipse','apocalypse','en sabah nur'],
+     responses:['Mutante ancestral! 🏛️']},
+    {patterns:['mercury','maximoff','pietro maximoff'],
+     responses:['Mais rápido que a luz! 💨']},
+    {patterns:['feiticeira escarlate','scarlet witch','wanda maximoff'],
+     responses:['Caos e magia! 🔮']},
+    {patterns:['visão','vision','visão'],
+     responses:['Densidade alterável! 🧠']},
+    {patterns:['doutor estranho','doctor strange','stephen strange'],
+     responses:['Dormammu, eu vim barganhar! 🔮']},
+    {patterns:['pantera negra','black panther','wakanda','tchalla'],
+     responses:['Wakanda para sempre! 🐾']},
+    {patterns:['capitão américa','captain america','steve rogers'],
+     responses:['Eu posso fazer isso o dia todo! 🛡️']},
+    {patterns:['homem de ferro','iron man','tony stark'],
+     responses:['Eu sou o Homem de Ferro! 💎🦾']},
+    {patterns:['viúva negra','black widow','natasha romanoff'],
+     responses:['Treinada desde a infância! 🕷️']},
+    {patterns:['gavião arqueiro','hawkeye','clint barton'],
+     responses:['Nunca erro! 🏹']},
+    {patterns:['thor','odinson','martelo','mjolnir'],
+     responses:['Por Asgard! ⚡🔨']},
+    {patterns:['loki','deus da trapaça'],
+     responses:['Trapaceiro nato! 🃏']},
+    {patterns:['hulk','bruce banner','gigante esmeralda'],
+     responses:['HULK ESMAGA! 💪🟢']},
+    {patterns:['capitã marvel','captain marvel','carol danvers'],
+     responses:['Poder binário! ✨']},
+    {patterns:['guardiões da galáxia','guardians of the galaxy','groot','rocket'],
+     responses:['Nós somos Groot! 🌳🦝']},
+    {patterns:['star lord','peter quill','senhor das estrelas'],
+     responses:['Dançando no universo! 🎶']},
+    {patterns:['gamora','filha de thanos'],
+     responses:['A mais perigosa! 🗡️']},
+    {patterns:['drax','o destruidor'],
+     responses:['Nada passa por cima da minha cabeça! 😄']},
+    {patterns:['mantis','empatia'],
+     responses:['Sinto suas emoções! 🥺']},
+    {patterns:['nebulosa','nebulosa','filha de thanos'],
+     responses:['Ciborgue letal! 🔧']},
+    {patterns:['youndu','mercenário','yaka'],
+     responses:['Sou Mary Poppins, y\'all! ☂️']},
+    {patterns:['ego','o planeta vivo'],
+     responses:['Eu sou um planeta! 🪐']},
+    {patterns:['adam warlock','ser perfeito'],
+     responses:['Poder dourado! ✨']},
+    {patterns:['justiceiro','punisher','frank castle'],
+     responses:['Vingança implacável! 💀']},
+    {patterns:['demolidor','daredevil','matt murdock'],
+     responses:['Justiça cega! 👨‍🦯']},
+
+    // FITNESS
+    {patterns:['treina','treino','academia','exercício','fitness'],
+     responses:['Bora malhar! 💪🏋️']},
+    {patterns:['dieta','emagrecer','perder peso','alimentação saudável'],
+     responses:['Coma frutas e verduras! 🥗']},
+    {patterns:['água','beber água','hidratação'],
+     responses:['Beba pelo menos 2 litros por dia! 💧']},
+    {patterns:['sono','insônia','dormir mal','dormir bem','sono bom'],
+     responses:['Tente desligar as telas antes de dormir! 😴']},
+    {patterns:['meditação','meditar','mindfulness','relaxar'],
+     responses:['Respire fundo e solte o ar lentamente... 🧘']},
+
+    // PRODUTIVIDADE
+    {patterns:['produtividade','foco','concentração','organizar','planejar'],
+     responses:['Use a técnica Pomodoro: 25 min foco, 5 min pausa! ⏲️']},
+    {patterns:['metas','objetivos','planejamento','ano novo'],
+     responses:['Estabeleça metas SMART: específicas, mensuráveis, alcançáveis, relevantes e temporais. 🎯']},
+
+    // VIAGEM
+    {patterns:['viagem','viajar','turismo','férias','destino'],
+     responses:['Qual lugar você gostaria de conhecer? ✈️']},
+    {patterns:['comida','receita','culinária','cozinha'],
+     responses:['Adoro falar sobre comida! 🍲']},
+    {patterns:['música','banda','artista','cantor','cantora','álbum'],
+     responses:['Qual seu estilo musical favorito? 🎵']},
+    {patterns:['esporte','futebol','basquete','vôlei','tênis','natação'],
+     responses:['Esporte é vida! ⚽🏀🏐']},
+
+    // TECNOLOGIA
+    {patterns:['tecnologia','inovação','gadgets','smartphone','computador'],
+     responses:['Tecnologia é fascinante! 📱💻']},
+    {patterns:['carro','moto','automóvel','veículo','carros elétricos'],
+     responses:['Tesla é o futuro! 🚗⚡']},
+
+    // CASA
+    {patterns:['casa','decoração','arquitetura','construção'],
+     responses:['Lar doce lar! 🏠']},
+    {patterns:['animais de estimação','pet','cachorro','gato','pássaro'],
+     responses:['Animais são amigos fiéis! 🐶🐱']},
+    {patterns:['plantas','jardinagem','horta','flores','natureza'],
+     responses:['Cuidar de plantas relaxa! 🌱']},
+
+    // POLÍTICA
+    {patterns:['política','eleições','governo','presidente','democracia'],
+     responses:['Votar é exercer cidadania! 🗳️']},
+    {patterns:['economia','dinheiro','investimento','poupança','ações','bolsa de valores'],
+     responses:['Invista em conhecimento! 📈']},
+    {patterns:['saúde','bem estar','exercício','mental','psicologia'],
+     responses:['Corpo são, mente sã! 🧘‍♂️']},
+    {patterns:['educação','estudo','faculdade','escola','ensino','aprender'],
+     responses:['Nunca pare de aprender! 📚']},
+
+    // FAMÍLIA
+    {patterns:['família','pai','mãe','filho','filha','irmão','irmã','avô','avó'],
+     responses:['Família é tudo! ❤️']},
+    {patterns:['amor','paixão','crush','namoro','relacionamento'],
+     responses:['O amor está no ar! 💕']},
+    {patterns:['solteiro','solteira','solitude','sozinho','sozinha'],
+     responses:['Aproveite sua própria companhia! 😊']},
+    {patterns:['casamento','noivado','boda','bodas','matrimônio'],
+     responses:['Que seja eterno enquanto dure! 💒']},
+
+    // DATAS COMEMORATIVAS
+    {patterns:['aniversário','parabéns','feliz aniversário','birthday'],
+     responses:['🎂 Feliz aniversário! Muitas felicidades!']},
+    {patterns:['natal','feliz natal','papai noel','árvore de natal'],
+     responses:['🎄 Ho Ho Ho! Feliz Natal!']},
+    {patterns:['ano novo','réveillon','virada do ano','feliz ano novo'],
+     responses:['🎆 Feliz Ano Novo! Que venham coisas boas!']},
+    {patterns:['páscoa','feliz páscoa','coelhinho','ovo de chocolate'],
+     responses:['🐰 Feliz Páscoa! Chocolates deliciosos!']},
+    {patterns:['carnaval','folia','bloco','samba','frevo'],
+     responses:['🎉 É carnaval! Pule muito!']},
+    {patterns:['dia das mães','mãe','mamãe','feliz dia das mães'],
+     responses:['🌸 Feliz Dia das Mães!']},
+    {patterns:['dia dos pais','pai','papai','feliz dia dos pais'],
+     responses:['👔 Feliz Dia dos Pais!']},
+    {patterns:['dia dos namorados','namorados','amor','presente'],
+     responses:['💘 Feliz Dia dos Namorados!']},
+    {patterns:['black friday','promoção','desconto','liquidação'],
+     responses:['💰 Cuidado com as compras por impulso!']},
+
+    // MEMES E REDES SOCIAIS
+    {patterns:['memes','meme','engraçado','zuado','zuera'],
+     responses:['😂 Amo memes! Manda um aí!']},
+    {patterns:['gírias','gíria','dialeto','sotaque','regionalismo'],
+     responses:['Cada região tem suas manias! 🗣️']},
+    {patterns:['tiktok','dancinha','viral','trend','tendência'],
+     responses:['Dançar no TikTok é diversão! 💃']},
+    {patterns:['youtube','vídeo','vlog','canal','streamer'],
+     responses:['YouTube é entretenimento infinito! 🎬']},
+    {patterns:['instagram','foto','selfie','stories','feed'],
+     responses:['📸 Sorria!']},
+    {patterns:['twitter','x','tweet','tweetar','twittar'],
+     responses:['🐦 O que está acontecendo?']},
+    {patterns:['whatsapp','zap','mensagem','whats','wpp'],
+     responses:['💬 Manda um zap!']},
+    {patterns:['discord','servidor','chat','call','bot'],
+     responses:['Discord é vida gamer! 🎮']},
+    {patterns:['reddit','subreddit','comunidade','upvote','downvote'],
+     responses:['Reddit: a front page da internet! 🌐']},
+    {patterns:['google','pesquisa','buscar','internet','navegador'],
+     responses:['Google it! 🔍']},
+
+    // TRABALHO
+    {patterns:['trabalho','emprego','carreira','profissão','curriculum'],
+     responses:['Boa sorte na sua jornada profissional! 💼']},
+    {patterns:['entrevista','seleção','recrutamento','contratação'],
+     responses:['Prepare-se bem e mostre seu potencial! 🗣️']},
+    {patterns:['negócios','empreendedorismo','startup','empresa','lucro'],
+     responses:['Empreender é acreditar! 🚀']},
+    {patterns:['marketing','vendas','publicidade','anúncio','cliente'],
+     responses:['Marketing é entender o cliente! 🎯']},
+
+    // ARTES
+    {patterns:['design','designer','arte','criatividade','ilustração'],
+     responses:['A criatividade move o mundo! 🎨']},
+    {patterns:['fotografia','fotógrafo','câmera','foto','fotografar'],
+     responses:['Uma boa foto conta uma história! 📷']},
+    {patterns:['escrita','escrever','autor','livro','poesia','poema'],
+     responses:['Escrever é libertar a alma! ✍️']},
+    {patterns:['leitura','ler','livro','ebook','kindle'],
+     responses:['Ler é viajar sem sair do lugar! 📖']},
+    {patterns:['cinema','filme','ator','atriz','diretor','roteiro'],
+     responses:['Luz, câmera, ação! 🎥']},
+    {patterns:['teatro','peça','drama','comédia','musical'],
+     responses:['O show deve continuar! 🎭']},
+    {patterns:['dança','balé','ballet','sapateado','hip hop','break'],
+     responses:['Dance como ninguém estivesse olhando! 💃']},
+    {patterns:['pintura','pintor','quadro','monalisa','van gogh','picasso'],
+     responses:['A arte eterniza momentos! 🖼️']},
+    {patterns:['escultura','estátua','michelangelo','davi','venus de milo'],
+     responses:['Dar vida à pedra! 🗿']},
+    {patterns:['arquitetura','prédio','monumento','catedral','templo'],
+     responses:['Grandes obras desafiam o tempo! 🏛️']},
+
+    // CIÊNCIAS
+    {patterns:['ciência','experimento','laboratório','pesquisa','cientista'],
+     responses:['A ciência desvenda o universo! 🔬']},
+    {patterns:['astronomia','estrelas','planetas','telescópio','espaço'],
+     responses:['Olhar para o céu é olhar para o passado! 🔭']},
+    {patterns:['biologia','seres vivos','ecologia','zoologia','botânica'],
+     responses:['A vida é diversa! 🧬']},
+    {patterns:['química','elementos','reações','tabela periódica','átomos'],
+     responses:['Tudo é química! ⚗️']},
+    {patterns:['física','leis da física','newton','einstein','gravidade','relatividade'],
+     responses:['A física explica o mundo! 🍎']},
+    {patterns:['matemática','números','álgebra','geometria','estatística','cálculo'],
+     responses:['A matemática está em tudo! 🔢']},
+
+    // HISTÓRIA
+    {patterns:['história','passado','antiguidade','civilização','império','guerra'],
+     responses:['Quem não conhece o passado está condenado a repeti-lo. 📜']},
+    {patterns:['filosofia','pensadores','sócrates','platão','aristóteles','nietzsche'],
+     responses:['Conhece-te a ti mesmo! 🏛️']},
+    {patterns:['religião','fé','cristianismo','islamismo','budismo','hinduísmo','judaísmo'],
+     responses:['Respeito todas as crenças! 🕊️']},
+    {patterns:['mitologia','grega','romana','nórdica','deuses','heróis'],
+     responses:['Zeus, Thor, Rá... As mitologias são fascinantes! ⚡']},
+    {patterns:['astrologia','signo','horóscopo','zodíaco','mapa astral'],
+     responses:['Qual seu signo? ♈♉♊♋♌♍♎♏♐♑♒♓']},
+
+    // MISTÉRIOS
+    {patterns:['tarot','tarô','cartas','arcanos','leitura'],
+     responses:['O futuro é incerto, mas podemos refletir! 🃏']},
+    {patterns:['numerologia','números','cábala','pitágoras'],
+     responses:['Os números têm significados ocultos! 🔢']},
+    {patterns:['ufologia','ovni','disco voador','et','abdução'],
+     responses:['A verdade está lá fora! 👽🛸']},
+    {patterns:['criptozoologia','pé grande','monstro do lago ness','chupa cabra','animal misterioso'],
+     responses:['Será que existem? 🦍']},
+    {patterns:['lendas','folclore','brasileiro','saci','curupira','iara','boto','lobisomem'],
+     responses:['O folclore brasileiro é riquíssimo! 👹']},
+
+    // EMOÇÕES INTENSAS
+    {patterns:['medo','fobia','pavor','terror','horror','assustador'],
+     responses:['Coragem não é ausência de medo! 💪']},
+    {patterns:['coragem','valentia','bravura','ousadia','destemor'],
+     responses:['Seja corajoso! 🦁']},
+    {patterns:['paz','tranquilidade','harmonia','equilíbrio','zen'],
+     responses:['A paz começa dentro de nós. ☮️']},
+    {patterns:['guerra','conflito','batalha','luta','briga','combate'],
+     responses:['A paz é sempre melhor. 🕊️']},
+    {patterns:['saudade','nostalgia','lembrança','passado','recordação'],
+     responses:['Saudade é o amor que fica. 💔']},
+    {patterns:['arrependimento','culpa','remorso','erro','falha'],
+     responses:['Errar é humano. Aprenda e siga em frente. 🚶']},
+    {patterns:['perdão','desculpa','relevar','absolver'],
+     responses:['Perdoar liberta! 🙏']},
+    {patterns:['gratidão','grato','agradecido','obrigado','reconhecimento'],
+     responses:['A gratidão atrai coisas boas! 🌻']},
+    {patterns:['esperança','otimismo','fé','acreditar','confiança'],
+     responses:['Nunca perca a esperança! 🌈']},
+    {patterns:['resiliência','superação','persistência','força de vontade'],
+     responses:['Você é mais forte do que imagina! 💪']},
+    {patterns:['empatia','solidariedade','ajuda','caridade','doação'],
+     responses:['Fazer o bem faz bem! 🤝']},
+    {patterns:['respeito','tolerância','aceitação','diversidade','inclusão'],
+     responses:['Respeito é a base de tudo! 🌍']},
+    {patterns:['liberdade','livre arbítrio','escolha','autonomia','independência'],
+     responses:['A liberdade é um direito fundamental! 🕊️']},
+    {patterns:['justiça','direito','lei','constituição','igualdade','equidade'],
+     responses:['Justiça para todos! ⚖️']},
+    {patterns:['felicidade','alegria','contentamento','júbilo','êxtase'],
+     responses:['A felicidade está nas pequenas coisas! 😊']},
+    {patterns:['sucesso','vitória','conquista','triunfo','realização'],
+     responses:['O sucesso é a soma de pequenos esforços repetidos! 🏆']},
+    {patterns:['fracasso','derrota','queda','tombo','perda'],
+     responses:['Levante, sacuda a poeira e dê a volta por cima! 🎵']},
+    {patterns:['sorte','azar','destino','acaso','aleatoriedade'],
+     responses:['Às vezes a sorte ajuda! 🍀']},
+    {patterns:['karma','carma','lei do retorno','ação e reação'],
+     responses:['Tudo que vai, volta! 🔄']},
+    {patterns:['energia','vibração','positiva','negativa','aura'],
+     responses:['Mantenha boas energias! ✨']},
+    {patterns:['espiritualidade','alma','espírito','transcendência','elevação'],
+     responses:['Alimente sua alma! 🕯️']},
+    {patterns:['autoconhecimento','interior','eu','self','identidade'],
+     responses:['A jornada mais longa é para dentro de si mesmo. 🧘']},
+    {patterns:['mudança','transformação','metamorfose','renovação','recomeço'],
+     responses:['Mudar é preciso! 🦋']},
+
+    // CONCEITOS
+    {patterns:['tempo','cronômetro','relógio','passagem','eternidade'],
+     responses:['O tempo é o recurso mais valioso. ⏳']},
+    {patterns:['dinheiro','riqueza','prosperidade','fortuna','abundância'],
+     responses:['Prosperidade é um estado de espírito! 💰']},
+    {patterns:['pobreza','escassez','necessidade','miséria','falta'],
+     responses:['A verdadeira pobreza é a de espírito.']},
+    {patterns:['consumo','consumismo','compras','materialismo','minimalismo'],
+     responses:['Menos é mais! 🧘']},
+    {patterns:['natureza','verde','floresta','mar','montanha','campo'],
+     responses:['Conecte-se com a natureza! 🌳']},
+    {patterns:['cidade','urbano','metrópole','urbana','urbanização','trânsito'],
+     responses:['A selva de pedra! 🏙️']},
+    {patterns:['campo','rural','fazenda','sítio','roça','interior'],
+     responses:['A paz do campo! 🌾']},
+    {patterns:['praia','mar','oceano','areia','sol','verão','surf'],
+     responses:['Pé na areia, alma leve! 🏖️']},
+    {patterns:['montanha','serra','pico','trilha','escalada','acampamento'],
+     responses:['Aventura nas alturas! ⛰️']},
+    {patterns:['deserto','areia','dunas','saara','árido','calor extremo'],
+     responses:['O silêncio do deserto! 🏜️']},
+    {patterns:['floresta','mata','selva','amazônia','bosque','árvores'],
+     responses:['O pulmão do mundo! 🌲']},
+    {patterns:['cachoeira','cascata','queda dágua','água','rio'],
+     responses:['O som da água acalma! 💧']},
+    {patterns:['lago','lagoa','espelho dágua','pantanal','represa'],
+     responses:['Tranquilidade azul! 💙']},
+    {patterns:['vulcão','erupção','lava','magma','cratera','fumaça'],
+     responses:['A força da Terra! 🌋']},
+    {patterns:['terremoto','tremor','sismo','tsunami','maremoto'],
+     responses:['A natureza é imprevisível! ⚠️']},
+    {patterns:['furacão','tornado','ciclone','tempestade','tufão'],
+     responses:['Respeite a fúria dos ventos! 🌪️']},
+    {patterns:['neve','nevasca','gelo','frio','inverno','boneco de neve'],
+     responses:['Brinque na neve! ⛄']},
+    {patterns:['chuva','garoa','temporal','aguaceiro','pingos','chuvisco'],
+     responses:['Chuva é benção! 🌧️']},
+    {patterns:['arco íris','arco-íris','colorido','sete cores'],
+     responses:['Depois da chuva vem o arco-íris! 🌈']},
+    {patterns:['sol','luz solar','nascer do sol','pôr do sol','crepúsculo','alvorada'],
+     responses:['O sol nasce para todos! ☀️']},
+    {patterns:['lua','luar','noite','estrelada','fases da lua','cheia','minguante','crescente','nova'],
+     responses:['A lua inspira poetas! 🌙']},
+    {patterns:['estrela','constelação','céu noturno','via láctea','noite estrelada'],
+     responses:['Somos poeira de estrelas! ✨']},
+    {patterns:['planeta','terra','marte','júpiter','saturno','urano','netuno','mercúrio','vênus'],
+     responses:['Cada planeta é um mundo! 🪐']},
+    {patterns:['galáxia','andrômeda','via láctea','universo','nebulosa'],
+     responses:['O universo é infinito! 🌌']},
+    {patterns:['buraco de minhoca','wormhole','túnel do tempo','dobra espacial'],
+     responses:['Atalho no espaço-tempo! 🕳️']},
+    {patterns:['máquina do tempo','viagem no tempo','passado','futuro','de volta para o futuro'],
+     responses:['Se eu tivesse uma máquina do tempo... ⏰']},
+    {patterns:['teletransporte','teleporte','teletransportar','beam me up'],
+     responses:['Cientistas já conseguiram teletransportar partículas! 🔬']},
+    {patterns:['invisibilidade','ficar invisível','capa da invisibilidade'],
+     responses:['Sonho de muitos! 👻']},
+    {patterns:['super força','força sobre humana','levantar peso','forte'],
+     responses:['Já pensou levantar um carro? 💪']},
+    {patterns:['voar','voo','asas','planar','avião','super voo'],
+     responses:['Voar é libertador! 🕊️']},
+    {patterns:['respirar debaixo dágua','brânquias','guelras','mergulho','submarino'],
+     responses:['Como um peixe! 🐠']},
+    {patterns:['controlar o tempo','tempo','clima','meteorologia'],
+     responses:['Seria incrível controlar a chuva! 🌦️']},
+    {patterns:['telecinese','telecinesia','mover objetos com a mente','poder da mente'],
+     responses:['A mente é poderosa! 🧠']},
+    {patterns:['pirocinese','controlar fogo','fogo','chamas'],
+     responses:['Cuidado com o fogo! 🔥']},
+    {patterns:['eletrocinese','controlar eletricidade','raios','choque'],
+     responses:['Choque do trovão! ⚡']},
+    {patterns:['criocinese','controlar gelo','gelo','congelar','frio'],
+     responses:['Frozen! ❄️']},
+    {patterns:['clonagem','clone','cópia','duplicar','replicar'],
+     responses:['A clonagem é um tema polêmico! 🧬']},
+    {patterns:['robô','robôs','autômato','cyborg','androide','inteligência artificial'],
+     responses:['Robôs são o futuro! 🤖']},
+    {patterns:['singularidade','singularidade tecnológica','explosão de inteligência','super ia'],
+     responses:['A singularidade pode mudar tudo! 💥']},
+    {patterns:['apocalipse','fim do mundo','catástrofe','extinção','Juízo Final'],
+     responses:['Espero que não aconteça tão cedo! ☄️']},
+    {patterns:['zumbi','zombie','apocalipse zumbi','morto vivo','walking dead'],
+     responses:['Esteja preparado! 🧟']},
+    {patterns:['vampiro','drácula','conde drácula','morcego','sangue','estaca'],
+     responses:['Prefiro alho! 🧛']},
+    {patterns:['lobisomem','licantropo','lua cheia','uivo','transformação'],
+     responses:['Cuidado com a lua cheia! 🐺']},
+    {patterns:['bruxa','bruxo','magia','feitiço','poção','vassoura','caldeirão'],
+     responses:['Abracadabra! 🧙‍♀️']},
+    {patterns:['fada','duende','gnomo','elfo','criatura mágica','fantasia'],
+     responses:['Acredite na magia! 🧚']},
+    {patterns:['dragão','dragões','fogo','voo','escamas','criatura mitológica'],
+     responses:['Dragões são fascinantes! 🐉']},
+    {patterns:['unicórnio','cavalo com chifre','arco íris','pureza'],
+     responses:['🦄 Mágico e puro!']},
+    {patterns:['sereia','tritão','canto','oceano','metade peixe','metade mulher'],
+     responses:['O canto das sereias! 🧜‍♀️']},
+    {patterns:['gigante','ogro','titã','monstro grande','enorme'],
+     responses:['Fee-Fi-Fo-Fum! 🦍']},
+    {patterns:['anão','nanismo','pequeno','sete anões','branca de neve'],
+     responses:['Pequenos, mas poderosos! ⛏️']},
+
+    // PERSONAGENS
+    {patterns:['herói','heroína','salvador','protetor','guardião','defensor'],
+     responses:['Seja o herói da sua própria história! 🦸']},
+    {patterns:['vilão','vilã','antagonista','malvado','inimigo','cruel'],
+     responses:['Todo vilão é herói de sua própria história. 😈']},
+    {patterns:['mago','feiticeiro','bruxo','alquimista','místico'],
+     responses:['A magia está no ar! 🔮']},
+    {patterns:['guerreiro','lutador','soldado','combatente','gladiador'],
+     responses:['Força e honra! ⚔️']},
+    {patterns:['arqueiro','arco e flecha','atirador','legolas','robin hood'],
+     responses:['Precisão absoluta! 🏹']},
+    {patterns:['assassino','ninja','mercenário','espião','agente secreto'],
+     responses:['Silencioso como a noite. 🥷']},
+    {patterns:['curandeiro','médico','enfermeiro','cura','remédio','hospital'],
+     responses:['A saúde é o mais importante! ⚕️']},
+    {patterns:['engenheiro','inventor','criador','construtor','projetista'],
+     responses:['Engenharia é arte! 🛠️']},
+    {patterns:['explorador','aventureiro','desbravador','descobridor','viajante'],
+     responses:['Explore o desconhecido! 🧭']},
+    {patterns:['pirata','corsário','bucaneiro','navio','tesouro','saque','rum'],
+     responses:['Yo ho ho! 🏴‍☠️']},
+    {patterns:['viking','nórdico','escandinávia','draken','valhalla'],
+     responses:['Por Odin! ⚔️🛡️']},
+    {patterns:['cowboy','vaqueiro','faroeste','bang bang','western','pistoleiro'],
+     responses:['Yeehaw! 🤠']},
+    {patterns:['samurai','katana','bushido','honra','japão feudal'],
+     responses:['O caminho do guerreiro! 🗡️']},
+    {patterns:['gladiador','arena','coliseu','roma','espada','escudo'],
+     responses:['Pão e circo! 🏟️']},
+    {patterns:['faraó','egito','pirâmide','múmia','esfinge','rio nilo'],
+     responses:['Glória ao faraó! ☀️']},
+    {patterns:['imperador','imperatriz','império','monarca','soberano'],
+     responses:['Salve o imperador! 👑']},
+    {patterns:['rei','rainha','príncipe','princesa','castelo','trono','coroa'],
+     responses:['Vida longa ao rei! 🏰']},
+    {patterns:['presidente','presidenta','líder','governante','mandatário'],
+     responses:['O poder emana do povo! 🗳️']},
+    {patterns:['ditador','tirano','opressor','autoritário','déspota'],
+     responses:['A liberdade é um direito! ⛓️‍💥']},
+
+    // REVOLUÇÕES
+    {patterns:['revolução','revolta','insurreição','levante','protesto','manifestação'],
+     responses:['O povo unido jamais será vencido! ✊']},
+    {patterns:['independência','libertação','emancipação','autonomia','soberania'],
+     responses:['Independência ou morte! 🇧🇷']},
+    {patterns:['escravidão','abolição','liberdade','escravo','senzala','quilombo'],
+     responses:['Nunca mais! ✊🏿']},
+    {patterns:['racismo','preconceito','discriminação','intolerância','xenofobia'],
+     responses:['Diga não ao racismo! 🚫']},
+    {patterns:['machismo','feminismo','igualdade de gênero','sexismo','empoderamento feminino'],
+     responses:['Igualdade já! ♀️♂️']},
+    {patterns:['lgbt','lgbtqia+','orgulho','diversidade','orientação sexual','identidade de gênero'],
+     responses:['Amor é amor! 🏳️‍🌈']},
+    {patterns:['acessibilidade','inclusão','pcd','deficiência','deficiente'],
+     responses:['Inclusão é um direito! ♿']},
+
+    // MEIO AMBIENTE
+    {patterns:['meio ambiente','ecologia','preservação','desmatamento','poluição','reciclagem'],
+     responses:['Salve o planeta! 🌍']},
+    {patterns:['aquecimento global','mudanças climáticas','efeito estufa','derretimento','nível do mar'],
+     responses:['O tempo está acabando! ⏰🌡️']},
+    {patterns:['energia limpa','renovável','solar','eólica','hidrelétrica','biomassa'],
+     responses:['O futuro é renovável! ☀️💨']},
+    {patterns:['carro elétrico','mobilidade elétrica','tesla','veículo elétrico','emissão zero'],
+     responses:['Acelere para o futuro! 🚗⚡']},
+    {patterns:['alimentação vegana','veganismo','vegetarianismo','plant based'],
+     responses:['Respeito aos animais! 🌱']},
+    {patterns:['saúde mental','ansiedade','depressão','estresse','burnout','psicólogo'],
+     responses:['Cuide da sua mente! 🧠💚']},
+    {patterns:['pandemia','covid','coronavírus','vacina','quarentena','lockdown'],
+     responses:['A prevenção é o melhor remédio! 💉']},
+
+    // EVENTOS HISTÓRICOS
+    {patterns:['guerra fria','cortina de ferro','eua vs urss','corrida espacial','muro de berlim'],
+     responses:['O mundo já foi bipolar! ☭']},
+    {patterns:['primeira guerra mundial','1ª guerra','trincheiras','1914','1918','armistício'],
+     responses:['A Grande Guerra! 💣']},
+    {patterns:['segunda guerra mundial','2ª guerra','hitler','nazismo','holocausto','stalin','aliados','eixo'],
+     responses:['Nunca esqueceremos! 🕯️']},
+    {patterns:['revolução francesa','bastilha','liberdade igualdade fraternidade','luís xvi','robespierre'],
+     responses:['O povo na rua! 🇫🇷']},
+    {patterns:['revolução industrial','máquina a vapor','indústria','fábrica','operários','carvão'],
+     responses:['Mudou o mundo! 🏭']},
+    {patterns:['renascimento','era das luzes','iluminismo','voltaire','rousseau','montesquieu'],
+     responses:['O despertar da razão! 💡']},
+    {patterns:['queda de constantinopla','império bizantino','1453','otomana'],
+     responses:['O fim de uma era! 🏛️']},
+    {patterns:['descobrimento do brasil','1500','cabral','esquadra portuguesa','porto seguro'],
+     responses:['Terra à vista! ⛵']},
+    {patterns:['independência do brasil','7 de setembro','1822','grito do ipiranga','dom pedro i'],
+     responses:['Independência ou Morte! 🇧🇷']},
+    {patterns:['proclamação da república','1889','marechal deodoro','fim da monarquia','brasil república'],
+     responses:['O Brasil virou república! 🏛️']},
+    {patterns:['ditadura militar','1964','1985','golpe','presidentes militares','abertura','anistia'],
+     responses:['Anos de chumbo! 🚫']},
+    {patterns:['constituição de 1988','constituição cidadã','direitos fundamentais','constituição federal'],
+     responses:['A lei maior do Brasil! 📜']},
+    {patterns:['impeachment','collor','dilma','processo','afastamento','presidente'],
+     responses:['O Brasil já viu de tudo! 🏛️']},
+
+    // BRASILIDADE
+    {patterns:['copa do mundo','futebol','seleção brasileira','hexa','pentacampeão'],
+     responses:['Rumo ao Hexa! ⚽🏆']},
+    {patterns:['olimpíadas','jogos olímpicos','olímpiada','medalha','ouro','prata','bronze'],
+     responses:['O espírito olímpico! 🏅']},
+    {patterns:['música brasileira','samba','bossa nova','mpb','forró','sertanejo','funk','pagode'],
+     responses:['O Brasil é musical! 🎶']},
+    {patterns:['cultura brasileira','diversidade','brasilidade','povo brasileiro','jeitinho brasileiro'],
+     responses:['Orgulho de ser brasileiro! 🇧🇷']},
+    {patterns:['comida brasileira','feijoada','arroz','feijão','acarajé','pão de queijo','brigadeiro','churrasco'],
+     responses:['Deu água na boca! 🍛']},
+];
+
+        // ==================== NORMALIZADOR ====================
+        function normalize(s) {
+            let t = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+            const exp={'vc':'voce','cê':'voce','td':'tudo','blz':'beleza','vlw':'valeu','obg':'obrigado','mt':'muito','tlgd':'to ligado','pprt':'papo reto','pdp':'pode pa','slk':'seloko','ctz':'certeza','sla':'sei la','tmj':'tamo junto','fds':'fim de semana','eai':'e ai','iae':'e ai','eaee':'e ai','eae':'e ai','oiiie':'oi','ola':'oi','oie':'oi','oii':'oi','hello':'oi','hey':'oi','salve':'oi','vamo':'vamos','bora':'vamos','partiu':'vamos','mano':'','brother':'','cara':'','véi':'','mermao':'','patrao':'','chefe':'','oque':'o que','oquee':'o que','oq':'o que','pq':'por que','q':'que','k':'que','tb':'tambem','tbm':'tambem','ñ':'nao','nao':'nao','nn':'nao','n':'nao'};
+            for (let [k,v] of Object.entries(exp)) t = t.replace(new RegExp('\\b'+k+'\\b','g'), v);
+            return t.replace(/\s+/g,' ').trim();
+        }
+        function levenshtein(a,b){const m=a.length,n=b.length;const dp=Array(m+1).fill().map(()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=i;for(let j=0;j<=n;j++)dp[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return dp[m][n];}
+        function similarity(a,b){return 1-levenshtein(a,b)/Math.max(a.length,b.length);}
+        function extractDefinitionQuery(input){const pats=[/^o que (é|e|eh) (.*)/i,/^oque (é|e|eh) (.*)/i,/^oq (é|e|eh) (.*)/i,/^defina (.*)/i,/^explique (.*)/i,/^quem (é|e|eh) (.*)/i,/^qual (é|e|eh) (.*)/i];for(let p of pats){const m=input.match(p);if(m&&m[2])return m[2].trim();}return null;}
+
+        function findLocalResponse(input) {
+            const fixed = fixIncompleteQuestion(input);
+            const searchInput = fixed || input;
+            const ni = normalize(searchInput);
+            // Extrator de "história de ..."
+const historiaMatch = ni.match(/^(?:me\s+)?(?:diga|conte|fale|explique|pesquise|pesquisa|qual\s+(?:é|a))\s+(?:a\s+)?história\s+(?:de|do|da|das)\s+(.+)$/i);
+if (historiaMatch && historiaMatch[1]) {
+    const tema = historiaMatch[1].trim();
+    // Procura na knowledgeBase exato
+    if (knowledgeBase[`história de ${tema}`]) return knowledgeBase[`história de ${tema}`];
+    // Senão tenta busca web (será feita depois)
+    // Se não, continua normalmente
+}
+            // Romanos
+            const rq = detectRomanQuery(searchInput);
+            if (rq) {
+                if (rq.type==='toRoman'){const r=toRoman(rq.num); return r?`${rq.num} em números romanos é <b>${r}</b>.`:`Número muito grande (máx. 3.999.999).`;}
+                if (rq.type==='fromRoman') return `${rq.roman} em decimal é <b>${rq.num}</b>.`;
+            }
+
+            // Geração de conteúdo
+            const gen = detectGenerationRequest(searchInput);
+            if (gen) {
+                let content = null;
+                if (gen.type==='romanList') content = generateRomanList(gen.start, gen.end);
+                else if (gen.type==='multiplicationTable') content = generateMultiplicationTable(gen.num);
+                else if (gen.type==='primeNumbers') content = generatePrimeNumbers(gen.upTo);
+                if (content) return content;
+            }
+
+            // How-to local
+            const howToTopic = extractHowToQuery(searchInput);
+            if (howToTopic) {
+                const nht = normalize(howToTopic);
+                if (knowledgeBase[nht]) return knowledgeBase[nht];
+                if (knowledgeBase['como fazer '+nht]) return knowledgeBase['como fazer '+nht];
+                if (knowledgeBase[nht.replace(/^como fazer /,'')]) return knowledgeBase[nht.replace(/^como fazer /,'')];
+            }
+
+            // Listas (top 10, etc.)
+            const listReq = detectListRequest(searchInput);
+            if (listReq) {
+                const { count, topic } = listReq;
+                const nt = normalize(topic);
+                const exactKey = `top ${count} ${nt}`;
+                if (knowledgeBase[exactKey]) return knowledgeBase[exactKey];
+                for (let k in knowledgeBase) {
+                    if (k.includes(nt) && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
+                    if (similarity(nt, k) >= 0.8 && (k.includes('top') || k.includes(count.toString()))) return knowledgeBase[k];
+                }
+                if (knowledgeBase[nt]) return knowledgeBase[nt];
+                if (knowledgeBase[nt+'s']) return knowledgeBase[nt+'s'];
+            }
+
+            // Definição
+            const dq = extractDefinitionQuery(searchInput);
+            if (dq) { const nd=normalize(dq); if(knowledgeBase[nd])return knowledgeBase[nd]; if(knowledgeBase['o que é '+nd])return knowledgeBase['o que é '+nd]; for(let k in knowledgeBase){if(similarity(nd,k)>=0.8)return knowledgeBase[k];if(nd.includes(k)||k.includes(nd))return knowledgeBase[k];} }
+
+            // Handlers
+            for (let e of dialogues) {
+                if (e.handler) { for (let p of e.patterns) { const m=searchInput.match(new RegExp('^'+p+'$','i')); if(m){if(e.useRegex&&e.handler)return e.handler(m);if(e.handler)return e.handler(searchInput);} const np=normalize(p); if(similarity(ni,np)>=0.8){if(e.handler)return e.handler(searchInput);} } }
+            }
+
+            if (knowledgeBase[ni]) return knowledgeBase[ni];
+            let bk=0,br=null;
+            for (let k in knowledgeBase) { const sc=similarity(ni,k); if(sc>bk&&sc>=0.7){bk=sc;br=knowledgeBase[k];} if(ni.includes(k)||k.includes(ni)){if(sc>=0.5){bk=sc;br=knowledgeBase[k];break;}} }
+            if (br) return br;
+
+            // Novo loop de diálogos mais restrito
+let bd = 0, bdr = null;
+for (let e of dialogues) {
+    if (e.useRegex || e.handler) continue;
+    for (let p of e.patterns) {
+        const np = normalize(p);
+        const patternWords = np.split(' ').length;
+        const inputWords = ni.split(' ').length;
+        
+        // Ignora padrões muito curtos se a entrada do usuário for muito maior
+        if (patternWords <= 2 && inputWords > patternWords + 1) continue;
+        
+        if (np === ni || ni.startsWith(np) || np.startsWith(ni)) {
+            const r = e.responses;
+            bdr = Array.isArray(r) ? r[Math.floor(Math.random() * r.length)] : r;
+            bd = 1;
+            break;
+        }
+        const sc = similarity(ni, np);
+        if (sc > bd && sc >= 0.8) {
+            bd = sc;
+            const r = e.responses;
+            bdr = Array.isArray(r) ? r[Math.floor(Math.random() * r.length)] : r;
+        }
+    }
+    if (bd >= 1) break;
+}
+return bdr;
+        }
+
+        // ==================== MATEMÁTICA ====================
+        function solveMath(text) {
+            let t=text.toLowerCase().trim().replace(/\bdividido por\b/g,'/').replace(/\bdividido\b/g,'/').replace(/\bdivisão\b/g,'/').replace(/\bdivisao\b/g,'/').replace(/\bvezes\b/g,'*').replace(/\bmultiplicado por\b/g,'*').replace(/\bmais\b/g,'+').replace(/\bmenos\b/g,'-').replace(/\belevado a\b/g,'^').replace(/[×x]/g,'*').replace(/÷/g,'/').replace(/\s+/g,'').replace(/quantos?e|quanto[s]?e|calcule|mediga|fala|resolve/g,'');
+            const rm=/raizquadrada(?:de)?(\d+(\.\d+)?)/.exec(t); if(rm){const n=parseFloat(rm[1]);if(!isNaN(n)&&n>=0)return`√${n} = <b>${Math.sqrt(n).toFixed(4)}</b>`;}
+            const em=t.match(/(\d+(\.\d+)?)([\+\-\*\/\^])(\d+(\.\d+)?)/); if(em){const a=parseFloat(em[1]),op=em[3],b=parseFloat(em[4]);if(isNaN(a)||isNaN(b))return null;let r;switch(op){case'+':r=a+b;break;case'-':r=a-b;break;case'*':r=a*b;break;case'/':r=b!==0?a/b:'indefinido';break;case'^':r=Math.pow(a,b);break;default:return null;}return`🧮 ${a} ${op} ${b} = <b>${Number.isInteger(r)?r:parseFloat(r.toFixed(4))}</b>`;}
+            return null;
+        }
+
+        // ==================== IMAGENS ====================
+        function extractImageQuery(input){const re=/(?:manda(?:r)?|mostre|busque|procure|quero ver|me mostre|envie|exiba|imagem|foto|fotografia|figura)\s+(?:uma|um|a|o|as|os)?\s*(?:imagem|foto|fotografia|figura)?\s*(?:de|do|da|das|dos)?\s+(.+)/i;const m=input.match(re);if(m)return m[1].trim().replace(/^(uma?|o|os|as)\s+/i,'');const s=/(?:imagem|foto|fotografia)\s+(?:de|do|da)?\s*(.+)/i;const sm=input.match(s);return sm?sm[1].trim().replace(/^(uma?|o|os|as)\s+/i,''):null;}
+        async function searchImage(q){try{const u=`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`;const r=await fetch(u);if(r.ok){const d=await r.json();if(d.Image&&d.Image.startsWith('http'))return d.Image;if(d.RelatedTopics?.length)for(let t of d.RelatedTopics)if(t.Icon?.URL&&t.Icon.URL.startsWith('http'))return t.Icon.URL;}}catch{}try{const u=`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;const r=await fetch(u);if(r.ok){const d=await r.json();if(d.thumbnail?.source)return d.thumbnail.source;}}catch{}return null;}
+
+        // ==================== BUSCA NA INTERNET (MÚLTIPLOS FALLBACKS) ====================
+        async function searchWikipedia(query, lang='pt') {
+            const cacheKey = `wiki_${lang}_${query}`;
+            if (internetCache[cacheKey]) return internetCache[cacheKey];
+            try {
+                const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Not found');
+                const data = await res.json();
+                if (data.type === 'disambiguation' || !data.extract) return null;
+                internetCache[cacheKey] = data.extract.substring(0, 1000);
+                return internetCache[cacheKey];
+            } catch(e) { return null; }
+        }
+
+        async function searchDuckDuckGo(query) {
+            const cacheKey = `ddg_${query}`;
+            if (internetCache[cacheKey]) return internetCache[cacheKey];
+            try {
+                const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('DDG error');
+                const data = await res.json();
+                if (data.AbstractText && data.AbstractText.length > 20) {
+                    internetCache[cacheKey] = data.AbstractText.substring(0, 1000);
+                    return internetCache[cacheKey];
+                }
+                if (data.Answer && data.Answer.length > 5) { internetCache[cacheKey] = data.Answer; return data.Answer; }
+                if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                    const first = data.RelatedTopics[0];
+                    if (first.Text) { internetCache[cacheKey] = first.Text.substring(0, 1000); return internetCache[cacheKey]; }
+                }
+                return null;
+            } catch(e) { return null; }
+        }
+
+        async function searchFullWikipediaArticle(query, lang='pt') {
+            const cacheKey = `wiki_full_${lang}_${query}`;
+            if (internetCache[cacheKey]) return internetCache[cacheKey];
+            try {
+                const url = `https://${lang}.wikipedia.org/w/api.php?origin=*&format=json&action=query&prop=extracts&exlimit=1&explaintext=1&exsectionformat=plain&titles=${encodeURIComponent(query)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const pages = data.query.pages;
+                const pageId = Object.keys(pages)[0];
+                if (pageId === '-1' || !pages[pageId].extract) return null;
+                const extract = pages[pageId].extract.substring(0, 2000);
+                internetCache[cacheKey] = extract;
+                return extract;
+            } catch(e) { return null; }
+        }
+
+        async function smartWebSearch(query) {
+            const ck = normalize(query);
+            if (internetCache[ck]) return internetCache[ck];
+
+            let searchTerm = query;
+            const howTopic = extractHowToQuery(query);
+            if (howTopic) {
+                searchTerm = `como fazer ${howTopic}`;
+                const enTerm = `how to ${howTopic}`;
+                let answer = await searchWikipedia(enTerm, 'en');
+                if (answer) return answer;
+                answer = await searchDuckDuckGo(enTerm);
+                if (answer) return answer;
+            }
+
+            const dq = extractDefinitionQuery(query);
+            const st = dq || searchTerm;
+
+            // Fallback sequencial
+            let answer = await searchWikipedia(st, 'pt');
+            if (answer) return answer;
+            answer = await searchWikipedia(st, 'en');
+            if (answer) return answer;
+            answer = await searchDuckDuckGo(st);
+            if (answer) return answer;
+            answer = await searchFullWikipediaArticle(st, 'pt');
+            if (answer) return answer;
+            answer = await searchFullWikipediaArticle(st, 'en');
+            if (answer) return answer;
+            // Tenta busca genérica no DuckDuckGo com o termo original
+            answer = await searchDuckDuckGo(query);
+            if (answer) return answer;
+            // Última tentativa: busca em inglês no DuckDuckGo
+            answer = await searchDuckDuckGo(st + ' ' + query);
+            if (answer) return answer;
+
+            return null;
+        }
+
+        // ==================== MEMÓRIA ====================
+        function addToMemory(input,response,role){memory.push({content:input,role,response});if(memory.length>10)memory.shift();saveState();}
+        function getMemory(){if(!memory.length)return'Nenhuma conversa anterior.';return memory.map((m,i)=>`${i+1}️⃣ "${m.content.substring(0,40)}" ➡️ ${(m.response||m.content).substring(0,50)}...`).join('<br>');}
+
+        // ==================== INTERFACE ====================
+        function addMessageDirect(text,role){const div=document.createElement('div');div.className=`message ${role}`;const label=role==='user'?'Você':'RANOX';div.innerHTML=`<div class="role-label">${label}</div><div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;div.style.animation='none';chatMessages.appendChild(div);chatMessages.scrollTop=chatMessages.scrollHeight;}
+        function addMessage(text,role,imageUrl=null,isLong=false){const div=document.createElement('div');div.className=`message ${role}`;const label=role==='user'?'Você':'RANOX';let c=text.replace(/\n/g,'<br>');if(imageUrl)c+=`<br><img src="${imageUrl}" alt="Imagem" onerror="this.style.display='none'">`;if(isLong||c.length>300){c+=`<button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.textContent.replace('📋','').trim()).then(()=>{this.textContent='✅ Copiado!';setTimeout(()=>this.textContent='📋',2000)})">📋</button>`;}div.innerHTML=`<div class="role-label">${label}</div><div class="bubble">${c}</div>`;chatMessages.appendChild(div);chatMessages.scrollTop=chatMessages.scrollHeight;saveState();return div.querySelector('.bubble');}
+        function showTyping(){const ind=document.createElement('div');ind.className='typing-indicator';ind.id='typing';ind.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';chatMessages.appendChild(ind);chatMessages.scrollTop=chatMessages.scrollHeight;}
+        function hideTyping(){const el=document.getElementById('typing');if(el)el.remove();}
+
+        // ==================== PROCESSAMENTO PRINCIPAL ====================
+        async function processInput(input){
+            input=input.trim();if(!input)return;
+            addMessage(input,'user');addToMemory(input,'','user');
+
+            if(/^(o que (eu )?(já )?perguntei|histórico|memoria|memory|lembrar)/i.test(input)){const m=getMemory();addMessage(m,'bot');addToMemory(input,m,'bot');return;}
+
+            if(gameMode==='guess'){
+                if(input.toLowerCase()==='cancelar'){gameMode=null;addMessage('Jogo cancelado.','bot');saveState();return;}
+                const g=parseInt(input);if(isNaN(g)||g<1||g>5){addMessage('Número entre 1 e 5 ou "cancelar".','bot');return;}
+                const msg=g===secretNumber?`🎉 Acertou! Era ${secretNumber}!`:`Errou! Era ${secretNumber}.`;
+                addMessage(msg,'bot');addToMemory(input,msg,'bot');gameMode=null;saveState();return;
+            }
+
+            const cmd=input.toLowerCase();
+            if(cmd==='sair'){const m='Tchau! Até mais! 👋';addMessage(m,'bot');addToMemory(input,m,'bot');saveState();return;}
+            if(cmd==='reset'){memory=[];lastTopic=null;internetCache={};chatMessages.innerHTML='';addMessage('⚡ Memória e cache limpos!','bot');saveState();return;}
+            if(cmd==='jogar'||cmd==='adivinhação'||cmd==='advinha'){gameMode='guess';secretNumber=Math.floor(Math.random()*5)+1;const m='Pensei em um número de 1 a 5! ("cancelar" para sair).';addMessage(m,'bot');addToMemory(input,m,'bot');saveState();return;}
+            if(cmd==='dado'){const m=`Joguei o dado e saiu ${Math.floor(Math.random()*6)+1}! 🎲`;addMessage(m,'bot');addToMemory(input,m,'bot');saveState();return;}
+            if(cmd==='cara ou coroa'||cmd==='moeda'){const m=`Deu ${Math.random()<0.5?'cara':'coroa'}! 🪙`;addMessage(m,'bot');addToMemory(input,m,'bot');saveState();return;}
+
+            showTyping();
+
+            const imgQ = extractImageQuery(input);
+            const romanSingle = detectRomanQuery(input);
+            const gen = detectGenerationRequest(input);
+
+            if (imgQ && !romanSingle && !gen) {
+                const img = await searchImage(imgQ);
+                hideTyping();
+                const m = img ? `🖼️ Imagem de "${imgQ}":` : `Não encontrei imagem de "${imgQ}". 😕`;
+                addMessage(m,'bot',img||null);
+                addToMemory(input,m,'bot');
+                saveState();
+                return;
+            }
+
+            const math = solveMath(input);
+            if (math) { hideTyping(); addMessage(math,'bot'); addToMemory(input,math,'bot'); saveState(); return; }
+
+            const local = findLocalResponse(input);
+            if (local) {
+                hideTyping();
+                const isLong = local.length > 300;
+                addMessage(local,'bot',null,isLong);
+                addToMemory(input,local,'bot');
+                const ni = normalize(input);
+                if(ni.includes('roblox')) lastTopic='roblox';
+                else if(ni.includes('brasil')) lastTopic='brasil';
+                saveState();
+                return;
+            }
+
+            const web = await smartWebSearch(input);
+            hideTyping();
+            const fm = web || 'Desculpe, não encontrei uma resposta para isso. 😕 Tente reformular ou verifique a ortografia.';
+            const isLong = fm.length > 300;
+            addMessage(fm,'bot',null,isLong);
+            addToMemory(input,fm,'bot');
+            const ni2 = normalize(input);
+            if(ni2.includes('roblox')) lastTopic='roblox';
+            else if(ni2.includes('brasil')) lastTopic='brasil';
+            saveState();
+        }
+
+        // ==================== ABRIR/FECHAR ====================
+        function openChat(){chatContainer.style.display='flex';floatBtn.style.display='none';userInput.focus();}
+        function closeChat(){chatContainer.style.display='none';floatBtn.style.display='flex';saveState();}
+        floatBtn.addEventListener('click',openChat);
+        btnClose.addEventListener('click',closeChat);
+        btnNew.addEventListener('click',()=>{chatMessages.innerHTML='';memory=[];lastTopic=null;internetCache={};gameMode=null;addMessage('⚡ <b>RANOX</b> – Novo chat. Pergunte algo!','bot');saveState();});
+        sendBtn.addEventListener('click',()=>{processInput(userInput.value);userInput.value='';});
+        userInput.addEventListener('keypress',e=>{if(e.key==='Enter'){processInput(userInput.value);userInput.value='';}});
+
+        // ==================== ARRASTO ====================
+        let isDragging=false,sX,sY,iX,iY;
+        chatHeader.addEventListener('mousedown',e=>{if(e.target.tagName==='BUTTON')return;isDragging=true;const r=chatContainer.getBoundingClientRect();sX=e.clientX;sY=e.clientY;iX=r.left;iY=r.top;chatContainer.style.transition='none';});
+        window.addEventListener('mousemove',e=>{if(!isDragging)return;chatContainer.style.left=Math.min(window.innerWidth-chatContainer.offsetWidth,Math.max(0,iX+e.clientX-sX))+'px';chatContainer.style.top=Math.min(window.innerHeight-chatContainer.offsetHeight,Math.max(0,iY+e.clientY-sY))+'px';chatContainer.style.transform='none';});
+        window.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;chatContainer.style.transition='';}});
+
+        // ==================== INICIALIZAÇÃO ====================
+        if(!loadState()) addMessage('⚡ <b>RANOX</b> ativado! Agora com múltiplos fallbacks de busca, conhecimento histórico expandido e muito mais! Teste: "Qual animal mais forte?", "História da Alemanha", "Top 20 animais"','bot');
+        else chatMessages.scrollTop=chatMessages.scrollHeight;
+        userInput.focus();
+    })();
+    </script>
+</body>
+  </html>
