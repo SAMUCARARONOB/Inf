@@ -1,1053 +1,425 @@
 --[[
-    MobileRayfield UI Library v1.0
-    Adaptado para celular (tela pequena) com estrutura similar à Rayfield.
-    Suporta temas: DarkBlue, Light, Dark, Aqua, Blood, Midnight, Rose, Violet.
-    Guarde este script inteiro como uma biblioteca (ex: via loadstring) e use
-    o retorno da função para construir a interface.
---]]
+    RANOX HUB - GUERRA, CONFIGURAÇÕES E CRÉDITOS
+    Desenvolvido por Keybrew
+]]
 
-local Library = {}
+local HttpService = game:GetService("HttpService")
+local parts = {104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,83,65,77,85,67,65,82,65,82,79,78,79,66,47,48,45,47,114,101,102,115,47,104,101,97,100,115,47,109,97,105,110,47,82,65,78,79,88,95,73,78,84,69,70,65,82,67,69}
+local function assembleURL(parts) local url = "" for _, part in ipairs(parts) do url = url .. string.char(part) end return url end
+local RANOX = loadstring(game:HttpGet(assembleURL(parts)))()
 
--- Serviços
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
+local Lighting = game:GetService("Lighting")
+local Stats = game:GetService("Stats")
 
--- Variáveis globais da UI
-local ActiveTheme = nil
-local ScreenGui = nil
-local WindowFrame = nil
-local TabButtonsFrame = nil
-local ContentFrame = nil
-local CurrentTab = nil
-local Tabs = {}
-local UIKey = "MobileRayfield_" .. tostring(math.random(1, 1000000))
-
--- Temas
-local Themes = {
-    DarkBlue = {
-        Background = Color3.fromRGB(30, 30, 45),
-        TabBar = Color3.fromRGB(20, 20, 35),
-        TabButton = Color3.fromRGB(40, 40, 60),
-        TabButtonSelected = Color3.fromRGB(70, 130, 220),
-        Text = Color3.fromRGB(255, 255, 255),
-        Accent = Color3.fromRGB(70, 130, 220),
-        Button = Color3.fromRGB(50, 50, 75),
-        ButtonHover = Color3.fromRGB(70, 130, 220),
-        SliderBackground = Color3.fromRGB(40, 40, 60),
-        SliderFill = Color3.fromRGB(70, 130, 220),
-        ToggleOn = Color3.fromRGB(70, 130, 220),
-        ToggleOff = Color3.fromRGB(60, 60, 80),
-        InputBackground = Color3.fromRGB(40, 40, 60),
-        InputText = Color3.fromRGB(255, 255, 255),
-        DropdownBackground = Color3.fromRGB(40, 40, 60),
-        DropdownOption = Color3.fromRGB(60, 60, 80),
-        SectionLine = Color3.fromRGB(70, 130, 220),
-        ScrollBar = Color3.fromRGB(70, 130, 220),
-    },
-    Light = {
-        Background = Color3.fromRGB(245, 245, 245),
-        TabBar = Color3.fromRGB(230, 230, 230),
-        TabButton = Color3.fromRGB(210, 210, 210),
-        TabButtonSelected = Color3.fromRGB(100, 180, 255),
-        Text = Color3.fromRGB(30, 30, 30),
-        Accent = Color3.fromRGB(100, 180, 255),
-        Button = Color3.fromRGB(200, 200, 200),
-        ButtonHover = Color3.fromRGB(100, 180, 255),
-        SliderBackground = Color3.fromRGB(210, 210, 210),
-        SliderFill = Color3.fromRGB(100, 180, 255),
-        ToggleOn = Color3.fromRGB(100, 180, 255),
-        ToggleOff = Color3.fromRGB(170, 170, 170),
-        InputBackground = Color3.fromRGB(210, 210, 210),
-        InputText = Color3.fromRGB(30, 30, 30),
-        DropdownBackground = Color3.fromRGB(210, 210, 210),
-        DropdownOption = Color3.fromRGB(190, 190, 190),
-        SectionLine = Color3.fromRGB(100, 180, 255),
-        ScrollBar = Color3.fromRGB(100, 180, 255),
-    },
-    Dark = {
-        Background = Color3.fromRGB(20, 20, 20),
-        TabBar = Color3.fromRGB(15, 15, 15),
-        TabButton = Color3.fromRGB(40, 40, 40),
-        TabButtonSelected = Color3.fromRGB(100, 100, 100),
-        Text = Color3.fromRGB(230, 230, 230),
-        Accent = Color3.fromRGB(100, 100, 100),
-        Button = Color3.fromRGB(50, 50, 50),
-        ButtonHover = Color3.fromRGB(100, 100, 100),
-        SliderBackground = Color3.fromRGB(40, 40, 40),
-        SliderFill = Color3.fromRGB(100, 100, 100),
-        ToggleOn = Color3.fromRGB(100, 100, 100),
-        ToggleOff = Color3.fromRGB(60, 60, 60),
-        InputBackground = Color3.fromRGB(40, 40, 40),
-        InputText = Color3.fromRGB(230, 230, 230),
-        DropdownBackground = Color3.fromRGB(40, 40, 40),
-        DropdownOption = Color3.fromRGB(60, 60, 60),
-        SectionLine = Color3.fromRGB(100, 100, 100),
-        ScrollBar = Color3.fromRGB(100, 100, 100),
-    },
-    Aqua = {
-        Background = Color3.fromRGB(20, 40, 45),
-        TabBar = Color3.fromRGB(15, 30, 35),
-        TabButton = Color3.fromRGB(40, 60, 65),
-        TabButtonSelected = Color3.fromRGB(0, 200, 200),
-        Text = Color3.fromRGB(220, 255, 255),
-        Accent = Color3.fromRGB(0, 200, 200),
-        Button = Color3.fromRGB(40, 70, 75),
-        ButtonHover = Color3.fromRGB(0, 200, 200),
-        SliderBackground = Color3.fromRGB(40, 60, 65),
-        SliderFill = Color3.fromRGB(0, 200, 200),
-        ToggleOn = Color3.fromRGB(0, 200, 200),
-        ToggleOff = Color3.fromRGB(60, 80, 85),
-        InputBackground = Color3.fromRGB(40, 60, 65),
-        InputText = Color3.fromRGB(220, 255, 255),
-        DropdownBackground = Color3.fromRGB(40, 60, 65),
-        DropdownOption = Color3.fromRGB(60, 80, 85),
-        SectionLine = Color3.fromRGB(0, 200, 200),
-        ScrollBar = Color3.fromRGB(0, 200, 200),
-    },
-    Blood = {
-        Background = Color3.fromRGB(45, 20, 20),
-        TabBar = Color3.fromRGB(35, 15, 15),
-        TabButton = Color3.fromRGB(60, 40, 40),
-        TabButtonSelected = Color3.fromRGB(220, 50, 50),
-        Text = Color3.fromRGB(255, 220, 220),
-        Accent = Color3.fromRGB(220, 50, 50),
-        Button = Color3.fromRGB(65, 45, 45),
-        ButtonHover = Color3.fromRGB(220, 50, 50),
-        SliderBackground = Color3.fromRGB(60, 40, 40),
-        SliderFill = Color3.fromRGB(220, 50, 50),
-        ToggleOn = Color3.fromRGB(220, 50, 50),
-        ToggleOff = Color3.fromRGB(80, 60, 60),
-        InputBackground = Color3.fromRGB(60, 40, 40),
-        InputText = Color3.fromRGB(255, 220, 220),
-        DropdownBackground = Color3.fromRGB(60, 40, 40),
-        DropdownOption = Color3.fromRGB(80, 60, 60),
-        SectionLine = Color3.fromRGB(220, 50, 50),
-        ScrollBar = Color3.fromRGB(220, 50, 50),
-    },
-    Midnight = {
-        Background = Color3.fromRGB(10, 10, 25),
-        TabBar = Color3.fromRGB(8, 8, 20),
-        TabButton = Color3.fromRGB(25, 25, 45),
-        TabButtonSelected = Color3.fromRGB(80, 80, 180),
-        Text = Color3.fromRGB(200, 200, 255),
-        Accent = Color3.fromRGB(80, 80, 180),
-        Button = Color3.fromRGB(30, 30, 50),
-        ButtonHover = Color3.fromRGB(80, 80, 180),
-        SliderBackground = Color3.fromRGB(25, 25, 45),
-        SliderFill = Color3.fromRGB(80, 80, 180),
-        ToggleOn = Color3.fromRGB(80, 80, 180),
-        ToggleOff = Color3.fromRGB(45, 45, 65),
-        InputBackground = Color3.fromRGB(25, 25, 45),
-        InputText = Color3.fromRGB(200, 200, 255),
-        DropdownBackground = Color3.fromRGB(25, 25, 45),
-        DropdownOption = Color3.fromRGB(45, 45, 65),
-        SectionLine = Color3.fromRGB(80, 80, 180),
-        ScrollBar = Color3.fromRGB(80, 80, 180),
-    },
-    Rose = {
-        Background = Color3.fromRGB(45, 25, 35),
-        TabBar = Color3.fromRGB(35, 20, 28),
-        TabButton = Color3.fromRGB(65, 40, 50),
-        TabButtonSelected = Color3.fromRGB(255, 100, 150),
-        Text = Color3.fromRGB(255, 220, 230),
-        Accent = Color3.fromRGB(255, 100, 150),
-        Button = Color3.fromRGB(70, 45, 55),
-        ButtonHover = Color3.fromRGB(255, 100, 150),
-        SliderBackground = Color3.fromRGB(65, 40, 50),
-        SliderFill = Color3.fromRGB(255, 100, 150),
-        ToggleOn = Color3.fromRGB(255, 100, 150),
-        ToggleOff = Color3.fromRGB(85, 60, 70),
-        InputBackground = Color3.fromRGB(65, 40, 50),
-        InputText = Color3.fromRGB(255, 220, 230),
-        DropdownBackground = Color3.fromRGB(65, 40, 50),
-        DropdownOption = Color3.fromRGB(85, 60, 70),
-        SectionLine = Color3.fromRGB(255, 100, 150),
-        ScrollBar = Color3.fromRGB(255, 100, 150),
-    },
-    Violet = {
-        Background = Color3.fromRGB(30, 20, 50),
-        TabBar = Color3.fromRGB(25, 15, 40),
-        TabButton = Color3.fromRGB(50, 35, 70),
-        TabButtonSelected = Color3.fromRGB(150, 80, 255),
-        Text = Color3.fromRGB(230, 210, 255),
-        Accent = Color3.fromRGB(150, 80, 255),
-        Button = Color3.fromRGB(55, 40, 75),
-        ButtonHover = Color3.fromRGB(150, 80, 255),
-        SliderBackground = Color3.fromRGB(50, 35, 70),
-        SliderFill = Color3.fromRGB(150, 80, 255),
-        ToggleOn = Color3.fromRGB(150, 80, 255),
-        ToggleOff = Color3.fromRGB(70, 55, 90),
-        InputBackground = Color3.fromRGB(50, 35, 70),
-        InputText = Color3.fromRGB(230, 210, 255),
-        DropdownBackground = Color3.fromRGB(50, 35, 70),
-        DropdownOption = Color3.fromRGB(70, 55, 90),
-        SectionLine = Color3.fromRGB(150, 80, 255),
-        ScrollBar = Color3.fromRGB(150, 80, 255),
-    }
-}
-
--- Função auxiliar para criar elementos com nomes
-local function createInstance(className, properties)
-    local inst = Instance.new(className)
-    for prop, value in pairs(properties) do
-        inst[prop] = value
+-- Funções auxiliares
+local function GetPlayerBase()
+    local BasesFolder = Workspace:FindFirstChild("Bases")
+    if BasesFolder then
+        for _, folder in ipairs(BasesFolder:GetChildren()) do
+            local attributeValue = folder:GetAttribute("OwnerUserId")
+            if attributeValue and tonumber(attributeValue) == tonumber(LocalPlayer.UserId) then
+                return folder
+            end
+        end
     end
-    return inst
+    return nil
 end
 
--- Notificação
-function Library:Notify(data)
-    local title = data.Title or "Notificação"
-    local content = data.Content or ""
-    local duration = data.Duration or 5
-    local image = data.Image or 0
-
-    local NotifyFrame = createInstance("Frame", {
-        Parent = ScreenGui,
-        BackgroundColor3 = ActiveTheme.Background,
-        BorderSizePixel = 0,
-        Size = UDim2.new(0, 220, 0, 80),
-        Position = UDim2.new(0.5, -110, 1, -90),
-        AnchorPoint = Vector2.new(0.5, 1),
-        ClipsDescendants = true,
-    })
-    local Corner = createInstance("UICorner", { Parent = NotifyFrame, CornerRadius = UDim.new(0, 8) })
-    local TitleLabel = createInstance("TextLabel", {
-        Parent = NotifyFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -10, 0, 25),
-        Position = UDim2.new(0, 10, 0, 5),
-        Text = title,
-        TextColor3 = ActiveTheme.Text,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 16,
-    })
-    local ContentLabel = createInstance("TextLabel", {
-        Parent = NotifyFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -10, 0, 40),
-        Position = UDim2.new(0, 10, 0, 30),
-        Text = content,
-        TextColor3 = ActiveTheme.Text,
-        Font = Enum.Font.SourceSans,
-        TextSize = 14,
-        TextWrapped = true,
-    })
-    if image ~= 0 then
-        local Icon = createInstance("ImageLabel", {
-            Parent = NotifyFrame,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 24, 0, 24),
-            Position = UDim2.new(1, -30, 0, 5),
-            Image = "rbxassetid://" .. tostring(image),
-        })
+local function TeleportTo(object)
+    if not object or not LocalPlayer.Character then return end
+    local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local position = nil
+    if object:IsA("Model") then
+        position = object:GetPivot().Position
+    elseif object:IsA("BasePart") then
+        position = object.Position
     end
-
-    -- Animação de entrada
-    NotifyFrame.Position = UDim2.new(0.5, -110, 1, 20)
-    TweenService:Create(NotifyFrame, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -110, 1, -90)}):Play()
-    task.delay(duration, function()
-        TweenService:Create(NotifyFrame, TweenInfo.new(0.5), {Position = UDim2.new(0.5, -110, 1, 20)}):Play()
-        task.wait(0.5)
-        NotifyFrame:Destroy()
-    end)
+    if root and position then
+        root.CFrame = CFrame.new(position + Vector3.new(0, 2, 0))
+    end
 end
 
--- Função principal para criar a janela
-function Library:CreateWindow(settings)
-    -- Limpar GUI anterior
-    if ScreenGui then ScreenGui:Destroy() end
+-- Criação da janela
+local Window = RANOX:CreateWindow({
+    Title = "RANOX_HUB",
+    Subtitle = "MESCLAR UMA BOMBA NUCLEAR"
+})
 
-    -- Configurações padrão
-    settings = settings or {}
-    local WindowName = settings.Name or "Mobile UI"
-    local ThemeName = settings.Theme or "DarkBlue"
-    local LoadingTitle = settings.LoadingTitle or "Carregando..."
-    local LoadingSubtitle = settings.LoadingSubtitle or ""
-    settings.DisableRayfieldPrompts = settings.DisableRayfieldPrompts or false
-    settings.DisableBuildWarnings = settings.DisableBuildWarnings or false
-    settings.ConfigurationSaving = settings.ConfigurationSaving or {Enabled = false}
-    settings.Discord = settings.Discord or {Enabled = false}
-    settings.KeySystem = settings.KeySystem or false
+-- ==================== ABA GUERRA ====================
+Window:CreateTab("GUERRA", 4483362458)
 
-    ActiveTheme = Themes[ThemeName] or Themes.DarkBlue
+-- 1. Toggle "Ataque a Cidade" (PRIMEIRO ELEMENTO)
+Window:CreateToggle("GUERRA", {
+    Text = "Ataque a Cidade",
+    Description = "Lança nuke continuamente na cidade (posição fixa).",
+    Default = false,
+    Callback = function(isOn)
+        _G.AtaqueCidade = isOn
+        if not isOn then return end
 
-    -- Criar ScreenGui
-    ScreenGui = createInstance("ScreenGui", {
-        Parent = game:GetService("CoreGui"),
-        IgnoreGuiInset = true,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-        ResetOnSpawn = false,
-    })
-
-    -- Frame principal da janela (tamanho de celular)
-    WindowFrame = createInstance("Frame", {
-        Parent = ScreenGui,
-        BackgroundColor3 = ActiveTheme.Background,
-        BorderSizePixel = 0,
-        Size = UDim2.new(0, 300, 0, 500),
-        Position = UDim2.new(0.5, -150, 0.5, -250),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        ClipsDescendants = true,
-    })
-    createInstance("UICorner", { Parent = WindowFrame, CornerRadius = UDim.new(0, 10) })
-    createInstance("UIStroke", { Parent = WindowFrame, Color = ActiveTheme.Accent, Thickness = 1.5 })
-
-    -- Título
-    local TitleBar = createInstance("Frame", {
-        Parent = WindowFrame,
-        BackgroundColor3 = ActiveTheme.TabBar,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 35),
-    })
-    createInstance("UICorner", { Parent = TitleBar, CornerRadius = UDim.new(0, 10) })
-    createInstance("Frame", { Parent = TitleBar, BackgroundColor3 = ActiveTheme.TabBar, BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0, 0, 0, 25) }) -- remove corner inferior
-    local TitleText = createInstance("TextLabel", {
-        Parent = TitleBar,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, -10, 1, 0),
-        Position = UDim2.new(0, 10, 0, 0),
-        Text = WindowName,
-        TextColor3 = ActiveTheme.Text,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 18,
-        TextXAlignment = Enum.TextXAlignment.Left,
-    })
-
-    -- Barra lateral de abas (esquerda)
-    TabButtonsFrame = createInstance("ScrollingFrame", {
-        Parent = WindowFrame,
-        BackgroundColor3 = ActiveTheme.TabBar,
-        BorderSizePixel = 0,
-        Size = UDim2.new(0, 60, 1, -35),
-        Position = UDim2.new(0, 0, 0, 35),
-        CanvasSize = UDim2.new(0, 0, 0, 0),
-        ScrollBarThickness = 3,
-        ScrollBarImageColor3 = ActiveTheme.ScrollBar,
-        VerticalScrollBarInset = Enum.ScrollBarInset.Always,
-    })
-
-    -- Área de conteúdo (direita)
-    ContentFrame = createInstance("Frame", {
-        Parent = WindowFrame,
-        BackgroundColor3 = ActiveTheme.Background,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, -60, 1, -35),
-        Position = UDim2.new(0, 60, 0, 35),
-    })
-
-    -- ScrollingFrame para o conteúdo das abas
-    local ContentScroller = createInstance("ScrollingFrame", {
-        Parent = ContentFrame,
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 1, 0),
-        CanvasSize = UDim2.new(0, 0, 0, 0),
-        ScrollBarThickness = 3,
-        ScrollBarImageColor3 = ActiveTheme.ScrollBar,
-        Name = "ContentScroller",
-    })
-    -- Layout automático para organizar os elementos
-    local UIListLayout = createInstance("UIListLayout", {
-        Parent = ContentScroller,
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 5),
-    })
-    UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        ContentScroller.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 10)
-    end)
-
-    -- Variáveis da janela
-    local Window = {}
-    Window.Tabs = {}
-
-    -- Função para criar uma aba
-    function Window:CreateTab(TabName, IconID)
-        local Tab = {}
-        Tab.Name = TabName
-        Tab.Icon = IconID or 0
-        Tab.Elements = {}
-        Tab.Container = createInstance("ScrollingFrame", {
-            Parent = ContentScroller,
-            BackgroundTransparency = 1,
-            BorderSizePixel = 0,
-            Size = UDim2.new(1, 0, 1, 0),
-            CanvasSize = UDim2.new(0, 0, 0, 0),
-            ScrollBarThickness = 0,
-            Visible = false,
-            Name = TabName,
-        })
-        local TabLayout = createInstance("UIListLayout", {
-            Parent = Tab.Container,
-            SortOrder = Enum.SortOrder.LayoutOrder,
-            Padding = UDim.new(0, 4),
-        })
-        TabLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            Tab.Container.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y + 10)
-        end)
-
-        -- Botão na barra lateral
-        local TabButton = createInstance("TextButton", {
-            Parent = TabButtonsFrame,
-            BackgroundColor3 = ActiveTheme.TabButton,
-            BorderSizePixel = 0,
-            Size = UDim2.new(1, -4, 0, 45),
-            Position = UDim2.new(0, 2, 0, (#Tabs * 48) + 2),
-            Text = "",
-        })
-        createInstance("UICorner", { Parent = TabButton, CornerRadius = UDim.new(0, 6) })
-        local TabIcon = createInstance("ImageLabel", {
-            Parent = TabButton,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 24, 0, 24),
-            Position = UDim2.new(0.5, -12, 0, 4),
-            Image = IconID ~= 0 and "rbxassetid://" .. tostring(IconID) or "",
-        })
-        local TabLabel = createInstance("TextLabel", {
-            Parent = TabButton,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 12),
-            Position = UDim2.new(0, 0, 1, -14),
-            Text = TabName,
-            TextColor3 = ActiveTheme.Text,
-            Font = Enum.Font.SourceSans,
-            TextSize = 10,
-            TextScaled = true,
-        })
-
-        TabButton.MouseButton1Click:Connect(function()
-            -- Selecionar esta aba
-            for _, t in pairs(Window.Tabs) do
-                t.Container.Visible = false
-                t.Button.BackgroundColor3 = ActiveTheme.TabButton
-            end
-            Tab.Container.Visible = true
-            TabButton.BackgroundColor3 = ActiveTheme.TabButtonSelected
-            CurrentTab = Tab
-        end)
-
-        Tab.Button = TabButton
-        Tab.ButtonIcon = TabIcon
-        Tab.ButtonLabel = TabLabel
-
-        -- Inserir a aba na lista
-        table.insert(Window.Tabs, Tab)
-        Tabs[TabName] = Tab
-
-        -- Ajustar o tamanho do canvas da barra lateral
-        TabButtonsFrame.CanvasSize = UDim2.new(0, 0, 0, #Window.Tabs * 48 + 10)
-
-        -- Se for a primeira aba, selecionar automaticamente
-        if #Window.Tabs == 1 then
-            TabButton.BackgroundColor3 = ActiveTheme.TabButtonSelected
-            Tab.Container.Visible = true
-            CurrentTab = Tab
-        end
-
-        -- Métodos para adicionar elementos
-        function Tab:CreateSection(Name)
-            local Section = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 30),
-                Position = UDim2.new(0, 5, 0, 0),
-                BorderSizePixel = 0,
-            })
-            local Line = createInstance("Frame", {
-                Parent = Section,
-                BackgroundColor3 = ActiveTheme.SectionLine,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 2),
-                Position = UDim2.new(0, 5, 0, 15),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = Section,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 14),
-                Position = UDim2.new(0, 5, 0, 0),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSansBold,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            return Section
-        end
-
-        function Tab:CreateButton(data)
-            local Name = data.Name or "Button"
-            local Callback = data.Callback or function() end
-            local Button = createInstance("TextButton", {
-                Parent = self.Container,
-                BackgroundColor3 = ActiveTheme.Button,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 35),
-                Position = UDim2.new(0, 5, 0, 0),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-            })
-            createInstance("UICorner", { Parent = Button, CornerRadius = UDim.new(0, 6) })
-            Button.MouseEnter:Connect(function() Button.BackgroundColor3 = ActiveTheme.ButtonHover end)
-            Button.MouseLeave:Connect(function() Button.BackgroundColor3 = ActiveTheme.Button end)
-            Button.MouseButton1Click:Connect(function()
-                Callback()
-            end)
-            return Button
-        end
-
-        function Tab:CreateToggle(data)
-            local Name = data.Name or "Toggle"
-            local CurrentValue = data.CurrentValue or false
-            local Flag = data.Flag or ""
-            local Callback = data.Callback or function() end
-            local ToggleFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 35),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = ToggleFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -50, 1, 0),
-                Position = UDim2.new(0, 5, 0, 0),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local ToggleButton = createInstance("TextButton", {
-                Parent = ToggleFrame,
-                BackgroundColor3 = CurrentValue and ActiveTheme.ToggleOn or ActiveTheme.ToggleOff,
-                BorderSizePixel = 0,
-                Size = UDim2.new(0, 40, 0, 20),
-                Position = UDim2.new(1, -45, 0.5, -10),
-                Text = "",
-            })
-            createInstance("UICorner", { Parent = ToggleButton, CornerRadius = UDim.new(0, 10) })
-            local ToggleKnob = createInstance("Frame", {
-                Parent = ToggleButton,
-                BackgroundColor3 = Color3.fromRGB(255,255,255),
-                BorderSizePixel = 0,
-                Size = UDim2.new(0, 16, 0, 16),
-                Position = CurrentValue and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
-            })
-            createInstance("UICorner", { Parent = ToggleKnob, CornerRadius = UDim.new(0, 8) })
-
-            local function updateToggle()
-                ToggleButton.BackgroundColor3 = CurrentValue and ActiveTheme.ToggleOn or ActiveTheme.ToggleOff
-                TweenService:Create(ToggleKnob, TweenInfo.new(0.2), {Position = CurrentValue and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)}):Play()
-                Callback(CurrentValue)
-            end
-
-            ToggleButton.MouseButton1Click:Connect(function()
-                CurrentValue = not CurrentValue
-                updateToggle()
-            end)
-            updateToggle()
-            return ToggleFrame
-        end
-
-        function Tab:CreateSlider(data)
-            local Name = data.Name or "Slider"
-            local Range = data.Range or {0, 100}
-            local Increment = data.Increment or 1
-            local Suffix = data.Suffix or ""
-            local CurrentValue = data.CurrentValue or Range[1]
-            local Flag = data.Flag or ""
-            local Callback = data.Callback or function() end
-
-            local SliderFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 50),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = SliderFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 18),
-                Text = Name .. " (" .. CurrentValue .. Suffix .. ")",
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local SliderBar = createInstance("Frame", {
-                Parent = SliderFrame,
-                BackgroundColor3 = ActiveTheme.SliderBackground,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 8),
-                Position = UDim2.new(0, 5, 0, 25),
-            })
-            createInstance("UICorner", { Parent = SliderBar, CornerRadius = UDim.new(0, 4) })
-            local SliderFill = createInstance("Frame", {
-                Parent = SliderBar,
-                BackgroundColor3 = ActiveTheme.SliderFill,
-                BorderSizePixel = 0,
-                Size = UDim2.new((CurrentValue - Range[1]) / (Range[2] - Range[1]), 0, 1, 0),
-            })
-            createInstance("UICorner", { Parent = SliderFill, CornerRadius = UDim.new(0, 4) })
-            local SliderButton = createInstance("TextButton", {
-                Parent = SliderBar,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 1, 0),
-                Text = "",
-            })
-            SliderButton.MouseButton1Down:Connect(function()
-                local connection
-                connection = RunService.RenderStepped:Connect(function()
-                    local mousePos = UserInputService:GetMouseLocation()
-                    local barPos = SliderBar.AbsolutePosition
-                    local barSize = SliderBar.AbsoluteSize
-                    local relativeX = math.clamp((mousePos.X - barPos.X) / barSize.X, 0, 1)
-                    local newValue = math.floor((Range[1] + (Range[2] - Range[1]) * relativeX) / Increment + 0.5) * Increment
-                    newValue = math.clamp(newValue, Range[1], Range[2])
-                    if newValue ~= CurrentValue then
-                        CurrentValue = newValue
-                        SliderFill.Size = UDim2.new((CurrentValue - Range[1]) / (Range[2] - Range[1]), 0, 1, 0)
-                        Label.Text = Name .. " (" .. CurrentValue .. Suffix .. ")"
-                        Callback(CurrentValue)
+        task.spawn(function()
+            while _G.AtaqueCidade do
+                local myBase = GetPlayerBase()
+                if myBase and myBase:FindFirstChild("Nukes") then
+                    local nukes = {}
+                    for _, nuke in ipairs(myBase.Nukes:GetChildren()) do
+                        if nuke.Name == "Nuke" and nuke.Parent then
+                            table.insert(nukes, nuke)
+                        end
                     end
-                end)
-                UserInputService.InputEnded:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        connection:Disconnect()
-                    end
-                end)
-            end)
-            return SliderFrame
-        end
+                    if #nukes > 0 then
+                        local chosenNuke = nukes[math.random(1, #nukes)]
+                        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local oldPos = root and root.CFrame
 
-        function Tab:CreateDropdown(data)
-            local Name = data.Name or "Dropdown"
-            local Options = data.Options or {}
-            local CurrentOption = data.CurrentOption or {}
-            local MultipleOptions = data.MultipleOptions or false
-            local Flag = data.Flag or ""
-            local Callback = data.Callback or function() end
+                        -- Teleporta até a nuke e pega
+                        TeleportTo(chosenNuke)
+                        task.wait(0.05)
+                        ReplicatedStorage.NukeRemotes.PickUp:FireServer(chosenNuke)
+                        task.wait(0.05)
 
-            local DropdownFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 30),
-                Position = UDim2.new(0, 5, 0, 0),
-                ClipsDescendants = true,
-            })
-            local MainButton = createInstance("TextButton", {
-                Parent = DropdownFrame,
-                BackgroundColor3 = ActiveTheme.DropdownBackground,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 0, 30),
-                Text = Name .. ": " .. table.concat(CurrentOption, ", "),
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextTruncate = Enum.TextTruncate.AtEnd,
-            })
-            createInstance("UICorner", { Parent = MainButton, CornerRadius = UDim.new(0, 6) })
-            local OptionContainer = createInstance("ScrollingFrame", {
-                Parent = DropdownFrame,
-                BackgroundColor3 = ActiveTheme.DropdownBackground,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 0, 100),
-                Position = UDim2.new(0, 0, 0, 30),
-                CanvasSize = UDim2.new(0, 0, 0, 0),
-                ScrollBarThickness = 2,
-                Visible = false,
-            })
-            local OptionLayout = createInstance("UIListLayout", {
-                Parent = OptionContainer,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                Padding = UDim.new(0, 2),
-            })
-            OptionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                OptionContainer.CanvasSize = UDim2.new(0, 0, 0, OptionLayout.AbsoluteContentSize.Y + 4)
-            end)
+                        -- Lança na coordenada fixa da cidade
+                        local args = { Vector3.new(417.1291809082031, 12.463900566101074, 136.78570556640625) }
+                        ReplicatedStorage.NukeRemotes.LaunchConfirm:FireServer(unpack(args))
 
-            local function updateDropdown()
-                local selected = {}
-                for _, optButton in ipairs(OptionContainer:GetChildren()) do
-                    if optButton:IsA("TextButton") and optButton.BackgroundColor3 == ActiveTheme.ButtonHover then
-                        table.insert(selected, optButton.Text)
-                    end
-                end
-                CurrentOption = selected
-                MainButton.Text = Name .. ": " .. table.concat(CurrentOption, ", ")
-                Callback(CurrentOption)
-            end
-
-            for _, optionName in ipairs(Options) do
-                local OptionBtn = createInstance("TextButton", {
-                    Parent = OptionContainer,
-                    BackgroundColor3 = table.find(CurrentOption, optionName) and ActiveTheme.ButtonHover or ActiveTheme.DropdownOption,
-                    BorderSizePixel = 0,
-                    Size = UDim2.new(1, -4, 0, 25),
-                    Position = UDim2.new(0, 2, 0, 0),
-                    Text = optionName,
-                    TextColor3 = ActiveTheme.Text,
-                    Font = Enum.Font.SourceSans,
-                    TextSize = 13,
-                })
-                createInstance("UICorner", { Parent = OptionBtn, CornerRadius = UDim.new(0, 4) })
-                OptionBtn.MouseButton1Click:Connect(function()
-                    if MultipleOptions then
-                        OptionBtn.BackgroundColor3 = OptionBtn.BackgroundColor3 == ActiveTheme.ButtonHover and ActiveTheme.DropdownOption or ActiveTheme.ButtonHover
+                        -- Volta para a posição original
+                        if root and oldPos then
+                            root.CFrame = oldPos
+                        end
                     else
-                        -- Desmarcar todos os outros
-                        for _, btn in ipairs(OptionContainer:GetChildren()) do
-                            if btn:IsA("TextButton") then
-                                btn.BackgroundColor3 = ActiveTheme.DropdownOption
-                            end
-                        end
-                        OptionBtn.BackgroundColor3 = ActiveTheme.ButtonHover
+                        Window:NotifyCustom("GUERRA", "Sem nukes na base!", 4483362458)
+                        task.wait(2)
                     end
-                    updateDropdown()
-                    if not MultipleOptions then
-                        OptionContainer.Visible = false
-                        DropdownFrame.Size = UDim2.new(1, -10, 0, 30)
-                    end
-                end)
+                end
+                task.wait(0.2)
             end
-
-            MainButton.MouseButton1Click:Connect(function()
-                OptionContainer.Visible = not OptionContainer.Visible
-                DropdownFrame.Size = OptionContainer.Visible and UDim2.new(1, -10, 0, 130) or UDim2.new(1, -10, 0, 30)
-            end)
-            -- Fechar dropdown se clicar fora
-            UserInputService.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    if not DropdownFrame:IsDescendantOf(WindowFrame) then return end
-                    local pos = UserInputService:GetMouseLocation()
-                    local absPos = DropdownFrame.AbsolutePosition
-                    local absSize = DropdownFrame.AbsoluteSize
-                    if pos.X < absPos.X or pos.X > absPos.X + absSize.X or pos.Y < absPos.Y or pos.Y > absPos.Y + absSize.Y then
-                        OptionContainer.Visible = false
-                        DropdownFrame.Size = UDim2.new(1, -10, 0, 30)
-                    end
-                end
-            end)
-            return DropdownFrame
-        end
-
-        function Tab:CreateInput(data)
-            local Name = data.Name or "Input"
-            local PlaceholderText = data.PlaceholderText or ""
-            local RemoveTextAfterFocusLost = data.RemoveTextAfterFocusLost or false
-            local Callback = data.Callback or function() end
-
-            local InputFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 50),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = InputFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 18),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local TextBox = createInstance("TextBox", {
-                Parent = InputFrame,
-                BackgroundColor3 = ActiveTheme.InputBackground,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 0, 28),
-                Position = UDim2.new(0, 0, 0, 22),
-                PlaceholderText = PlaceholderText,
-                PlaceholderColor3 = Color3.fromRGB(150, 150, 150),
-                Text = "",
-                TextColor3 = ActiveTheme.InputText,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                ClearTextOnFocus = false,
-            })
-            createInstance("UICorner", { Parent = TextBox, CornerRadius = UDim.new(0, 6) })
-            TextBox.FocusLost:Connect(function(enterPressed)
-                Callback(TextBox.Text)
-                if RemoveTextAfterFocusLost then
-                    TextBox.Text = ""
-                end
-            end)
-            return InputFrame
-        end
-
-        function Tab:CreateColorPicker(data)
-            local Name = data.Name or "Color Picker"
-            local Color = data.Color or Color3.fromRGB(255,0,0)
-            local Flag = data.Flag or ""
-            local Callback = data.Callback or function() end
-
-            local PickerFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 45),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = PickerFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -40, 1, 0),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local ColorButton = createInstance("TextButton", {
-                Parent = PickerFrame,
-                BackgroundColor3 = Color,
-                BorderSizePixel = 0,
-                Size = UDim2.new(0, 30, 0, 30),
-                Position = UDim2.new(1, -35, 0.5, -15),
-                Text = "",
-            })
-            createInstance("UICorner", { Parent = ColorButton, CornerRadius = UDim.new(0, 6) })
-
-            -- Abrir um seletor de cores simplificado (não nativo, mas funcional)
-            local ColorPickerOpen = false
-            ColorButton.MouseButton1Click:Connect(function()
-                if ColorPickerOpen then return end
-                ColorPickerOpen = true
-                local picker = createInstance("Frame", {
-                    Parent = ScreenGui,
-                    BackgroundColor3 = Color3.fromRGB(30,30,30),
-                    BorderSizePixel = 0,
-                    Size = UDim2.new(0, 200, 0, 200),
-                    Position = UDim2.new(0.5, -100, 0.5, -100),
-                })
-                createInstance("UICorner", { Parent = picker, CornerRadius = UDim.new(0, 10) })
-                -- Barras RGB
-                local function createSlider(parent, colorComp, label, posY)
-                    local frame = createInstance("Frame", {
-                        Parent = parent,
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(1, -20, 0, 40),
-                        Position = UDim2.new(0, 10, 0, posY),
-                    })
-                    local lbl = createInstance("TextLabel", {
-                        Parent = frame,
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(0, 30, 1, 0),
-                        Text = label .. ":",
-                        TextColor3 = Color3.fromRGB(255,255,255),
-                        Font = Enum.Font.SourceSans,
-                        TextSize = 14,
-                    })
-                    local bar = createInstance("Frame", {
-                        Parent = frame,
-                        BackgroundColor3 = Color3.fromRGB(50,50,50),
-                        BorderSizePixel = 0,
-                        Size = UDim2.new(1, -40, 0, 20),
-                        Position = UDim2.new(0, 40, 0.5, -10),
-                    })
-                    createInstance("UICorner", { Parent = bar, CornerRadius = UDim.new(0, 4) })
-                    local fill = createInstance("Frame", {
-                        Parent = bar,
-                        BackgroundColor3 = colorComp == "R" and Color3.fromRGB(255,0,0) or colorComp == "G" and Color3.fromRGB(0,255,0) or Color3.fromRGB(0,0,255),
-                        BorderSizePixel = 0,
-                        Size = UDim2.new(Color[colorComp]/255, 0, 1, 0),
-                    })
-                    createInstance("UICorner", { Parent = fill, CornerRadius = UDim.new(0, 4) })
-                    local btn = createInstance("TextButton", {
-                        Parent = bar,
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 1, 0),
-                        Text = "",
-                    })
-                    btn.MouseButton1Down:Connect(function()
-                        local con
-                        con = RunService.RenderStepped:Connect(function()
-                            local mousePos = UserInputService:GetMouseLocation()
-                            local barPos = bar.AbsolutePosition
-                            local barSize = bar.AbsoluteSize
-                            local relX = math.clamp((mousePos.X - barPos.X) / barSize.X, 0, 1)
-                            local newVal = math.floor(relX * 255)
-                            Color = Color3.new(colorComp == "R" and newVal/255 or Color.R, colorComp == "G" and newVal/255 or Color.G, colorComp == "B" and newVal/255 or Color.B)
-                            fill.Size = UDim2.new(relX, 0, 1, 0)
-                            ColorButton.BackgroundColor3 = Color
-                            Callback(Color)
-                        end)
-                        UserInputService.InputEnded:Connect(function(input)
-                            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                con:Disconnect()
-                            end
-                        end)
-                    end)
-                end
-                createSlider(picker, "R", "R", 10)
-                createSlider(picker, "G", "G", 55)
-                createSlider(picker, "B", "B", 100)
-                local closeBtn = createInstance("TextButton", {
-                    Parent = picker,
-                    BackgroundColor3 = Color3.fromRGB(150,50,50),
-                    BorderSizePixel = 0,
-                    Size = UDim2.new(1, -20, 0, 30),
-                    Position = UDim2.new(0, 10, 0, 160),
-                    Text = "Fechar",
-                    TextColor3 = Color3.fromRGB(255,255,255),
-                    Font = Enum.Font.SourceSansBold,
-                    TextSize = 14,
-                })
-                createInstance("UICorner", { Parent = closeBtn, CornerRadius = UDim.new(0, 6) })
-                closeBtn.MouseButton1Click:Connect(function()
-                    picker:Destroy()
-                    ColorPickerOpen = false
-                end)
-            end)
-            return PickerFrame
-        end
-
-        function Tab:CreateKeybind(data)
-            local Name = data.Name or "Keybind"
-            local CurrentKeybind = data.CurrentKeybind or "E"
-            local HoldToInteract = data.HoldToInteract or false
-            local Flag = data.Flag or ""
-            local Callback = data.Callback or function() end
-
-            local KeybindFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 35),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            local Label = createInstance("TextLabel", {
-                Parent = KeybindFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -80, 1, 0),
-                Text = Name,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local KeyButton = createInstance("TextButton", {
-                Parent = KeybindFrame,
-                BackgroundColor3 = ActiveTheme.Button,
-                BorderSizePixel = 0,
-                Size = UDim2.new(0, 70, 0, 28),
-                Position = UDim2.new(1, -75, 0.5, -14),
-                Text = CurrentKeybind,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSansBold,
-                TextSize = 14,
-            })
-            createInstance("UICorner", { Parent = KeyButton, CornerRadius = UDim.new(0, 6) })
-            local listening = false
-            KeyButton.MouseButton1Click:Connect(function()
-                listening = true
-                KeyButton.Text = "..."
-                local connection
-                connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-                    if listening and not gameProcessed then
-                        if input.UserInputType == Enum.UserInputType.Keyboard then
-                            CurrentKeybind = input.KeyCode.Name
-                        elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
-                            CurrentKeybind = "MB1"
-                        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-                            CurrentKeybind = "MB2"
-                        end
-                        KeyButton.Text = CurrentKeybind
-                        listening = false
-                        connection:Disconnect()
-                        Callback(CurrentKeybind)
-                    end
-                end)
-            end)
-            return KeybindFrame
-        end
-
-        function Tab:CreateParagraph(data)
-            local Title = data.Title or "Paragraph"
-            local Content = data.Content or ""
-            local ParaFrame = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundColor3 = ActiveTheme.Button,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 60),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            createInstance("UICorner", { Parent = ParaFrame, CornerRadius = UDim.new(0, 6) })
-            local TitleLabel = createInstance("TextLabel", {
-                Parent = ParaFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 20),
-                Position = UDim2.new(0, 5, 0, 5),
-                Text = Title,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSansBold,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            local ContentLabel = createInstance("TextLabel", {
-                Parent = ParaFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 30),
-                Position = UDim2.new(0, 5, 0, 25),
-                Text = Content,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 12,
-                TextWrapped = true,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            return ParaFrame
-        end
-
-        function Tab:CreateLabel(Text)
-            local Label = createInstance("TextLabel", {
-                Parent = self.Container,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 20),
-                Position = UDim2.new(0, 5, 0, 0),
-                Text = Text,
-                TextColor3 = ActiveTheme.Text,
-                Font = Enum.Font.SourceSans,
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-            return Label
-        end
-
-        function Tab:CreateDivider()
-            local Divider = createInstance("Frame", {
-                Parent = self.Container,
-                BackgroundColor3 = ActiveTheme.SectionLine,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 1),
-                Position = UDim2.new(0, 5, 0, 0),
-            })
-            return Divider
-        end
-
-        return Tab
+        end)
     end
+})
 
-    -- Adicionar métodos à janela
-    function Window:SetTheme(themeName)
-        if Themes[themeName] then
-            ActiveTheme = Themes[themeName]
-            -- Atualizar cores de toda a interface (simplificado)
-            WindowFrame.BackgroundColor3 = ActiveTheme.Background
-            TabButtonsFrame.BackgroundColor3 = ActiveTheme.TabBar
-            -- etc. Em uma implementação completa, atualizaria todos os elementos filhos.
+-- 2. Label e dropdown de seleção de jogador
+Window:CreateLabel("GUERRA", "Selecionar jogadores")
+
+local function getPlayerList()
+    local list = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(list, player.Name)
         end
     end
-
-    return Window
+    return list
 end
 
-return Library
+_G.SelectedPlayer = nil
+local dropdownGuerra
+
+dropdownGuerra = Window:CreateDropdown("GUERRA", {
+    Text = "Jogadores",
+    Options = getPlayerList(),
+    Description = "Escolha o alvo do ataque",
+    Callback = function(selected)
+        _G.SelectedPlayer = selected
+    end
+})
+
+-- Botão para atualizar lista (abaixo do dropdown)
+Window:CreateButton("GUERRA", "Atualizar Lista", function()
+    local newList = getPlayerList()
+    if dropdownGuerra then
+        pcall(function() dropdownGuerra:Destroy() end)
+        pcall(function() dropdownGuerra:Remove() end)
+    end
+    dropdownGuerra = Window:CreateDropdown("GUERRA", {
+        Text = "Jogadores",
+        Options = newList,
+        Description = "Escolha o alvo do ataque",
+        Callback = function(selected)
+            _G.SelectedPlayer = selected
+        end
+    })
+    Window:NotifyCustom("GUERRA", "Lista de jogadores atualizada!", 4483362458)
+end)
+
+-- 3. Toggle "Lançar Nuke Contínuo" (ataque ao jogador selecionado)
+Window:CreateToggle("GUERRA", {
+    Text = "Lançar Nuke Contínuo",
+    Description = "Ataca o jogador selecionado sem parar.",
+    Default = false,
+    Callback = function(isOn)
+        _G.LancarContinuo = isOn
+        if not isOn then return end
+
+        task.spawn(function()
+            while _G.LancarContinuo do
+                local targetPlayer = _G.SelectedPlayer and Players:FindFirstChild(_G.SelectedPlayer)
+                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+
+                    local myBase = GetPlayerBase()
+                    if myBase and myBase:FindFirstChild("Nukes") then
+                        local nukes = {}
+                        for _, nuke in ipairs(myBase.Nukes:GetChildren()) do
+                            if nuke.Name == "Nuke" and nuke.Parent then
+                                table.insert(nukes, nuke)
+                            end
+                        end
+                        if #nukes > 0 then
+                            local chosenNuke = nukes[math.random(1, #nukes)]
+                            local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            local oldPos = root and root.CFrame
+
+                            TeleportTo(chosenNuke)
+                            task.wait(0.05)
+                            ReplicatedStorage.NukeRemotes.PickUp:FireServer(chosenNuke)
+                            task.wait(0.05)
+                            local args = { Vector3.new(targetPos.X, targetPos.Y, targetPos.Z) }
+                            ReplicatedStorage.NukeRemotes.LaunchConfirm:FireServer(unpack(args))
+
+                            if root and oldPos then
+                                root.CFrame = oldPos
+                            end
+                        else
+                            Window:NotifyCustom("GUERRA", "Sem nukes na sua base!", 4483362458)
+                            task.wait(2)
+                        end
+                    end
+                else
+                    Window:NotifyCustom("GUERRA", "Alvo não está mais no servidor!", 4483362458)
+                    task.wait(2)
+                end
+                task.wait(0.2)
+            end
+        end)
+    end
+})
+
+-- 4. Toggle "Ataque Aleatório" (jogador aleatório)
+Window:CreateToggle("GUERRA", {
+    Text = "Ataque Aleatório",
+    Description = "Ataca um jogador aleatório continuamente.",
+    Default = false,
+    Callback = function(isOn)
+        _G.AtaqueAleatorio = isOn
+        if not isOn then return end
+
+        task.spawn(function()
+            while _G.AtaqueAleatorio do
+                local players = Players:GetPlayers()
+                local valid = {}
+                for _, p in ipairs(players) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        table.insert(valid, p)
+                    end
+                end
+                if #valid > 0 then
+                    local target = valid[math.random(1, #valid)]
+                    local targetPos = target.Character.HumanoidRootPart.Position
+
+                    local myBase = GetPlayerBase()
+                    if myBase and myBase:FindFirstChild("Nukes") then
+                        local nukes = {}
+                        for _, nuke in ipairs(myBase.Nukes:GetChildren()) do
+                            if nuke.Name == "Nuke" and nuke.Parent then
+                                table.insert(nukes, nuke)
+                            end
+                        end
+                        if #nukes > 0 then
+                            local chosenNuke = nukes[math.random(1, #nukes)]
+                            local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            local oldPos = root and root.CFrame
+
+                            TeleportTo(chosenNuke)
+                            task.wait(0.05)
+                            ReplicatedStorage.NukeRemotes.PickUp:FireServer(chosenNuke)
+                            task.wait(0.05)
+                            local args = { Vector3.new(targetPos.X, targetPos.Y, targetPos.Z) }
+                            ReplicatedStorage.NukeRemotes.LaunchConfirm:FireServer(unpack(args))
+
+                            if root and oldPos then
+                                root.CFrame = oldPos
+                            end
+                        else
+                            Window:NotifyCustom("GUERRA", "Sem nukes na sua base!", 4483362458)
+                            task.wait(2)
+                        end
+                    end
+                end
+                task.wait(0.5) -- intervalo um pouco maior para não sobrecarregar
+            end
+        end)
+    end
+})
+
+-- Linha decorativa (opcional)
+Window:CreateLine("GUERRA", Color3.fromRGB(255, 0, 0))
+
+-- ==================== ABA CONFIGURAÇÃO ====================
+Window:CreateTab("CONFIGURAÇÃO", 4483362458)
+Window:CreateLabel("CONFIGURAÇÃO", "Selecionar Temas🎨")
+-- ThemeBoxes
+Window:CreateThemeBoxes("CONFIGURAÇÃO")
+
+-- Toggles de utilidades
+Window:CreateToggle("CONFIGURAÇÃO", {
+    Text = "Anti-AFK",
+    Description = "Evita ser desconectado por inatividade.",
+    Default = false,
+    Callback = function(isOn)
+        if isOn then
+            local VirtualUser = game:GetService("VirtualUser")
+            LocalPlayer.Idled:Connect(function()
+                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+        end
+    end
+})
+
+Window:CreateToggle("CONFIGURAÇÃO", {
+    Text = "Modo Leve (FPS Boost)",
+    Description = "Reduz gráficos para ganhar desempenho.",
+    Default = false,
+    Callback = function(isOn)
+        if isOn then
+            Lighting.GlobalShadows = false
+            Lighting.FogEnd = 9e9
+            for _, v in ipairs(Lighting:GetChildren()) do
+                if v:IsA("PostEffect") or v:IsA("Bloom") or v:IsA("SunRays") or v:IsA("ColorCorrection") then
+                    v.Enabled = false
+                end
+            end
+            for _, v in ipairs(Workspace:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
+                    v.Enabled = false
+                end
+            end
+            workspace.Terrain.TextureGrid = Enum.TerrainTextureGrid.NoTexture
+        else
+            Lighting.GlobalShadows = true
+            Lighting.FogEnd = 500
+            for _, v in ipairs(Lighting:GetChildren()) do
+                if v:IsA("PostEffect") or v:IsA("Bloom") or v:IsA("SunRays") or v:IsA("ColorCorrection") then
+                    v.Enabled = true
+                end
+            end
+            for _, v in ipairs(Workspace:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
+                    v.Enabled = true
+                end
+            end
+            workspace.Terrain.TextureGrid = Enum.TerrainTextureGrid.Default
+        end
+    end
+})
+
+Window:CreateToggle("CONFIGURAÇÃO", {
+    Text = "Mostrar FPS",
+    Description = "Exibe o FPS no canto superior direito.",
+    Default = false,
+    Callback = function(isOn)
+        if isOn then
+            local fpsGui = Instance.new("ScreenGui")
+            fpsGui.Name = "RANOX_FPS"
+            fpsGui.Parent = LocalPlayer.PlayerGui
+            local fpsLabel = Instance.new("TextLabel")
+            fpsLabel.AnchorPoint = Vector2.new(1, 0)
+            fpsLabel.Position = UDim2.new(1, -10, 0, 10)
+            fpsLabel.Size = UDim2.new(0, 100, 0, 20)
+            fpsLabel.BackgroundTransparency = 1
+            fpsLabel.TextColor3 = Color3.new(1, 1, 1)
+            fpsLabel.TextStrokeTransparency = 0
+            fpsLabel.Text = "FPS: ..."
+            fpsLabel.Parent = fpsGui
+            local lastUpdate = 0
+            local frameCount = 0
+            RunService.RenderStepped:Connect(function()
+                frameCount = frameCount + 1
+                if tick() - lastUpdate >= 0.5 then
+                    local fps = math.round(frameCount / (tick() - lastUpdate))
+                    fpsLabel.Text = "FPS: " .. fps
+                    lastUpdate = tick()
+                    frameCount = 0
+                end
+            end)
+            _G.FpsGui = fpsGui
+        else
+            if _G.FpsGui then _G.FpsGui:Destroy() end
+        end
+    end
+})
+
+Window:CreateToggle("CONFIGURAÇÃO", {
+    Text = "Mostrar Ping",
+    Description = "Exibe o ping no canto superior direito.",
+    Default = false,
+    Callback = function(isOn)
+        if isOn then
+            local pingGui = Instance.new("ScreenGui")
+            pingGui.Name = "RANOX_PING"
+            pingGui.Parent = LocalPlayer.PlayerGui
+            local pingLabel = Instance.new("TextLabel")
+            pingLabel.AnchorPoint = Vector2.new(1, 0)
+            pingLabel.Position = UDim2.new(1, -10, 0, 35)
+            pingLabel.Size = UDim2.new(0, 100, 0, 20)
+            pingLabel.BackgroundTransparency = 1
+            pingLabel.TextColor3 = Color3.new(1, 1, 1)
+            pingLabel.TextStrokeTransparency = 0
+            pingLabel.Text = "Ping: ..."
+            pingLabel.Parent = pingGui
+            task.spawn(function()
+                while pingGui.Parent do
+                    local ping = Stats:FindFirstChild("PerformanceStats") and Stats.PerformanceStats:FindFirstChild("Ping")
+                    if ping then
+                        pingLabel.Text = "Ping: " .. ping:GetValue() .. " ms"
+                    end
+                    task.wait(1)
+                end
+            end)
+            _G.PingGui = pingGui
+        else
+            if _G.PingGui then _G.PingGui:Destroy() end
+        end
+    end
+})
+
+Window:CreateToggle("CONFIGURAÇÃO", {
+    Text = "Limpar Terreno",
+    Description = "Remove grama, pedras e arbustos para melhor visão.",
+    Default = false,
+    Callback = function(isOn)
+        if isOn then
+            for _, v in ipairs(Workspace:GetDescendants()) do
+                if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+                    local name = v.Name:lower()
+                    if name:find("grass") or name:find("rock") or name:find("tree") or name:find("bush") then
+                        v:Destroy()
+                    end
+                end
+            end
+            Window:NotifyCustom("CONFIGURAÇÃO", "Terreno limpo!", 4483362458)
+        end
+    end
+})
+
+-- ==================== ABA CRÉDITOS ====================
+Window:CreateTab("CRÉDITOS", 4483362458)
+
+-- PromoBox do canal
+Window:CreatePromoBox("CRÉDITOS", "MEU CANAL", "RANOX OFC", 4483362458, "https://youtube.com/@rnox_ofc123?si=kH0iASKY-noURP8U", "Se inscreva!")
+
+-- InfoBox com descrição
+local infoItems = {
+    "Com este script você pode selecionar qualquer jogador do servidor e lançar nukes contínuas na posição dele.",
+    "Também é possível atacar a cidade com coordenadas fixas ou atacar um jogador aleatório automaticamente.",
+    "As opções são independentes: você pode ativar Ataque à Cidade, Lançar Nuke Contínuo e Ataque Aleatório ao mesmo tempo.",
+    "O sistema pega uma nuke da sua base, te teleporta até ela, faz o pickup e dispara no alvo, retornando à posição original.",
+    "Ideal para dominar servidores de forma rápida e automática!",
+    "Não se esqueça de atualizar a lista de jogadores quando novos entrarem."
+}
+Window:CreateInfoBox("CRÉDITOS", "O QUE O SCRIPT FAZ", infoItems)
