@@ -51,7 +51,8 @@ local Window = RANOX:CreateWindow({
 })
 
 -- ==================== ABA GUERRA ====================
-Window:CreateTab("GUERRA", 4483362458)
+Window:CreateTab("GUERRA", 4483362458) Window:CreateLabel("GUERRA", "WAR")
+
 
 -- 1. Toggle "Ataque a Cidade" (PRIMEIRO ELEMENTO)
 Window:CreateToggle("GUERRA", {
